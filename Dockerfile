@@ -80,15 +80,18 @@ USER node
 EXPOSE 50051
 EXPOSE 8080
 
-
 CMD ["node", "dist/app.js"]
 
 HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
   CMD nc -z localhost 50051 || exit 1
 
-
+### ---------- PREDEPLOY ----------
+#FROM build AS predeploy
+#WORKDIR /usr/src/app/services/streaming
+#CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
 
 ## ---------- PREDEPLOY ----------
 FROM build AS predeploy
 WORKDIR /usr/src/app/services/streaming
-CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]
+
+CMD ["sh", "-c", "echo DATABASE_URL=$DATABASE_URL && echo DATABASE_DIRECT_URL=$DATABASE_DIRECT_URL"]

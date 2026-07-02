@@ -90,4 +90,5 @@ HEALTHCHECK --interval=10s --timeout=3s --start-period=5s --retries=3 \
 
 ## ---------- PREDEPLOY ----------
 FROM build AS predeploy
+WORKDIR /usr/src/app/services/streaming
 CMD ["npx", "prisma", "migrate", "deploy", "--schema=prisma/schema.prisma"]

@@ -1,4 +1,4 @@
-name: Build & Deploy Auth Service
+name: Build & Deploy Node Service
 
 on:
   push:

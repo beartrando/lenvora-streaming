@@ -54,7 +54,7 @@ export async function battleHandlerStart(ws: WebSocket, profileId: string, paylo
   if (payload.battleId) {
     battle = await battleService.joinBattle(payload.battleId, profileId);
   } else {
-    logger.log('battle - here')
+    // logger.log('battle - here')
     battle = await battleService.upsertBattle(profileId);
   }
 

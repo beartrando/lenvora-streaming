@@ -31,7 +31,7 @@ export const readyz = (): Promise<healthGrpc.ReadyStatus | null> => {
   return orchestrationManager.call((client, cb) => client.readyz(grpcRequest, cb));
 };
 
-export const getMyProfile = (userId: string): Promise<profileGrpc.ProfileObject | null> => {
-  const grpcRequest: authGrpc.UserIdRequest = {userId};
-  return orchestrationManager.call((client, cb) => client.getMyProfile(grpcRequest, cb));
-};
+// export const getMyProfile = (userId: string): Promise<profileGrpc.ProfileObject | null> => {
+//   const grpcRequest: authGrpc.UserIdRequest = {userId};
+//   return orchestrationManager.call((client, cb) => client.getMyProfile(grpcRequest, cb));
+// };

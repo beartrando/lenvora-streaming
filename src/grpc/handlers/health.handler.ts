@@ -5,12 +5,12 @@ import * as heathService from '../../services/health.service';
 import {callbackError} from './callback.error';
 import logger from "@shared/logger";
 
-export const health = async (
+export const check = async (
   call: grpc.ServerUnaryCall<emptyGrpc.Empty, healthGrpc.HealthReport>,
   callback: grpc.sendUnaryData<healthGrpc.HealthReport>
 ) => {
   try {
-    const response = await heathService.health();
+    const response = await heathService.check();
 
     callback(null, response);
 

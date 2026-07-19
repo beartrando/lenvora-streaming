@@ -11,7 +11,7 @@ const authManager = new GrpcClientManager<authGrpc.AuthClient>(() => {
 
 export const health = (): Promise<healthGrpc.HealthReport | null> => {
   const grpcRequest: emptyGrpc.Empty = {};
-  return authManager.call((client, cb) => client.health(grpcRequest, cb));
+  return authManager.call((client, cb) => client.check(grpcRequest, cb));
 };
 
 export const status = (): Promise<healthGrpc.StatusInfo | null> => {

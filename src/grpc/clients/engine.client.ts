@@ -11,7 +11,7 @@ const engineManager = new GrpcClientManager<engineGrpc.EngineClient>(() => {
 
 export const health = (): Promise<healthGrpc.HealthReport | null> => {
   const grpcRequest: emptyGrpc.Empty = {};
-  return engineManager.call((client, cb) => client.health(grpcRequest, cb));
+  return engineManager.call((client, cb) => client.check(grpcRequest, cb));
 };
 
 export const status = (): Promise<healthGrpc.StatusInfo | null> => {

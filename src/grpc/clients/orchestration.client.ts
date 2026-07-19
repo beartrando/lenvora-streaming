@@ -13,7 +13,7 @@ const orchestrationManager = new GrpcClientManager<orchestrationGrpc.Orchestrati
 
 export const health = (): Promise<healthGrpc.HealthReport | null> => {
   const grpcRequest: emptyGrpc.Empty = {};
-  return orchestrationManager.call((client, cb) => client.health(grpcRequest, cb));
+  return orchestrationManager.call((client, cb) => client.check(grpcRequest, cb));
 };
 
 export const status = (): Promise<healthGrpc.StatusInfo | null> => {

@@ -5,7 +5,7 @@ import {createProducer} from "@shared/kafka-manager";
 
 const startedAt = Date.now();
 
-export const health = async () => {
+export const check = async () => {
   const [kafkaOk] = await Promise.all([
     checkKafka(),
   ]);

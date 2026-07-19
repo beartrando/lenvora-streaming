@@ -19,7 +19,7 @@ export const resetPassword = async (token: string, newPassword: string) =>
   await authClient.resetPassword(token, newPassword);
 
 export const health = async () =>
-  await authClient.health();
+  await authClient.check();
 
 export const status = async () =>
   await authClient.status();

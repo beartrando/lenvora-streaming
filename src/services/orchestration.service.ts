@@ -3,7 +3,7 @@
 // import getUserIdFromMetadata from "../lib/getUserIdFromMetadata";
 //
 // export const health = async () =>
-//   await OrchestrationClient.health();
+//   await OrchestrationClient.check();
 //
 // export const status = async () =>
 //   await OrchestrationClient.status();

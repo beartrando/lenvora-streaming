@@ -91,7 +91,7 @@ class EngineStream {
             if (this.stream) {
                 // logger.log('ping engine stream');
                 this.stream.write({
-                    ping: {timestamp: Date.now()}
+                    ping: {timestamp: new Date()}
                 });
             }
         }, this.heartbeatPeriod); // каждые 5 секунд
@@ -108,3 +108,4 @@ class EngineStream {
 const engineStream = new EngineStream();
 
 export default engineStream;
+

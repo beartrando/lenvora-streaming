@@ -40,6 +40,8 @@ RUN pnpm --filter streaming prisma:generate
 # ---------- DEV ----------
 FROM deps AS dev
 
+COPY services/streaming/tsconfig.test.json ./services/streaming/
+
 ENV NODE_ENV=development
 
 RUN chown -R node:node /usr/src/app

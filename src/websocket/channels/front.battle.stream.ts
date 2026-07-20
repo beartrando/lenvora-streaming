@@ -4,6 +4,7 @@ import logger from "@shared/logger";
 import engineStream from "../../grpc/channels/engine.stream";
 import * as engineGrpc from "../../grpc/generated/engine";
 import * as battleGrpc from "../../grpc/generated/battle";
+import config from "../../config/config";
 
 class FrontBattleStreamRegistry {
     private sockets = new Set<WebSocket>();
@@ -17,7 +18,7 @@ class FrontBattleStreamRegistry {
         NodeJS.Timeout
     >();
 
-    private heartbeatTimeoutMs = 3600000;///@TODO wtf
+    private heartbeatTimeoutMs = config.heartbeatTimeout*1000;
 
     getBattleIdsByStream = (ws: WebSocket): Set<string> => {
         return this.socketBattles.get(ws) ?? new Set<string>();

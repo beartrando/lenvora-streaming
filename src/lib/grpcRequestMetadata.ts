@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import config from '../config/config';
 import * as grpc from '@grpc/grpc-js';
+import logger from "@shared/logger";
 
 const jwtSecret = config.jwtAccessSecret;
 
@@ -17,13 +18,12 @@ export const getUserIdFromJwt = (token: string): string => {
 export const getJwtFromGrpcRequest = (
     call: grpc.ServerUnaryCall<any, any>
 ): string => {
-
-    // logger.log('grpcRequestMetadata');
-
     const authHeader = call.metadata.get('authorization')[0] as string;
-    // logger.log(call.metadata.get('authorization'));
+    logger.log(authHeader);
     if (!authHeader?.startsWith('Bearer ')) {
-        throw new Error('Missing or invalid Authorization header');
+        // throw new Error('Missing or invalid Authorization header');
+        logger.error('Missing or invalid Authorization header');
+        return '';
     }
 
     return authHeader.slice(7);
@@ -33,12 +33,16 @@ export const getUserIdFromGrpcRequest = (
     call: grpc.ServerUnaryCall<any, any>
 ): string => {
 
-    return getUserIdFromJwt(getJwtFromGrpcRequest(call))
+    try {
+        return getUserIdFromJwt(getJwtFromGrpcRequest(call))
+    } catch (e) {
+        logger.error('User id cannot be obtained');
+        return '';
+    }
 };
 
 export function createMetadataWithJwt(jwt: string): grpc.Metadata {
     const metadata = new grpc.Metadata();
-    // logger.log(authHeader);
-    metadata.add('authorization', jwt);
+    metadata.add('authorization', 'Bearer ' + jwt);
     return metadata;
 }

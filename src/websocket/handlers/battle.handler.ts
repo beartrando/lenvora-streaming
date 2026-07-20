@@ -12,7 +12,6 @@ import pgBossManager from "@shared/pg-boss-manager";
 
 import {kafkaProducersConfig} from "../../config/kafka.config";
 import * as emptyGrpc from "../../grpc/generated/common/empty";
-import {getJwtFromWs} from "../../lib/wsRequestMetadata";
 
 
 export async function isAllowedUser(userId: string, profileId: string, jwt: string) {
@@ -28,31 +27,30 @@ export async function isAllowedUser(userId: string, profileId: string, jwt: stri
     }
 }
 
-export async function battleHandler(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleStreamRequest) {
+export async function battleHandler(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleStreamRequest, jwt: string) {
 
     switch (true) {
         case !!payload.start:
-            return battleHandlerStart(ws, profileId, payload.start);
+            return battleHandlerStart(ws, profileId, payload.start, jwt);
         case !!payload.move:
-            return battleHandlerMove(ws, profileId, payload.move);
+            return battleHandlerMove(ws, profileId, payload.move, jwt);
         case !!payload.ping:
             return battleHandlerPing(ws);
         case !!payload.connectAi:
-            return battleHandlerConnectAi(ws, profileId, payload.connectAi);
+            return battleHandlerConnectAi(ws, profileId, payload.connectAi, jwt);
         case !!payload.leave:
-            return battleHandlerLeave(ws, profileId, payload.leave);
+            return battleHandlerLeave(ws, profileId, payload.leave, jwt);
         case !!payload.end:
-            return battleHandlerEnd(ws, profileId);
+            return battleHandlerEnd(ws, profileId, jwt);
     }
 
     logger.warn(`⚠️ Unknown payload type:`, payload);
 }
 
-export async function battleHandlerStart(ws: WebSocket, profileId: string, payload: streamingGrpc.StartBattleRequest) {
+export async function battleHandlerStart(ws: WebSocket, profileId: string, payload: streamingGrpc.StartBattleRequest, jwt: string) {
     // logger.log("Battle join event");
 
     let battle: battleGrpc.BattleObject | null;
-    const jwt = getJwtFromWs(ws);
 
     if (payload.battleId) {
         battle = await battleService.join(payload.battleId, profileId, jwt);
@@ -91,7 +89,7 @@ export async function battleHandlerStart(ws: WebSocket, profileId: string, paylo
     }
 }
 
-export async function battleHandlerMove(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleMoveRequest) {
+export async function battleHandlerMove(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleMoveRequest, jwt: string) {
     // logger.log("Battle move event");
 
     const battleId = payload.battleId;
@@ -117,7 +115,7 @@ export async function battleHandlerPing(ws: WebSocket) {
 }
 
 
-export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, payload: streamingGrpc.AiJoinToBattleRequest) {
+export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, payload: streamingGrpc.AiJoinToBattleRequest, jwt: string) {
     const battleId = payload.battleId;
 
     const battleIds = frontBattleStreamRegistry.getBattleIdsByStream(ws);
@@ -132,7 +130,7 @@ export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, p
     await pgBossManager.enqueueEvent(kafkaProducersConfig.topicAiConnectingRequest, battleIdRequest);
 }
 
-export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.LeaveBattleRequest) {
+export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.LeaveBattleRequest, jwt: string) {
     const battleId = payload.battleId;
     const grpcRequest = engineGrpc.BattleStreamRequest.create({
         leave: battleGrpc.BattleLeaveRequest.create({battleId, profileId}),
@@ -141,6 +139,7 @@ export async function battleHandlerLeave(ws: WebSocket, profileId: string, paylo
     engineStream.write(grpcRequest);
 }
 
-export async function battleHandlerEnd(ws: WebSocket, profileId: string) {
+export async function battleHandlerEnd(ws: WebSocket, profileId: string, jwt: string) {
+    // return battleHandlerLeave(ws, profileId, payload, jwt) {
 }
 

@@ -5,7 +5,6 @@ import config from "../config/config";
 import logger from "@shared/logger";
 import frontBattleStreamRegistry from "./channels/front.battle.stream";
 import {getUserIdFromJwt} from "../lib/grpcRequestMetadata";
-import {getJwtFromWs} from "../lib/wsRequestMetadata";
 
 
 export const wss = new WebSocketServer({port: config.webSocketPort});
@@ -39,7 +38,7 @@ export function initWss() {
         // logger.log(userId);
         // logger.log(profileId);
         try {
-            await isAllowedUser(userId, profileId, getJwtFromWs(ws));
+            await isAllowedUser(userId, profileId, token);
         } catch (e) {
             ws.close();
             logger.log('userId', userId);
@@ -66,7 +65,7 @@ export function initWss() {
 
                 try {
                     if (url.pathname.startsWith('/battle')) {
-                        battleHandler(ws, profileId, request);
+                        battleHandler(ws, profileId, request, token);
                     } else {
                         logger.warn(`⚠️ Unknown path: ${url.pathname}`);
                     }

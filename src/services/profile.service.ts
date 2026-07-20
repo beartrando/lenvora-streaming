@@ -1,17 +1,11 @@
 import * as profileClient from "../grpc/clients/profile.client";
 import * as profileGrpc from "../grpc/generated/profile";
+import * as authGrpc from "../grpc/generated/auth";
+import {createMetadataWithJwt} from "../lib/grpcRequestMetadata";
 
-// export const health = async () =>
-//   await profileClient.check();
-//
-// export const status = async () =>
-//   await profileClient.status();
-//
-// export const livez = async () =>
-//   await profileClient.livez();
-//
-// export const readyz = async () =>
-//   await profileClient.readyz();
+export const getByUser = async (userId: string, jwt: string): Promise<profileGrpc.ProfileObject | null> => {
+    const grpcRequest: authGrpc.UserIdRequest = {userId};
+    const metadata = createMetadataWithJwt(jwt);
 
-export const getProfileByUser = async (userId: string): Promise<profileGrpc.ProfileObject | null> =>
-  await profileClient.getProfileByUser(userId);
+    return await profileClient.getByUser(grpcRequest, metadata);
+}

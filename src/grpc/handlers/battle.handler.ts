@@ -1,7 +1,7 @@
 // import * as grpc from '@grpc/grpc-js';
 // import * as battleGrpc from '../generated/battle';
 // import * as streamingGrpc from '../generated/streaming';
-// import getUserIdFromMetadata from "../../lib/getUserIdFromMetadata";
+// import grpcRequestMetadata from "../../lib/grpcRequestMetadata";
 // import * as engineService from "../../services/engine.service";
 // import * as battleService from "../../services/battle.service";
 // import logger from "@shared/logger";
@@ -13,7 +13,7 @@
 //   call.on('data', async (event: streamingGrpc.BattleStreamRequest) => {
 //
 //
-//     const userId = getUserIdFromMetadata(call);
+//     const userId = grpcRequestMetadata(call);
 //
 //     if (event.join) {
 //       logger.log("Battle join event");

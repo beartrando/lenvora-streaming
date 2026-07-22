@@ -30,6 +30,7 @@ async function startGrpc(): Promise<void> {
                             { err },
                             '❌ Failed to start gRPC',
                         );
+
                         return reject(err);
                     }
                     logger.info(
@@ -42,25 +43,12 @@ async function startGrpc(): Promise<void> {
     );
 }
 
-async function startWebSocket() {
-    return new Promise<void>(async () => {
-        initWss();
-    });
-}
 
-async function startGRpcStreamToEngineService() {
-    return new Promise<void>(() => {
-        engineStream.connect();
-    });
-}
 
 async function startPgBoss(): Promise<void> {
-
     void pgBossManager.start(
         pgBossConfig,
     );
-
-
     await initKafkaBridge();
 }
 
@@ -68,6 +56,7 @@ async function initKafkaBridge(): Promise<void> {
     const topics = Object.values(
         kafkaProducersConfig,
     );
+
     while (true) {
         try {
             for (const topic of topics) {
@@ -90,35 +79,70 @@ async function initKafkaBridge(): Promise<void> {
     }
 }
 
+async function retryKafkaInit(
+    fn: () => Promise<void>,
+): Promise<void> {
+    while (true) {
+        try {
+            await fn();
+            logger.info(
+                '✅ Kafka initialized',
+            );
+            return;
+        } catch (err) {
+            logger.warn(
+                { err },
+                '⏳ Waiting for Kafka topics...',
+            );
+            await sleep(3000);
+        }
+    }
+}
+
 async function createKafkaConsumers(): Promise<void> {
     const configs = Object.values(
         kafkaConsumersConfig,
     );
-    await Promise.all(
-        configs.map(
-            async ({ topic, handler }) => {
-
-                await createConsumer(
-                    kafkaConfig,
-                    {
-                        topic,
-                        handler,
+    await retryKafkaInit(
+        async () => {
+            await Promise.all(
+                configs.map(
+                    async ({ topic, handler }) => {
+                        await createConsumer(
+                            kafkaConfig,
+                            {
+                                topic,
+                                handler,
+                            },
+                        );
                     },
-                );
-            },
-        ),
+                ),
+            );
+        },
     );
 }
 
+async function startWebSocket() {
+    return new Promise<void>(async () => {
+        initWss();
+    });
+}
 
+async function startGrpcStreamToEngineService() {
+    return new Promise<void>(() => {
+        engineStream.connect();
+    });
+}
 
 async function bootstrap(): Promise<void> {
+
     try {
         await startGrpc();
         await createKafkaConsumers();
         await startPgBoss();
+        await startGrpcStreamToEngineService();
         await startWebSocket();
-        await startGRpcStreamToEngineService();
+
         logger.info(
             '🚀 Battle service started',
         );
@@ -143,6 +167,7 @@ async function bootstrap(): Promise<void> {
     );
 }
 
+
 function sleep(
     ms: number,
 ): Promise<void> {
@@ -152,3 +177,4 @@ function sleep(
 }
 
 bootstrap();
+

@@ -1,20 +1,18 @@
-// import {battleUpdated} from "../lib/consumers";
-
 const kafkaConfig = {
-    brokers: (process.env.KAFKA_BROKERS?.split(',') ?? ['kafka:9092']),
-    clientId: process.env.KAFKA_CLIENT_ID || 'streaming-producer',
+    brokers: process.env.KAFKA_BROKERS?.split(',') ?? ['kafka:9092'],
+    clientId: process.env.KAFKA_CLIENT_ID || 'streaming-client',
     groupId: process.env.KAFKA_GROUP_ID || 'streaming-service',
 };
 
-export const kafkaProducersConfig = {
-    topicAiConnectingRequest: process.env.KAFKA_TOPIC_AI_CONNECTING_REQUEST || 'ai.connecting-request',
+type ConsumerConfig = {
+    topic: string;
+    handler: (message: unknown) => Promise<void>;
 };
 
-export const kafkaConsumersConfig = {
-    // battleUpdated: {
-    //   topic: process.env.KAFKA_TOPIC_BATTLE_UPDATED || 'battle.updated',
-    //   handler: battleUpdated
-    // },
+export const kafkaConsumersConfig: Record<string, ConsumerConfig> = {};
+
+export const kafkaProducersConfig: Record<string, string> = {
+    aiConnectingRequest: process.env.KAFKA_TOPIC_AI_CONNECTING_REQUEST || 'ai.connecting-request',
 };
 
 export default kafkaConfig;

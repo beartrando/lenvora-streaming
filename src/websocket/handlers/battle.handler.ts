@@ -127,7 +127,7 @@ export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, p
 
     const battleIdRequest = streamingGrpc.StartBattleRequest.create({battleId});
     logger.log('messaging to ai');
-    await pgBossManager.enqueueEvent(kafkaProducersConfig.topicAiConnectingRequest, battleIdRequest);
+    await pgBossManager.queue.enqueue(kafkaProducersConfig.aiConnectingRequest, battleIdRequest);
 }
 
 export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.LeaveBattleRequest, jwt: string) {

@@ -123,15 +123,11 @@ async function createKafkaConsumers(): Promise<void> {
 }
 
 async function startWebSocket() {
-    return new Promise<void>(async () => {
-        initWss();
-    });
+    return initWss();
 }
 
 async function startGrpcStreamToEngineService() {
-    return new Promise<void>(() => {
-        engineStream.connect();
-    });
+    return engineStream.connect();
 }
 
 async function bootstrap(): Promise<void> {
@@ -144,7 +140,7 @@ async function bootstrap(): Promise<void> {
         await startWebSocket();
 
         logger.info(
-            '🚀 Battle service started',
+            '🚀 Streaming service started',
         );
     } catch (err) {
         logger.error(

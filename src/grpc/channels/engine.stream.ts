@@ -12,6 +12,7 @@ class EngineStream {
     private maxDelay = 30000;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private heartbeatPeriod = 5000;
+    private reconnectScheduled = false;
 
     getEngineStream = () => {
         if (!this.stream) {
@@ -53,11 +54,18 @@ class EngineStream {
 
         this.stream.on('error', (err) => {
             console.error('Stream error:', err);
-            this.scheduleReconnect();
+
+            this.stopHeartbeat();
         });
 
         this.stream.on('end', () => {
             console.warn('Stream ended');
+            this.scheduleReconnect();
+        });
+
+        this.stream.on('close', () => {
+            console.warn('Stream closed');
+            this.scheduleReconnect();
         });
 
 
@@ -67,7 +75,7 @@ class EngineStream {
     }
 
     write(data: engineGrpc.BattleStreamRequest) {
-        logger.info(data);
+        // logger.info(data);
         if (!this.stream) {
             throw new Error('Engine stream not initialized');
         }
@@ -76,9 +84,18 @@ class EngineStream {
     }
 
     scheduleReconnect = () => {
+
+        if (this.reconnectScheduled) {
+            return;
+        }
+
+        this.reconnectScheduled = true;
+
         // logger.log('scheduleReconnect', this.reconnectDelay);
         this.stopHeartbeat();
         setTimeout(() => {
+
+            this.reconnectScheduled = false;
             this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.maxDelay);
 
             this.connect();

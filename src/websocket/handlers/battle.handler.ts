@@ -29,6 +29,9 @@ export async function isAllowedUser(userId: string, profileId: string, jwt: stri
 
 export async function battleHandler(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleStreamRequest, jwt: string) {
 
+    logger.log('battleHandler got event');
+    logger.log(payload);
+
     switch (true) {
         case !!payload.start:
             return battleHandlerStart(ws, profileId, payload.start, jwt);
@@ -48,7 +51,7 @@ export async function battleHandler(ws: WebSocket, profileId: string, payload: s
 }
 
 export async function battleHandlerStart(ws: WebSocket, profileId: string, payload: streamingGrpc.StartBattleRequest, jwt: string) {
-    // logger.log("Battle join event");
+    logger.log("Battle join event");
 
     let battle: battleGrpc.BattleObject | null;
 

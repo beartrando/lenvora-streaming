@@ -13,7 +13,7 @@ logger.info(`WebSocket listening on ${config.webSocketPort}`);
 export function initWss() {
     wss.on('connection', async (ws, req) => {
 
-        // logger.info('New websocket connection established');
+        logger.info('New websocket connection established');
 
         const url = new URL(req.url!, `http://${req.headers.host}`);
         let userId: string;
@@ -48,6 +48,7 @@ export function initWss() {
         }
 
         ws.on('message', (data) => {
+            // console.log("📩 Streaming got the message");
             // console.log("📩 Raw length:", (data as Buffer).length);
             try {
 

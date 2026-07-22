@@ -133,8 +133,8 @@ async function bootstrap(): Promise<void> {
 
     try {
         await startGrpc();
-        await createKafkaConsumers();
         await startPgBoss();
+        await createKafkaConsumers();
         await startGrpcStreamToEngineService();
         await startWebSocket();
 

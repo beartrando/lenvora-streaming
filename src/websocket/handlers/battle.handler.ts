@@ -100,7 +100,7 @@ export async function battleHandlerMove(ws: WebSocket, profileId: string, payloa
     const battleIds = frontBattleStreamRegistry.getBattleIdsByStream(ws);
 
     if (!battleIds.has(battleId)) {
-        logger.error('Invalid battleId')
+        logger.error('Invalid battleId', battleIds, battleId);
         return;
     }
 

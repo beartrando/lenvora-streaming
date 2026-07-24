@@ -19,7 +19,9 @@ export function initWss() {
         let userId: string;
         let profileId: string;
 
-        const token = url.searchParams.get('token');
+        const token =
+            req.headers.authorization?.replace(/^Bearer\s+/i, "") ??
+            url.searchParams.get("token");
         if (!token) {
             ws.close();
             logger.error("❌ Token is missing");
@@ -35,6 +37,7 @@ export function initWss() {
 
         profileId = url.searchParams.get('profileId') ?? '';
 
+        // logger.log(token);
         // logger.log(userId);
         // logger.log(profileId);
         try {

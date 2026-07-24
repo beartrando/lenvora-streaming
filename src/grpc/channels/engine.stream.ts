@@ -39,13 +39,14 @@ class EngineStream {
         this.stream = this.client.battleChannel();
 
         this.stream.on('data', (message: engineGrpc.BattleStreamResponse) => {
+
             this.reconnectDelay = 1000
 
             if (message.ping) {
                 return;
             }
-            logger.log('battleUpdated from engin');
             logger.log(message);
+
             if (message.battle) {
                 battleService.update(message.battle);
             }

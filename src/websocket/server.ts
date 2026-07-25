@@ -5,6 +5,7 @@ import config from "../config/config";
 import logger from "@shared/logger";
 import frontBattleStreamRegistry, {SocketEncoding} from "./channels/front.battle.stream";
 import {getUserIdFromJwt} from "../lib/grpcRequestMetadata";
+import * as battleService from "../services/battle.service";
 
 
 export const wss = new WebSocketServer({port: config.webSocketPort});
@@ -98,13 +99,12 @@ export function initWss() {
                     return;
                 }
 
-                handler(ws, token, profileId, request, encoding);
+                void handler(ws, token, profileId, request, encoding);
 
             } catch (err) {
                 logger.error("WebSocket message handling failed", err);
             }
         });
-
 
         // // широковещательная рассылка всем клиентам
         // wss.clients.forEach((client) => {
@@ -113,26 +113,25 @@ export function initWss() {
         //   }
         // });
 
-        // ws.on('disconnect', () => {
-        //     const context = frontBattleStreamRegistry.getSocketContext(ws);
-        //     // const {profileId} = context;
-        //     const {battleIds} = context;
-        //     for (const battleId of battleIds) {
-        //         leaveBattle(profileId, battleId);
-        //     }
-        // });
+        ws.on('close', () => disconnect(ws, profileId));
 
-        // ws.on('close', () => {
-        //     // logger.log('❌ Client is disconnected');
-        //     frontBattleStreamRegistry.deleteBattleStream(ws);
-        // });
-        //
-        // ws.on('error', () => frontBattleStreamRegistry.deleteBattleStream(ws));
-        //
-        // ws.on('end', () => frontBattleStreamRegistry.deleteBattleStream(ws));
-
+        ws.on("error", err => {
+            logger.error(err);
+        });
     });
 }
+
+const disconnect = async (ws: WebSocket, profileId: string) => {
+    try {
+        const { battleIds } = frontBattleStreamRegistry.getSocketContext(ws);
+        await Promise.all(
+            [...battleIds].map(id => battleService.leave(id, profileId))
+        );
+        frontBattleStreamRegistry.unregisterSocket(ws);
+    } catch (e) {
+        logger.error("disconnect failed", e);
+    }
+};
 
 logger.log('WebSocket server is started at ws://localhost:8080');
 

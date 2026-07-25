@@ -1,6 +1,7 @@
 import * as battleClient from "../grpc/clients/battle.client";
 import * as profileGrpc from "../grpc/generated/profile";
 import * as battleGrpc from "../grpc/generated/battle";
+import * as engineGrpc from "../grpc/generated/engine";
 import {BattleObject, BattleStatus} from "../grpc/generated/battle";
 import FrontBattleStreamRegistry from "../websocket/channels/front.battle.stream";
 import logger from "@shared/logger";
@@ -21,19 +22,16 @@ export const join = async (battleId: string, profileId: string, jwt: string) => 
     return await battleClient.join(grpcRequest, metadata);
 }
 
-export const leave = async (battleId: string, profileId: string, jwt: string) => {
+export const leave = async (battleId: string, profileId: string) => {
+    const grpcRequest = engineGrpc.BattleRequest.create({
+        leave: {
+            battleId,
+            profileId,
+        },
+    });
 
-    const grpcRequest: battleGrpc.BattleLeaveRequest = {battleId, profileId};
-
-    engineStream.write()
-
-
-
-    const metadata = createMetadataWithJwt(jwt);
-    const grpcRequest: battleGrpc.BattleLeaveRequest = {battleId, profileId};
-
-    return await battleClient.leave(grpcRequest, metadata);
-}
+    await engineStream.write(grpcRequest);
+};
 
 export const update = async (battle: BattleObject) => {
     // logger.log('update battle:', battle);

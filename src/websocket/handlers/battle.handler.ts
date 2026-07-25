@@ -41,8 +41,6 @@ export async function battleHandler(ws: WebSocket, jwt: string, profileId: strin
         return battleHandlerConnectAi(ws, profileId, payload.connectAi);
     } else if (payload.leave) {
         return battleHandlerLeave(ws, profileId, payload.leave);
-    // } else if (payload.end) {
-    //     return battleHandlerEnd(ws, profileId);
     }
 
     logger.warn(`⚠️ Unknown payload type:`, payload);
@@ -133,20 +131,5 @@ export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, p
 
 export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleLeaveRequest) {
     const battleId = payload.battleId;
-    const grpcRequest = engineGrpc.BattleRequest.create({
-        leave: battleGrpc.BattleLeaveRequest.create({battleId, profileId}),
-    });
-
-    // frontBattleStreamRegistry.unsubscribeBattle(ws, battleId);
-
-    engineStream.write(grpcRequest);
-
-    // if (!frontBattleStreamRegistry.hasSubscriptions(ws)) {
-    //     frontBattleStreamRegistry.unregisterSocket(ws);
-    // }
+    await battleService.leave(battleId, profileId);
 }
-
-// export async function battleHandlerEnd(ws: WebSocket, jwt: string, profileId: string) {
-//     // return battleHandlerLeave(ws, profileId, payload, jwt) {
-// }
-

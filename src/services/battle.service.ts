@@ -15,7 +15,7 @@ export const upsert = async (profileId: string, jwt: string) => {
 }
 
 export const join = async (battleId: string, profileId: string, jwt: string) => {
-    const grpcRequest: battleGrpc.StartBattleRequest = {battleId, profileId};
+    const grpcRequest: battleGrpc.BattleStartRequest = {battleId, profileId};
     const metadata = createMetadataWithJwt(jwt);
     return await battleClient.join(grpcRequest, metadata);
 }
@@ -30,7 +30,7 @@ export const leave = async (battleId: string, profileId: string, jwt: string) =>
 export const update = async (battle: BattleObject) => {
     // logger.log('update battle:', battle);
     try {
-        const message = streamingGrpc.BattleStreamResponse.create({battle});
+        const message = streamingGrpc.BattleResponse.create({battle});
 
         FrontBattleStreamRegistry.writeBattleStreams(battle.id, message);
     } catch (e) {

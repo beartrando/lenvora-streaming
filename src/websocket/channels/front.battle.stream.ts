@@ -30,7 +30,11 @@ class FrontBattleStreamRegistry {
         return context;
     }
 
-    getBattleSockets(
+    hasSubscriptions(ws: WebSocket): boolean {
+        return this.getSocketContext(ws).battleIds.size > 0;
+    }
+
+    private getBattleSockets(
         battleId: string
     ): Set<WebSocket> | undefined {
         return this.battleSockets.get(battleId);
@@ -41,9 +45,10 @@ class FrontBattleStreamRegistry {
         profileId: string,
         encoding: SocketEncoding
     ) {
-        if (this.socketContext.has(ws)) {
-            const context = this.getSocketContext(ws);
-            if (context.profileId != profileId) {
+        const context = this.socketContext.get(ws);
+
+        if (context) {
+            if (context.profileId !== profileId) {
                 throw new Error(
                     `Broken socket context: expected profileId=${context.profileId}, got=${profileId}`,
                 );
@@ -75,7 +80,11 @@ class FrontBattleStreamRegistry {
     unregisterSocket(ws: WebSocket): void {
         this.clearHeartbeat(ws);
 
-        const context = this.getSocketContext(ws);
+        const context = this.socketContext.get(ws);
+
+        if (!context) {
+            return;
+        }
 
         for (const battleId of [...context.battleIds]) {
             this.unsubscribeBattle(ws, battleId);
@@ -92,15 +101,14 @@ class FrontBattleStreamRegistry {
 
         context.battleIds.add(battleId);
 
-        if (!this.battleSockets.has(battleId)) {
-            this.battleSockets.set(battleId, new Set());
+        let sockets = this.battleSockets.get(battleId);
+
+        if (!sockets) {
+            sockets = new Set<WebSocket>();
+            this.battleSockets.set(battleId, sockets);
         }
 
-        const sockets = this.battleSockets.get(battleId);
-
-        if (sockets) {
-            sockets.add(ws);
-        }
+        sockets.add(ws);
     }
 
     unsubscribeBattle(
@@ -124,28 +132,28 @@ class FrontBattleStreamRegistry {
         }
     }
 
-    writeBattleStreams(battleId: string, streamRequest: streamingGrpc.BattleStreamResponse) {
+    writeBattleStreams(battleId: string, streamRequest: streamingGrpc.BattleResponse) {
         const sockets = this.getBattleSockets(battleId);
-        if (!sockets) return;
+        if (!sockets) {
+            return;
+        }
 
         for (const socket of sockets) {
             this.writeStream(socket, streamRequest);
         }
     }
 
-    writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleStreamResponse) {
+    writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleResponse) {
         logger.log('new websocket channel message: ', streamRequest);
 
         const {encoding} = this.getSocketContext(ws);
 
         const buffer =
             encoding === SocketEncoding.PROTOBUF
-                ? streamingGrpc.BattleStreamResponse.encode(streamRequest).finish()
+                ? streamingGrpc.BattleResponse.encode(streamRequest).finish()
                 : JSON.stringify(streamRequest);
 
-        if (buffer) {
-            ws.send(buffer);
-        }
+        ws.send(buffer);
     }
 
     private resetHeartbeat(ws: WebSocket) {

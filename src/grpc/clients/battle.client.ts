@@ -10,7 +10,7 @@ const battleManager = new GrpcClientManager<battleGrpc.BattleClient>(() => {
     return new battleGrpc.BattleClient(config.serviceBattleUrl, grpc.credentials.createInsecure());
 });
 
-export const join = (grpcRequest: battleGrpc.StartBattleRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleObject | null> => {
+export const join = (grpcRequest: battleGrpc.BattleStartRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleObject | null> => {
     return battleManager.call<battleGrpc.BattleObject>(
         (client, cb) => client.join(grpcRequest, metadata, cb)
     )

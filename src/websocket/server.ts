@@ -10,30 +10,22 @@ import {getUserIdFromJwt} from "../lib/grpcRequestMetadata";
 export const wss = new WebSocketServer({port: config.webSocketPort});
 logger.info(`WebSocket listening on ${config.webSocketPort}`);
 
-function decodeBattleRequest(data: RawData, encoding: SocketEncoding) {
-    let request;
-    // const {encoding} = frontBattleStreamRegistry.getSocketContext(ws);
-    if (encoding == SocketEncoding.PLAIN) {
-        const str = data.toString();
-        request = JSON.parse(str);
-        console.log("✅ Parsed JSON:", request);
-        // frontBattleStreamRegistry.subscribeBattle(ws);
-    } else {
-        const buffer = new Uint8Array(data as ArrayBuffer);
-        request = streamingGrpc.BattleStreamRequest.decode(buffer);
-        console.log("Decoded:", request);
-    }
-
-    return request;
+function decodeMessage(
+    data: RawData,
+    encoding: SocketEncoding,
+): streamingGrpc.BattleRequest {
+    return (encoding === SocketEncoding.PLAIN)
+        ? JSON.parse(data.toString())
+        : streamingGrpc.BattleRequest.decode(data as Uint8Array);
 }
 
 const handlers: Record<
     string,
     (
         ws: WebSocket,
-        profileId: string,
         token: string,
-        request: streamingGrpc.BattleStreamRequest,
+        profileId: string,
+        request: streamingGrpc.BattleRequest,
         encoding: SocketEncoding
     ) => Promise<void>
 > = {
@@ -47,7 +39,6 @@ export function initWss() {
 
         const url = new URL(req.url!, `http://${req.headers.host}`);
         let userId: string;
-        let profileId: string;
 
         const token =
             req.headers.authorization?.replace(/^Bearer\s+/i, "") ??
@@ -57,15 +48,16 @@ export function initWss() {
             logger.error("❌ Token is missing");
             return;
         }
+
         try {
-            userId = getUserIdFromJwt(token);
+            userId = getUserIdFromJwt(token);//области видимости!
         } catch (e) {
             ws.close();
             logger.error("❌ JWT token is invalid")
             return;
         }
 
-        profileId = url.searchParams.get('profileId') ?? '';
+        const profileId = url.searchParams.get('profileId') ?? '';
 
         // logger.log(token);
         // logger.log(userId);
@@ -96,7 +88,7 @@ export function initWss() {
             // console.log("📩 Streaming got the message");
             // console.log("📩 Raw length:", (data as Buffer).length);
             try {
-                const request = decodeBattleRequest(data, encoding);
+                const request = decodeMessage(data, encoding);
 
                 const handler = handlers[url.pathname];
 

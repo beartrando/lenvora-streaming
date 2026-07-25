@@ -38,7 +38,7 @@ class EngineStream {
 
         this.stream = this.client.battleChannel();
 
-        this.stream.on('data', (message: engineGrpc.BattleStreamResponse) => {
+        this.stream.on('data', (message: engineGrpc.BattleResponse) => {
 
             this.reconnectDelay = 1000
 
@@ -75,7 +75,7 @@ class EngineStream {
         return this.stream;
     }
 
-    write(data: engineGrpc.BattleStreamRequest) {
+    write(data: engineGrpc.BattleRequest) {
         // logger.info(data);
         if (!this.stream) {
             throw new Error('Engine stream not initialized');

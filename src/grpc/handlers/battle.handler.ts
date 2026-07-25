@@ -8,9 +8,9 @@
 // import BattleStreamRegistry from "../../channels/engine.battle.stream";
 //
 // export async function battleChannel(
-//   call: grpc.ServerDuplexStream<streamingGrpc.BattleStreamRequest, battleGrpc.BattleObject>) {
+//   call: grpc.ServerDuplexStream<streamingGrpc.BattleRequest, battleGrpc.BattleObject>) {
 //
-//   call.on('data', async (event: streamingGrpc.BattleStreamRequest) => {
+//   call.on('data', async (event: streamingGrpc.BattleRequest) => {
 //
 //
 //     const userId = grpcRequestMetadata(call);

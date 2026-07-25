@@ -6,12 +6,22 @@ import * as engineGrpc from "../../grpc/generated/engine";
 import * as battleGrpc from "../../grpc/generated/battle";
 import config from "../../config/config";
 
+export enum SocketEncoding {
+    PLAIN = "plain",
+    PROTOBUF = "protobuf",
+}
+
+interface SocketContext {
+    profileId: string;
+    battleIds: Set<string>;
+    encoding: SocketEncoding;
+}
+
 class FrontBattleStreamRegistry {
-    private sockets = new Set<WebSocket>();
+    private socketContext =
+        new Map<WebSocket, SocketContext>();
+
     private battleSockets = new Map<string, Set<WebSocket>>();
-    private socketBattles = new Map<WebSocket, Set<string>>();
-    private socketProfile = new Map<WebSocket, string>();
-    private socketEncodingType = new Map<WebSocket, string>();
 
     private heartbeatTimers = new Map<
         WebSocket,
@@ -20,23 +30,39 @@ class FrontBattleStreamRegistry {
 
     private heartbeatTimeoutMs = config.heartbeatTimeout*1000;
 
-    getBattleIdsByStream = (ws: WebSocket): Set<string> => {
-        return this.socketBattles.get(ws) ?? new Set<string>();
+    getSocketContext(ws: WebSocket): SocketContext {
+        const context = this.socketContext.get(ws);
+
+        if (!context) {
+            throw new Error("Socket context not found");
+        }
+
+        return context;
     }
 
-    getProfileIdByStream = (ws: WebSocket): string => {
-        return this.socketProfile.get(ws) ?? '';
-    }
-
-    setBattleStream = (
+    registerSocket(
         ws: WebSocket,
         profileId: string,
-        battleId: string
-    ) => {
-        this.sockets.add(ws);
-        ws.on("close", () => {
-            logger.info("Close a stream");
+        encoding: SocketEncoding = SocketEncoding.PROTOBUF,
+    ) {
+        if (this.socketContext.has(ws)) {
+            const context = this.getSocketContext(ws);
+            if (context.profileId != profileId) {
+                throw new Error(
+                    `Broken socket context: expected profileId=${context.profileId}, got=${profileId}`,
+                );
+            }
+            return;
+        }
 
+        this.socketContext.set(ws, {
+            profileId,
+            battleIds: new Set(),
+            encoding,
+        });
+
+        ws.on("close", () => {
+            logger.info("Close stream");
             this.deleteBattleStream(ws);
         });
 
@@ -45,89 +71,78 @@ class FrontBattleStreamRegistry {
             this.deleteBattleStream(ws);
         });
 
-        this.resetHeartbeat(ws);
-
         ws.on("message", () => this.resetHeartbeat(ws));
-        logger.info("Stream is added to registry");
+
+        this.resetHeartbeat(ws);
+    }
+
+    subscribeBattle(
+        ws: WebSocket,
+        battleId: string,
+    ) {
+        const context = this.getSocketContext(ws);
+
+        context.battleIds.add(battleId);
 
         if (!this.battleSockets.has(battleId)) {
             this.battleSockets.set(battleId, new Set());
         }
 
-        this.battleSockets.get(battleId)!.add(ws);
+        this.getBattleStreams(battleId).add(ws);
+    }
 
-        if (!this.socketBattles.has(ws)) {
-            this.socketBattles.set(ws, new Set());
+    unsubscribeBattle(
+        ws: WebSocket,
+        battleId: string,
+    ) {
+        const context = this.getSocketContext(ws);
+
+        context.battleIds.delete(battleId);
+
+        const sockets = this.getBattleStreams(battleId);
+
+        if (!sockets) {
+            return;
         }
 
-        this.socketBattles.get(ws)!.add(battleId);
+        sockets.delete(ws);
 
-        this.battleSockets.get(battleId)!.add(ws);
-
-
-        this.socketProfile.set(ws, profileId);
-
-        // logger.log('sockets ' + this.sockets.size);
-        // logger.log('socketBattles ' + this.socketBattles.size);
-        // logger.log('socketProfile ' + this.socketProfile.size);
-        const summary = Array.from(this.battleSockets.entries()).map(([battleId, sockets]) => ({
-            battleId,
-            count: sockets.size,
-        }));
-
-        logger.log('battleSockets summary:', summary);
-    };
-
-    setSocketEncodingTypeToString(socket: WebSocket): void {
-        this.socketEncodingType.set(socket, 'plain');
-    }
-
-    socketEncodingTypeIsPlain(socket: WebSocket): boolean {
-        return this.socketEncodingType.has(socket) && (this.socketEncodingType.get(socket) == 'plain');
-    }
-
-    deleteBattleStreams(battleId: string): void {
-        const streams = this.getBattleStreams(battleId);
-        if (!streams) return;
-
-        for (const stream of streams) {
-            this.deleteBattleStream(stream);
+        if (sockets.size === 0) {
+            this.battleSockets.delete(battleId);
         }
-
-        this.battleSockets.delete(battleId);
     }
 
-    deleteBattleStream(ws: WebSocket): void {
-        this.sockets.delete(ws);
+    unRegisterSocket(ws: WebSocket): void {
+        this.clearHeartbeat(ws);
 
+        const context = this.getSocketContext(ws);
 
-        const battleIds = this.getBattleIdsByStream(ws);
-        const profileId = frontBattleStreamRegistry.getProfileIdByStream(ws);
+        for (const battleId of context.battleIds) {
+            const sockets = this.getBattleStreams(battleId);
 
+            if (!sockets) {
+                continue;
+            }
 
-        for (const battleId of battleIds) {
+            sockets.delete(ws);
 
-
-            const grpcRequest = engineGrpc.BattleStreamRequest.create({
-                leave: battleGrpc.BattleLeaveRequest.create({
-                    battleId,
-                    profileId
-                })
-            })
-
-            engineStream.write(grpcRequest);
-
-            const set = this.battleSockets.get(battleId);
-            if (set) {
-                set.delete(ws);
-                if (set.size === 0) {
-                    this.battleSockets.delete(battleId);
-                }
+            if (sockets.size === 0) {
+                this.battleSockets.delete(battleId);
             }
         }
-        this.socketBattles.delete(ws)
-        this.socketProfile.delete(ws)
-        this.socketEncodingType.delete(ws);
+
+        this.socketContext.delete(ws);
+    }
+
+    deleteBattleSockets(battleId: string): void {
+        const sockets = this.getBattleStreams(battleId);
+        this.battleSockets.delete(battleId);
+
+        if (!sockets) return;
+
+        for (const socket of sockets) {
+            this.unRegisterSocket(socket);
+        }
     }
 
     getBattleStreams(
@@ -137,19 +152,25 @@ class FrontBattleStreamRegistry {
     }
 
     writeBattleStreams(battleId: string, streamRequest: streamingGrpc.BattleStreamResponse) {
-        const streams = this.getBattleStreams(battleId);
-        if (!streams) return;
+        const sockets = this.getBattleStreams(battleId);
+        if (!sockets) return;
 
-        for (const stream of streams) {
-            this.writeStream(stream, streamRequest);
+        for (const socket of sockets) {
+            this.writeStream(socket, streamRequest);
         }
     }
 
+    socketEncodingTypeIsProtobuf(socket: WebSocket): boolean {
+        return this.getSocketContext(socket).encoding == SocketEncoding.PROTOBUF;
+    }
+
+
     writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleStreamResponse) {
         logger.log('new websocket channel message: ', streamRequest);
-        const buffer = this.socketEncodingTypeIsPlain(ws)
-            ? JSON.stringify(streamRequest)
-            : streamingGrpc.BattleStreamResponse.encode(streamRequest).finish();
+        const buffer = this.socketEncodingTypeIsProtobuf(ws)
+            ? streamingGrpc.BattleStreamResponse.encode(streamRequest).finish()
+            : JSON.stringify(streamRequest);
+
         if (buffer) {
             ws.send(buffer);
         }
@@ -159,7 +180,7 @@ class FrontBattleStreamRegistry {
         this.clearHeartbeat(call);
         const timer = setTimeout(() => {
             logger.warn("Heartbeat timeout, cleaning stream");
-            this.deleteBattleStream(call);
+            this.deleteBattleSockets(call);
         }, this.heartbeatTimeoutMs);
         this.heartbeatTimers.set(call, timer);
     }

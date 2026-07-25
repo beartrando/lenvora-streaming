@@ -39,7 +39,7 @@ export const update = async (battle: BattleObject) => {
 
     if (battle.status == BattleStatus.FINISHED) {
         logger.log(`Battle ${battle.id} finished. Closing streams...`);
-        FrontBattleStreamRegistry.deleteBattleStreams(battle.id);
+        // FrontBattleStreamRegistry.deleteBattleStreams(battle.id);
         logger.log(`Removed battle ${battle.id} from activeBattleStreams`);
     }
 };

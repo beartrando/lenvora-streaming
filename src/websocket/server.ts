@@ -1,14 +1,44 @@
-import {WebSocketServer} from 'ws';
+import {RawData, WebSocket, WebSocketServer} from 'ws';
 import * as streamingGrpc from "../grpc/generated/streaming";
 import {battleHandler, isAllowedUser} from "./handlers/battle.handler";
 import config from "../config/config";
 import logger from "@shared/logger";
-import frontBattleStreamRegistry from "./channels/front.battle.stream";
+import frontBattleStreamRegistry, {SocketEncoding} from "./channels/front.battle.stream";
 import {getUserIdFromJwt} from "../lib/grpcRequestMetadata";
 
 
 export const wss = new WebSocketServer({port: config.webSocketPort});
 logger.info(`WebSocket listening on ${config.webSocketPort}`);
+
+function decodeBattleRequest(data: RawData, encoding: SocketEncoding) {
+    let request;
+    // const {encoding} = frontBattleStreamRegistry.getSocketContext(ws);
+    if (encoding == SocketEncoding.PLAIN) {
+        const str = data.toString();
+        request = JSON.parse(str);
+        console.log("✅ Parsed JSON:", request);
+        // frontBattleStreamRegistry.subscribeBattle(ws);
+    } else {
+        const buffer = new Uint8Array(data as ArrayBuffer);
+        request = streamingGrpc.BattleStreamRequest.decode(buffer);
+        console.log("Decoded:", request);
+    }
+
+    return request;
+}
+
+const handlers: Record<
+    string,
+    (
+        ws: WebSocket,
+        profileId: string,
+        token: string,
+        request: streamingGrpc.BattleStreamRequest,
+        encoding: SocketEncoding
+    ) => Promise<void>
+> = {
+    "/battle": battleHandler,
+};
 
 export function initWss() {
     wss.on('connection', async (ws, req) => {
@@ -50,35 +80,36 @@ export function initWss() {
             return;
         }
 
+
+        const encoding =
+            req.headers["x-debug-json"] !== undefined
+                ? SocketEncoding.PLAIN
+                : SocketEncoding.PROTOBUF;
+
+        frontBattleStreamRegistry.registerSocket(
+            ws,
+            profileId,
+            encoding
+        );
+
         ws.on('message', (data) => {
             // console.log("📩 Streaming got the message");
             // console.log("📩 Raw length:", (data as Buffer).length);
             try {
+                const request = decodeBattleRequest(data, encoding);
 
-                const str = data.toString();
-                let request;
-                if (str.startsWith("{")) {
-                    request = JSON.parse(str);
-                    console.log("✅ Parsed JSON:", request);
-                    frontBattleStreamRegistry.setSocketEncodingTypeToString(ws);
-                } else {
-                    const buffer = new Uint8Array(data as ArrayBuffer);
-                    request = streamingGrpc.BattleStreamRequest.decode(buffer);
-                    console.log("Decoded:", request);
+                const handler = handlers[url.pathname];
+
+                if (!handler) {
+                    logger.warn(`Unknown websocket route: ${url.pathname}`);
+                    ws.close();
+                    return;
                 }
 
-                try {
-                    if (url.pathname.startsWith('/battle')) {
-                        battleHandler(ws, profileId, request, token);
-                    } else {
-                        logger.warn(`⚠️ Unknown path: ${url.pathname}`);
-                    }
-                } catch (err) {
-                    logger.error('❌ Message handling error:', err);
-                }
+                handler(ws, token, profileId, request, encoding);
 
             } catch (err) {
-                logger.error('❌ JSON parse error:', err);
+                logger.error("WebSocket message handling failed", err);
             }
         });
 
@@ -90,14 +121,23 @@ export function initWss() {
         //   }
         // });
 
-        ws.on('close', () => {
-            // logger.log('❌ Client is disconnected');
-            frontBattleStreamRegistry.deleteBattleStream(ws);
-        });
+        // ws.on('disconnect', () => {
+        //     const context = frontBattleStreamRegistry.getSocketContext(ws);
+        //     // const {profileId} = context;
+        //     const {battleIds} = context;
+        //     for (const battleId of battleIds) {
+        //         leaveBattle(profileId, battleId);
+        //     }
+        // });
 
-        ws.on('error', () => frontBattleStreamRegistry.deleteBattleStream(ws));
-
-        ws.on('end', () => frontBattleStreamRegistry.deleteBattleStream(ws));
+        // ws.on('close', () => {
+        //     // logger.log('❌ Client is disconnected');
+        //     frontBattleStreamRegistry.deleteBattleStream(ws);
+        // });
+        //
+        // ws.on('error', () => frontBattleStreamRegistry.deleteBattleStream(ws));
+        //
+        // ws.on('end', () => frontBattleStreamRegistry.deleteBattleStream(ws));
 
     });
 }

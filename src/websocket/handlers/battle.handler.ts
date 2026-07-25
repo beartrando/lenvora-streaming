@@ -4,7 +4,7 @@ import * as battleService from "../../services/battle.service";
 import * as engineGrpc from "../../grpc/generated/engine";
 import * as battleGrpc from "../../grpc/generated/battle";
 import logger from "@shared/logger";
-import frontBattleStreamRegistry from "../channels/front.battle.stream";
+import frontBattleStreamRegistry, {SocketEncoding} from "../channels/front.battle.stream";
 import * as profileService from "../../services/profile.service";
 import {ErrorObject} from "../../grpc/generated/common/error";
 import engineStream from "../../grpc/channels/engine.stream";
@@ -27,30 +27,29 @@ export async function isAllowedUser(userId: string, profileId: string, jwt: stri
     }
 }
 
-export async function battleHandler(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleStreamRequest, jwt: string) {
-
+export async function battleHandler(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.BattleStreamRequest): Promise<void> {
     logger.log('battleHandler got event');
     logger.log(payload);
 
     switch (true) {
         case !!payload.start:
-            return battleHandlerStart(ws, profileId, payload.start, jwt);
+            return battleHandlerStart(ws, jwt, profileId, payload.start);
         case !!payload.move:
-            return battleHandlerMove(ws, profileId, payload.move, jwt);
+            return battleHandlerMove(ws, jwt, profileId, payload.move);
         case !!payload.ping:
             return battleHandlerPing(ws);
         case !!payload.connectAi:
-            return battleHandlerConnectAi(ws, profileId, payload.connectAi, jwt);
+            return battleHandlerConnectAi(ws, jwt, profileId, payload.connectAi);
         case !!payload.leave:
-            return battleHandlerLeave(ws, profileId, payload.leave, jwt);
+            return battleHandlerLeave(ws, jwt, profileId, payload.leave);
         case !!payload.end:
-            return battleHandlerEnd(ws, profileId, jwt);
+            return battleHandlerEnd(ws, jwt, profileId);
     }
 
     logger.warn(`⚠️ Unknown payload type:`, payload);
 }
 
-export async function battleHandlerStart(ws: WebSocket, profileId: string, payload: streamingGrpc.StartBattleRequest, jwt: string) {
+export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.StartBattleRequest) {
     logger.log("Battle join event");
 
     let battle: battleGrpc.BattleObject | null;
@@ -74,7 +73,7 @@ export async function battleHandlerStart(ws: WebSocket, profileId: string, paylo
         return;
     }
 
-    frontBattleStreamRegistry.setBattleStream(ws, profileId, battle.id);
+    frontBattleStreamRegistry.subscribeBattle(ws, battle.id);
 
     // logger.log("Battle stream was set:" + battle.id);
 
@@ -92,12 +91,12 @@ export async function battleHandlerStart(ws: WebSocket, profileId: string, paylo
     }
 }
 
-export async function battleHandlerMove(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleMoveRequest, jwt: string) {
+export async function battleHandlerMove(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.BattleMoveRequest) {
     // logger.log("Battle move event");
 
     const battleId = payload.battleId;
 
-    const battleIds = frontBattleStreamRegistry.getBattleIdsByStream(ws);
+    const {battleIds} = frontBattleStreamRegistry.getSocketContext(ws);
 
     if (!battleIds.has(battleId)) {
         logger.error('Invalid battleId', battleIds, battleId);
@@ -118,10 +117,10 @@ export async function battleHandlerPing(ws: WebSocket) {
 }
 
 
-export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, payload: streamingGrpc.AiJoinToBattleRequest, jwt: string) {
+export async function battleHandlerConnectAi(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.AiJoinToBattleRequest) {
     const battleId = payload.battleId;
 
-    const battleIds = frontBattleStreamRegistry.getBattleIdsByStream(ws);
+    const {battleIds} = frontBattleStreamRegistry.getSocketContext(ws);
 
     if (!battleIds.has(battleId)) {
         logger.error("wrong battleId");
@@ -133,7 +132,7 @@ export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, p
     await pgBossManager.queue.enqueue(kafkaProducersConfig.aiConnectingRequest, battleIdRequest);
 }
 
-export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.LeaveBattleRequest, jwt: string) {
+export async function battleHandlerLeave(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.LeaveBattleRequest) {
     const battleId = payload.battleId;
     const grpcRequest = engineGrpc.BattleStreamRequest.create({
         leave: battleGrpc.BattleLeaveRequest.create({battleId, profileId}),
@@ -142,7 +141,7 @@ export async function battleHandlerLeave(ws: WebSocket, profileId: string, paylo
     engineStream.write(grpcRequest);
 }
 
-export async function battleHandlerEnd(ws: WebSocket, profileId: string, jwt: string) {
+export async function battleHandlerEnd(ws: WebSocket, jwt: string, profileId: string) {
     // return battleHandlerLeave(ws, profileId, payload, jwt) {
 }
 

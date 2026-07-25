@@ -20,7 +20,7 @@ class FrontBattleStreamRegistry {
     private heartbeatTimers = new Map<WebSocket, NodeJS.Timeout>();
     private heartbeatTimeoutMs = config.heartbeatTimeout * 1000;
 
-    private getSocketContext(ws: WebSocket): SocketContext {
+    getSocketContext(ws: WebSocket): SocketContext {
         const context = this.socketContext.get(ws);
 
         if (!context) {
@@ -30,7 +30,7 @@ class FrontBattleStreamRegistry {
         return context;
     }
 
-    private getBattleSockets(
+    getBattleSockets(
         battleId: string
     ): Set<WebSocket> | undefined {
         return this.battleSockets.get(battleId);
@@ -39,7 +39,7 @@ class FrontBattleStreamRegistry {
     registerSocket(
         ws: WebSocket,
         profileId: string,
-        encoding: SocketEncoding = SocketEncoding.PROTOBUF,
+        encoding: SocketEncoding
     ) {
         if (this.socketContext.has(ws)) {
             const context = this.getSocketContext(ws);
@@ -96,7 +96,11 @@ class FrontBattleStreamRegistry {
             this.battleSockets.set(battleId, new Set());
         }
 
-        this.battleSockets.get(battleId).add(ws);
+        const sockets = this.battleSockets.get(battleId);
+
+        if (sockets) {
+            sockets.add(ws);
+        }
     }
 
     unsubscribeBattle(
@@ -131,6 +135,7 @@ class FrontBattleStreamRegistry {
 
     writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleStreamResponse) {
         logger.log('new websocket channel message: ', streamRequest);
+
         const {encoding} = this.getSocketContext(ws);
 
         const buffer =

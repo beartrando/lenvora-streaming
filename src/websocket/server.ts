@@ -122,15 +122,18 @@ export function initWss() {
 }
 
 const disconnect = async (ws: WebSocket, profileId: string) => {
-    try {
-        const { battleIds } = frontBattleStreamRegistry.getSocketContext(ws);
-        await Promise.all(
-            [...battleIds].map(id => battleService.leave(id, profileId))
-        );
-        frontBattleStreamRegistry.unregisterSocket(ws);
-    } catch (e) {
-        logger.error("disconnect failed", e);
+    const context = frontBattleStreamRegistry.getSocketContext(ws);
+
+    if (!context) {
+        logger.warn("Disconnect: socket is not registered");
+        return;
     }
+
+    await Promise.all(
+        [...context.battleIds].map(id => battleService.leave(id, profileId))
+    );
+
+    frontBattleStreamRegistry.unregisterSocket(ws);
 };
 
 logger.log('WebSocket server is started at ws://localhost:8080');

@@ -20,18 +20,21 @@ class FrontBattleStreamRegistry {
     private heartbeatTimers = new Map<WebSocket, NodeJS.Timeout>();
     private heartbeatTimeoutMs = config.heartbeatTimeout * 1000;
 
-    getSocketContext(ws: WebSocket): SocketContext {
+    getSocketContext(ws: WebSocket): SocketContext | undefined {
         const context = this.socketContext.get(ws);
 
         if (!context) {
-            throw new Error("Socket is not registered");
+            logger.warn("Socket is not registered");
+            return undefined;
         }
 
         return context;
     }
 
     hasSubscriptions(ws: WebSocket): boolean {
-        return this.getSocketContext(ws).battleIds.size > 0;
+        const context = this.getSocketContext(ws);
+
+        return context ? context.battleIds.size > 0 : false;
     }
 
     getBattleSockets(
@@ -99,6 +102,11 @@ class FrontBattleStreamRegistry {
     ) {
         const context = this.getSocketContext(ws);
 
+        if (!context) {
+            logger.warn(`Unable to subscribe socket to battle ${battleId}: socket is not registered`);
+            return;
+        }
+
         context.battleIds.add(battleId);
 
         let sockets = this.battleSockets.get(battleId);
@@ -116,6 +124,13 @@ class FrontBattleStreamRegistry {
         battleId: string,
     ) {
         const context = this.getSocketContext(ws);
+
+        if (!context) {
+            logger.warn(
+                `unsubscribeBattle: socket is not registered (battleId=${battleId})`,
+            );
+            return;
+        }
 
         context.battleIds.delete(battleId);
 
@@ -144,16 +159,19 @@ class FrontBattleStreamRegistry {
     }
 
     writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleResponse) {
-        logger.log('new websocket channel message: ', streamRequest);
+        // logger.log("new websocket channel message:", streamRequest);
 
-        const {encoding} = this.getSocketContext(ws);
+        const encoding =
+            this.getSocketContext(ws)?.encoding ?? SocketEncoding.PROTOBUF;
 
         const buffer =
             encoding === SocketEncoding.PROTOBUF
                 ? streamingGrpc.BattleResponse.encode(streamRequest).finish()
                 : JSON.stringify(streamRequest);
 
-        ws.send(buffer);
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.send(buffer);
+        }
     }
 
     private resetHeartbeat(ws: WebSocket) {

@@ -88,21 +88,29 @@ export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: 
     }
 }
 
-export async function battleHandlerMove(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleMoveRequest) {
-    // logger.log("Battle move event");
-
+export async function battleHandlerMove(
+    ws: WebSocket,
+    profileId: string,
+    payload: streamingGrpc.BattleMoveRequest,
+) {
     const battleId = payload.battleId;
 
-    const {battleIds} = frontBattleStreamRegistry.getSocketContext(ws);
+    const context = frontBattleStreamRegistry.getSocketContext(ws);
 
-    if (!battleIds.has(battleId)) {
-        logger.error('Invalid battleId', battleIds, battleId);
+    if (!context) {
+        logger.warn("Ignoring move from unregistered socket");
+        return;
+    }
+
+    if (!context.battleIds.has(battleId)) {
+        logger.warn(`Socket is not subscribed to battle ${battleId}`);
         return;
     }
 
     const grpcRequest = engineGrpc.BattleRequest.create({
         move: engineGrpc.BattleMoveRequest.create({
-            profileId, ...payload
+            profileId,
+            ...payload,
         }),
     });
 
@@ -114,19 +122,34 @@ export async function battleHandlerPing(ws: WebSocket) {
 }
 
 
-export async function battleHandlerConnectAi(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleJoinAiRequest) {
+export async function battleHandlerConnectAi(
+    ws: WebSocket,
+    profileId: string,
+    payload: streamingGrpc.BattleJoinAiRequest,
+) {
     const battleId = payload.battleId;
 
-    const {battleIds} = frontBattleStreamRegistry.getSocketContext(ws);
+    const context = frontBattleStreamRegistry.getSocketContext(ws);
 
-    if (!battleIds.has(battleId)) {
-        logger.error("wrong battleId");
+    if (!context) {
+        logger.warn("Ignoring AI connect request from unregistered socket");
         return;
     }
 
-    const battleIdRequest = streamingGrpc.BattleStartRequest.create({battleId});
-    logger.log('messaging to ai');
-    await pgBossManager.queue.enqueue(kafkaProducersConfig.aiConnectingRequest, battleIdRequest);
+    if (!context.battleIds.has(battleId)) {
+        logger.warn(`Socket is not subscribed to battle ${battleId}`);
+        return;
+    }
+
+    const battleIdRequest =
+        streamingGrpc.BattleStartRequest.create({ battleId });
+
+    logger.log("Messaging to AI");
+
+    await pgBossManager.queue.enqueue(
+        kafkaProducersConfig.aiConnectingRequest,
+        battleIdRequest,
+    );
 }
 
 export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleLeaveRequest) {

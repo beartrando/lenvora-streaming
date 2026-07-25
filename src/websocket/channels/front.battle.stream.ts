@@ -34,7 +34,7 @@ class FrontBattleStreamRegistry {
         return this.getSocketContext(ws).battleIds.size > 0;
     }
 
-    private getBattleSockets(
+    getBattleSockets(
         battleId: string
     ): Set<WebSocket> | undefined {
         return this.battleSockets.get(battleId);

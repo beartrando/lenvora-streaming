@@ -6,6 +6,7 @@ import FrontBattleStreamRegistry from "../websocket/channels/front.battle.stream
 import logger from "@shared/logger";
 import * as streamingGrpc from "../grpc/generated/streaming";
 import {createMetadataWithJwt} from "../lib/grpcRequestMetadata";
+import engineStream from "../grpc/channels/engine.stream";
 
 export const upsert = async (profileId: string, jwt: string) => {
     const grpcRequest = profileGrpc.ProfileIdRequest.create({profileId});
@@ -21,6 +22,13 @@ export const join = async (battleId: string, profileId: string, jwt: string) => 
 }
 
 export const leave = async (battleId: string, profileId: string, jwt: string) => {
+
+    const grpcRequest: battleGrpc.BattleLeaveRequest = {battleId, profileId};
+
+    engineStream.write()
+
+
+
     const metadata = createMetadataWithJwt(jwt);
     const grpcRequest: battleGrpc.BattleLeaveRequest = {battleId, profileId};
 
@@ -39,7 +47,15 @@ export const update = async (battle: BattleObject) => {
 
     if (battle.status == BattleStatus.FINISHED) {
         logger.log(`Battle ${battle.id} finished. Closing streams...`);
-        // FrontBattleStreamRegistry.deleteBattleStreams(battle.id);
+        const sockets = FrontBattleStreamRegistry.getBattleSockets(battle.id);
+
+        if (!sockets) {
+            return;
+        }
+
+        for (const ws of [...sockets]) {
+            FrontBattleStreamRegistry.unsubscribeBattle(ws, battle.id);
+        }
         logger.log(`Removed battle ${battle.id} from activeBattleStreams`);
     }
 };

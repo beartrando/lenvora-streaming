@@ -20,7 +20,7 @@ class FrontBattleStreamRegistry {
     private heartbeatTimers = new Map<WebSocket, NodeJS.Timeout>();
     private heartbeatTimeoutMs = config.heartbeatTimeout * 1000;
 
-    getSocketContext(ws: WebSocket): SocketContext {
+    private getSocketContext(ws: WebSocket): SocketContext {
         const context = this.socketContext.get(ws);
 
         if (!context) {
@@ -30,7 +30,7 @@ class FrontBattleStreamRegistry {
         return context;
     }
 
-    getBattleSockets(
+    private getBattleSockets(
         battleId: string
     ): Set<WebSocket> | undefined {
         return this.battleSockets.get(battleId);
@@ -77,18 +77,8 @@ class FrontBattleStreamRegistry {
 
         const context = this.getSocketContext(ws);
 
-        for (const battleId of context.battleIds) {
-            const sockets = this.getBattleSockets(battleId);
-
-            if (!sockets) {
-                continue;
-            }
-
-            sockets.delete(ws);
-
-            if (sockets.size === 0) {
-                this.battleSockets.delete(battleId);
-            }
+        for (const battleId of [...context.battleIds]) {
+            this.unsubscribeBattle(ws, battleId);
         }
 
         this.socketContext.delete(ws);
@@ -153,20 +143,10 @@ class FrontBattleStreamRegistry {
         }
     }
 
-    public async leaveBattle(battleId: string, profileId: string) {
-        //todo
-    }
-
     private resetHeartbeat(ws: WebSocket) {
         this.clearHeartbeat(ws);
         const timer = setTimeout(() => {
             logger.warn("Heartbeat timeout, cleaning stream");
-
-            const context = this.getSocketContext(ws);
-            for (const battleId of context.battleIds) {
-                this.leaveBattle(context.profileId, battleId);
-            }
-
             this.unregisterSocket(ws);
         }, this.heartbeatTimeoutMs);
         this.heartbeatTimers.set(ws, timer);

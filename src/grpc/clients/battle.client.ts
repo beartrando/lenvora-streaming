@@ -10,14 +10,13 @@ const battleManager = new GrpcClientManager<battleGrpc.BattleClient>(() => {
     return new battleGrpc.BattleClient(config.serviceBattleUrl, grpc.credentials.createInsecure());
 });
 
-export const join = (grpcRequest: battleGrpc.BattleStartRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleObject | null> => {
-    return battleManager.call<battleGrpc.BattleObject>(
+export const join = (grpcRequest: battleGrpc.BattleStartRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleResponse | null> => {
+    return battleManager.call<battleGrpc.BattleResponse>(
         (client, cb) => client.join(grpcRequest, metadata, cb)
-    )
-        .catch((err) => {
-            logger.error("joinBattle failed:", err);
-            return null;
-        });
+    ).catch((err) => {
+        logger.error("joinBattle failed:", err);
+        return null;
+    });
 };
 
 
@@ -31,9 +30,9 @@ export const leave = (grpcRequest: battleGrpc.BattleLeaveRequest, metadata: grpc
 };
 
 
-export const upsert = (grpcRequest: profileGrpc.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleObject | null> => {
+export const upsert = (grpcRequest: profileGrpc.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleResponse | null> => {
     return battleManager.call<battleGrpc.BattleObject>(
-        (client, cb) => client.upsert(grpcRequest, metadata, cb)
+        (client, cb) => client.getOrCreate(grpcRequest, metadata, cb)
     ).catch((err) => {
         logger.error("Upsert battle failed:", err);
         return null;

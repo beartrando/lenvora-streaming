@@ -19,19 +19,8 @@ export const join = (grpcRequest: battleGrpc.BattleStartRequest, metadata: grpc.
     });
 };
 
-
-export const leave = (grpcRequest: battleGrpc.BattleLeaveRequest, metadata: grpc.Metadata): Promise<emptyGrpc.Empty | null> => {
-    return battleManager.call<emptyGrpc.Empty>(
-        (client, cb) => client.leave(grpcRequest, metadata, cb)
-    ).catch((err) => {
-        logger.error("leaveBattle failed:", err);
-        return null;
-    });
-};
-
-
 export const upsert = (grpcRequest: profileGrpc.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleGrpc.BattleResponse | null> => {
-    return battleManager.call<battleGrpc.BattleObject>(
+    return battleManager.call<battleGrpc.BattleResponse>(
         (client, cb) => client.getOrCreate(grpcRequest, metadata, cb)
     ).catch((err) => {
         logger.error("Upsert battle failed:", err);

@@ -16,15 +16,9 @@ import * as emptyGrpc from "../../grpc/generated/common/empty";
 
 export async function isAllowedUser(userId: string, profileId: string, jwt: string) {
 
-    const profile = await profileService.getByUser(userId, jwt);
+    const resp = await profileService.getByUser(userId, jwt);
 
-    if (!profile) {
-        throw new Error("Profile not found");
-    }
-
-    if (profile.id !== profileId) {
-        throw new Error("Access deined");
-    }
+    return resp?.profile?.id === profileId;
 }
 
 export async function battleHandler(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.BattleRequest): Promise<void> {
@@ -37,8 +31,8 @@ export async function battleHandler(ws: WebSocket, jwt: string, profileId: strin
         return battleHandlerMove(ws, profileId, payload.move);
     } else if (payload.ping) {
         return battleHandlerPing(ws);
-    } else if (payload.connectAi) {
-        return battleHandlerConnectAi(ws, profileId, payload.connectAi);
+    } else if (payload.connectBot) {
+        return battleHandlerConnectBot(ws, profileId, payload.connectBot);
     } else if (payload.leave) {
         return battleHandlerLeave(ws, profileId, payload.leave);
     }
@@ -58,33 +52,41 @@ export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: 
         resp = await battleService.upsert(profileId, jwt);
     }
 
-    if (!resp || resp.error) {
+    if (resp?.battle) {
+        frontBattleStreamRegistry.subscribeBattle(ws, resp.battle.id);
+
+        // logger.log("Battle stream was set:" + battle.id);
+
+        try {
+            if (resp.battle.status === battleGrpc.BattleStatus.ACTIVE) {
+                const grpcRequest = engineGrpc.BattleRequest.create({start: resp.battle})
+                engineStream.write(grpcRequest);
+            }
+
+            const message = streamingGrpc.BattleResponse.create({battle: resp.battle});
+
+            frontBattleStreamRegistry.writeBattleStreams(resp.battle.id, message);
+        } catch (e) {
+            logger.error(String(e));
+        }
+
+    } else if (resp?.error) {
         const battleStreamResponse = streamingGrpc.BattleResponse.create({
-            error: errorGrpc.ErrorObject.create({
-                code: errorGrpc.ErrorCode.ENTITY_SPECIFIC,
-                message: "Battle not found"
-            })
+            error: resp.error
         });
 
         frontBattleStreamRegistry.writeStream(ws, battleStreamResponse);
         return;
-    }
+    } else {
+        const battleStreamResponse = streamingGrpc.BattleResponse.create({
+            error: {
+                code: errorGrpc.ErrorCode.ENTITY_SPECIFIC,
+                message: "Battle not found"
+            }
+        });
 
-    frontBattleStreamRegistry.subscribeBattle(ws, resp.battle.id);
-
-    // logger.log("Battle stream was set:" + battle.id);
-
-    try {
-        if (resp.status === battleGrpc.BattleStatus.ACTIVE) {
-            const grpcRequest = engineGrpc.BattleRequest.create({start: resp})
-            engineStream.write(grpcRequest);
-        }
-
-        const message = streamingGrpc.BattleResponse.create({battle: resp});
-
-        frontBattleStreamRegistry.writeBattleStreams(resp.id, message);
-    } catch (e) {
-        logger.error(String(e));
+        frontBattleStreamRegistry.writeStream(ws, battleStreamResponse);
+        return;
     }
 }
 
@@ -122,17 +124,17 @@ export async function battleHandlerPing(ws: WebSocket) {
 }
 
 
-export async function battleHandlerConnectAi(
+export async function battleHandlerConnectBot(
     ws: WebSocket,
     profileId: string,
-    payload: streamingGrpc.BattleJoinAi,
+    payload: streamingGrpc.BattleJoinBot,
 ) {
     const battleId = payload.battleId;
 
     const context = frontBattleStreamRegistry.getSocketContext(ws);
 
     if (!context) {
-        logger.warn("Ignoring AI connect request from unregistered socket");
+        logger.warn("Ignoring Bot connect request from unregistered socket");
         return;
     }
 
@@ -142,9 +144,9 @@ export async function battleHandlerConnectAi(
     }
 
     const battleIdRequest =
-        streamingGrpc.BattleStart.create({ battleId });
+        streamingGrpc.BattleStart.create({battleId});
 
-    logger.log("Messaging to AI");
+    logger.log("Messaging to Bot service");
 
     await pgBossManager.queue.enqueue(
         kafkaProducersConfig.aiConnectingRequest,

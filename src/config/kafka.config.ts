@@ -12,7 +12,7 @@ type ConsumerConfig = {
 export const kafkaConsumersConfig: Record<string, ConsumerConfig> = {};
 
 export const kafkaProducersConfig: Record<string, string> = {
-    aiConnectingRequest: process.env.KAFKA_TOPIC_AI_CONNECTING_REQUEST || 'ai.connecting-request',
+    aiConnectingRequest: process.env.KAFKA_TOPIC_AI_CONNECTING_REQUEST || 'bot.connecting-request',
 };
 
 export default kafkaConfig;

@@ -1,7 +1,7 @@
 // import * as grpc from '@grpc/grpc-js';
 // import * as battleGrpc from '../generated/battle';
 // import * as streamingGrpc from '../generated/streaming';
-// import grpcRequestMetadata from "../../lib/grpcRequestMetadata";
+// import grpcRequestMetadata from "../../utils/grpcRequestMetadata";
 // import * as engineService from "../../services/engine.service";
 // import * as battleService from "../../services/battle.service";
 // import logger from "@shared/logger";

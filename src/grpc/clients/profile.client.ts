@@ -8,6 +8,6 @@ const profileManager = new GrpcClientManager<profileGrpc.ProfileClient>(() => {
     return new profileGrpc.ProfileClient(config.serviceProfileUrl, grpc.credentials.createInsecure());
 });
 
-export const getByUser = (grpcRequest: authGrpc.UserIdRequest, metadata: grpc.Metadata): Promise<profileGrpc.ProfileObject | null> => {
+export const getByUser = (grpcRequest: authGrpc.UserIdRequest, metadata: grpc.Metadata): Promise<profileGrpc.ProfileResponse | null> => {
     return profileManager.call((client, cb) => client.getByUser(grpcRequest, metadata, cb));
 };

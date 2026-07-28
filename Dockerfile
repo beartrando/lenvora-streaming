@@ -19,7 +19,6 @@ COPY services/streaming/jest.config.js ./services/streaming/
 COPY services/streaming/tsconfig.json ./services/streaming/
 COPY services/streaming/src ./services/streaming/src/
 COPY services/streaming/__tests__ ./services/streaming/__tests__/
-COPY services/streaming/prisma ./services/streaming/prisma/
 
 RUN apt-get update && apt-get install -y protobuf-compiler
 
@@ -32,7 +31,7 @@ FROM base AS deps
 RUN pnpm fetch
 RUN pnpm install --offline --frozen-lockfile
 
-RUN mkdir -p ./services/streaming/src/grpc/generated
+RUN mkdir -p ./services/streaming/src/infrastructure/grpc/generated
 RUN pnpm --filter streaming proto:generate
 
 RUN pnpm --filter streaming prisma:generate

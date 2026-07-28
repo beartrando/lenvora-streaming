@@ -11,7 +11,7 @@ import kafkaConfig, {
 import { createConsumer } from '@shared/kafka-manager';
 
 import pgBossManager from '@shared/pg-boss-manager';
-import pgBossConfig from './config/pg.boss.config';
+import pgBossConfig from './config/pg-boss.config';
 import {initWss} from "./websocket/server";
 import engineStream from "./grpc/channels/engine.stream";
 

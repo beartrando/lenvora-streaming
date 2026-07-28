@@ -1,4 +1,8 @@
 export const config = {
+    appName: process.env.APP_NAME || 'streaming',
+    appVersion: process.env.APP_VERSION || '0.0.0',
+    appEnv: process.env.APP_ENV || 'prod',
+
     grpcPort: Number(process.env.GRPC_PORT) || 50051,
     webSocketPort: Number(process.env.WEB_SOCKET_PORT) || 8080,
     serviceAuthUrl: process.env.SERVICE_AUTH_URL || 'auth:50051',

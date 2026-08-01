@@ -1,5 +1,5 @@
 import {WebSocket} from 'ws';
-import * as streamingGrpc from '../../grpc/generated/streaming';
+import * as streamingProto from '../../grpc/generated/streaming';
 import logger from "@shared/logger";
 import config from "../../config/config";
 
@@ -147,7 +147,7 @@ class FrontBattleStreamRegistry {
         }
     }
 
-    writeBattleStreams(battleId: string, streamRequest: streamingGrpc.BattleResponse) {
+    writeBattleStreams(battleId: string, streamRequest: streamingProto.BattleResponse) {
         const sockets = this.getBattleSockets(battleId);
         if (!sockets) {
             return;
@@ -158,7 +158,7 @@ class FrontBattleStreamRegistry {
         }
     }
 
-    writeStream(ws: WebSocket, streamRequest: streamingGrpc.BattleResponse) {
+    writeStream(ws: WebSocket, streamRequest: streamingProto.BattleResponse) {
         // logger.log("new websocket channel message:", streamRequest);
 
         const encoding =
@@ -166,7 +166,7 @@ class FrontBattleStreamRegistry {
 
         const buffer =
             encoding === SocketEncoding.PROTOBUF
-                ? streamingGrpc.BattleResponse.encode(streamRequest).finish()
+                ? streamingProto.BattleResponse.encode(streamRequest).finish()
                 : JSON.stringify(streamRequest);
 
         if (ws.readyState === WebSocket.OPEN) {

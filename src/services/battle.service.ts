@@ -1,29 +1,29 @@
 import * as battleClient from "../grpc/clients/battle.client";
-import * as profileGrpc from "../grpc/generated/profile";
-import * as battleGrpc from "../grpc/generated/battle";
-import * as engineGrpc from "../grpc/generated/engine";
+import * as profileProto from "../grpc/generated/profile";
+import * as battleProto from "../grpc/generated/battle";
+import * as engineProto from "../grpc/generated/engine";
 import {BattleObject, BattleStatus} from "../grpc/generated/battle";
 import FrontBattleStreamRegistry from "../websocket/channels/front.battle.stream";
 import logger from "@shared/logger";
-import * as streamingGrpc from "../grpc/generated/streaming";
-import {createMetadataWithJwt} from "../lib/grpcRequestMetadata";
+import * as streamingProto from "../grpc/generated/streaming";
+import {metadataWithJwt} from "../lib/grpcRequestMetadata";
 import engineStream from "../grpc/channels/engine.stream";
 
 export const upsert = async (profileId: string, jwt: string) => {
-    const grpcRequest = profileGrpc.ProfileIdRequest.create({profileId});
-    const metadata = createMetadataWithJwt(jwt);
+    const grpcRequest = profileProto.ProfileIdRequest.create({profileId});
+    const metadata = metadataWithJwt(jwt);
 
     return await battleClient.upsert(grpcRequest, metadata);
 }
 
 export const join = async (battleId: string, profileId: string, jwt: string) => {
-    const grpcRequest: battleGrpc.BattleStartRequest = {battleId, profileId};
-    const metadata = createMetadataWithJwt(jwt);
+    const grpcRequest: battleProto.BattleStartRequest = {battleId, profileId};
+    const metadata = metadataWithJwt(jwt);
     return await battleClient.join(grpcRequest, metadata);
 }
 
 export const leave = async (battleId: string, profileId: string) => {
-    const grpcRequest = engineGrpc.BattleRequest.create({
+    const grpcRequest = engineProto.BattleRequest.create({
         leave: {
             battleId,
             profileId,
@@ -36,7 +36,7 @@ export const leave = async (battleId: string, profileId: string) => {
 export const update = async (battle: BattleObject) => {
     // logger.log('update battle:', battle);
     try {
-        const message = streamingGrpc.BattleResponse.create({battle});
+        const message = streamingProto.BattleResponse.create({battle});
 
         FrontBattleStreamRegistry.writeBattleStreams(battle.id, message);
     } catch (e) {

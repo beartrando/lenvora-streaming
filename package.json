@@ -1,12 +1,11 @@
 {
   "name": "streaming",
-  "version": "1.0.0",
   "main": "dist/app.js",
   "scripts": {
     "dev": "nodemon --watch src --watch ../../shared/ --exec ts-node -r tsconfig-paths/register src/app.ts",
     "stage": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc -p tsconfig.json",
-    "proto:generate": "pnpm exec protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/infrastructure/grpc/generated --ts_proto_opt=outputServices=grpc-js,useExactTypes=false,esModuleInterop=true --proto_path=../../proto/ ../../proto/*.proto ../../proto/**/*.proto",
+    "proto:generate": "pnpm exec protoc --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=src/contracts/proto --ts_proto_opt=outputServices=grpc-js,useExactTypes=false,esModuleInterop=true --proto_path=../../proto/ ../../proto/*.proto ../../proto/**/*.proto",
     "prisma:generate": "npx prisma generate",
     "start": "node ./dist/app.js",
     "test": "jest"
@@ -47,6 +46,6 @@
     "ws": "^8.21.0"
   },
   "prisma": {
-    "schema": "./src/infrastructure/database/prisma/schema.prisma"
+    "schema": "./src/infrastructure/db/prisma/schema.prisma"
   }
 }

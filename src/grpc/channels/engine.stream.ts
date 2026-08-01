@@ -1,4 +1,4 @@
-import * as engineGrpc from '../generated/engine';
+import * as engineProto from '../generated/engine';
 import config from "../../config/config";
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
@@ -7,7 +7,7 @@ import * as battleService from "../../services/battle.service";
 
 class EngineStream {
     private stream: grpc.ClientDuplexStream<any, any> | null = null;
-    private client: engineGrpc.EngineClient | null = null;
+    private client: engineProto.EngineClient | null = null;
     private reconnectDelay = 1000; // стартовый backoff
     private maxDelay = 30000;
     private heartbeatInterval: NodeJS.Timeout | null = null;
@@ -31,14 +31,14 @@ class EngineStream {
 
         logger.log('Connection stream engine...')
 
-        this.client = new engineGrpc.EngineClient(
+        this.client = new engineProto.EngineClient(
             config.serviceEngineUrl,
             grpc.credentials.createInsecure()
         );
 
         this.stream = this.client.battleChannel();
 
-        this.stream.on('data', (message: engineGrpc.BattleResponse) => {
+        this.stream.on('data', (message: engineProto.BattleResponse) => {
 
             this.reconnectDelay = 1000
 
@@ -75,7 +75,7 @@ class EngineStream {
         return this.stream;
     }
 
-    write(data: engineGrpc.BattleRequest) {
+    write(data: engineProto.BattleRequest) {
         // logger.info(data);
         if (!this.stream) {
             throw new Error('Engine stream not initialized');

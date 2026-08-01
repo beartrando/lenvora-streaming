@@ -1,17 +1,17 @@
 import type {WebSocket} from "ws";
-import * as streamingGrpc from "../../grpc/generated/streaming";
+import * as streamingProto from "../../grpc/generated/streaming";
 import * as battleService from "../../services/battle.service";
-import * as engineGrpc from "../../grpc/generated/engine";
-import * as battleGrpc from "../../grpc/generated/battle";
+import * as engineProto from "../../grpc/generated/engine";
+import * as battleProto from "../../grpc/generated/battle";
 import logger from "@shared/logger";
 import frontBattleStreamRegistry from "../channels/front.battle.stream";
 import * as profileService from "../../services/profile.service";
-import * as errorGrpc from "../../grpc/generated/common/error";
+import * as errorProto from "../../grpc/generated/common/error";
 import engineStream from "../../grpc/channels/engine.stream";
 import pgBossManager from "@shared/pg-boss-manager";
 
 import {kafkaProducersConfig} from "../../config/kafka.config";
-import * as emptyGrpc from "../../grpc/generated/common/empty";
+import * as emptyProto from "../../grpc/generated/common/empty";
 
 
 export async function isAllowedUser(userId: string, profileId: string, jwt: string) {
@@ -21,7 +21,7 @@ export async function isAllowedUser(userId: string, profileId: string, jwt: stri
     return resp?.profile?.id === profileId;
 }
 
-export async function battleHandler(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.BattleRequest): Promise<void> {
+export async function battleHandler(ws: WebSocket, jwt: string, profileId: string, payload: streamingProto.BattleRequest): Promise<void> {
     logger.log('battleHandler got event');
     logger.log(payload);
 
@@ -40,10 +40,10 @@ export async function battleHandler(ws: WebSocket, jwt: string, profileId: strin
     logger.warn(`⚠️ Unknown payload type:`, payload);
 }
 
-export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: string, payload: streamingGrpc.BattleStart) {
+export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: string, payload: streamingProto.BattleStart) {
     logger.log("Battle join event");
 
-    let resp: battleGrpc.BattleResponse | null;
+    let resp: battleProto.BattleResponse | null;
 
     if (payload.battleId) {
         resp = await battleService.join(payload.battleId, profileId, jwt);
@@ -58,12 +58,12 @@ export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: 
         // logger.log("Battle stream was set:" + battle.id);
 
         try {
-            if (resp.battle.status === battleGrpc.BattleStatus.ACTIVE) {
-                const grpcRequest = engineGrpc.BattleRequest.create({start: resp.battle})
+            if (resp.battle.status === battleProto.BattleStatus.ACTIVE) {
+                const grpcRequest = engineProto.BattleRequest.create({start: resp.battle})
                 engineStream.write(grpcRequest);
             }
 
-            const message = streamingGrpc.BattleResponse.create({battle: resp.battle});
+            const message = streamingProto.BattleResponse.create({battle: resp.battle});
 
             frontBattleStreamRegistry.writeBattleStreams(resp.battle.id, message);
         } catch (e) {
@@ -71,16 +71,16 @@ export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: 
         }
 
     } else if (resp?.error) {
-        const battleStreamResponse = streamingGrpc.BattleResponse.create({
+        const battleStreamResponse = streamingProto.BattleResponse.create({
             error: resp.error
         });
 
         frontBattleStreamRegistry.writeStream(ws, battleStreamResponse);
         return;
     } else {
-        const battleStreamResponse = streamingGrpc.BattleResponse.create({
+        const battleStreamResponse = streamingProto.BattleResponse.create({
             error: {
-                code: errorGrpc.ErrorCode.ENTITY_SPECIFIC,
+                code: errorProto.ErrorCode.ENTITY_SPECIFIC,
                 message: "Battle not found"
             }
         });
@@ -93,7 +93,7 @@ export async function battleHandlerStart(ws: WebSocket, jwt: string, profileId: 
 export async function battleHandlerMove(
     ws: WebSocket,
     profileId: string,
-    payload: streamingGrpc.BattleMove,
+    payload: streamingProto.BattleMove,
 ) {
     const battleId = payload.battleId;
 
@@ -109,8 +109,8 @@ export async function battleHandlerMove(
         return;
     }
 
-    const grpcRequest = engineGrpc.BattleRequest.create({
-        move: engineGrpc.BattleMove.create({
+    const grpcRequest = engineProto.BattleRequest.create({
+        move: engineProto.BattleMove.create({
             profileId,
             ...payload,
         }),
@@ -120,14 +120,14 @@ export async function battleHandlerMove(
 }
 
 export async function battleHandlerPing(ws: WebSocket) {
-    frontBattleStreamRegistry.writeStream(ws, emptyGrpc.Empty.create({}));
+    frontBattleStreamRegistry.writeStream(ws, emptyProto.Empty.create({}));
 }
 
 
 export async function battleHandlerConnectBot(
     ws: WebSocket,
     profileId: string,
-    payload: streamingGrpc.BattleJoinBot,
+    payload: streamingProto.BattleJoinBot,
 ) {
     const battleId = payload.battleId;
 
@@ -144,7 +144,7 @@ export async function battleHandlerConnectBot(
     }
 
     const battleIdRequest =
-        streamingGrpc.BattleStart.create({battleId});
+        streamingProto.BattleStart.create({battleId});
 
     logger.log("Messaging to Bot service");
 
@@ -154,7 +154,7 @@ export async function battleHandlerConnectBot(
     );
 }
 
-export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingGrpc.BattleLeave) {
+export async function battleHandlerLeave(ws: WebSocket, profileId: string, payload: streamingProto.BattleLeave) {
     const battleId = payload.battleId;
     await battleService.leave(battleId, profileId);
 }

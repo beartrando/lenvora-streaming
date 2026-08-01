@@ -2,32 +2,32 @@ import prisma from '../lib/prisma';
 import logger from '@shared/logger';
 import kafkaConfig from '../config/kafka.config';
 import {createProducer} from '@shared/kafka-manager';
-import * as healthGrpc from '../grpc/generated/common/health';
+import * as healthProto from '../grpc/generated/common/health';
 
 const startedAt = Date.now();
 
-export const check = async (): Promise<healthGrpc.HealthReport> => {
+export const check = async (): Promise<healthProto.HealthReport> => {
     const [pgOk, kafkaOk] = await Promise.all([checkPostgres(), checkKafka()]);
 
     return {
         service: 'streaming',
         status:
             pgOk && kafkaOk
-                ? healthGrpc.HealthStatus.HEALTH_STATUS_OK
-                : healthGrpc.HealthStatus.HEALTH_STATUS_FAIL,
+                ? healthProto.HealthStatus.HEALTH_STATUS_OK
+                : healthProto.HealthStatus.HEALTH_STATUS_FAIL,
         components: {
             postgres: pgOk
-                ? healthGrpc.HealthStatus.HEALTH_STATUS_OK
-                : healthGrpc.HealthStatus.HEALTH_STATUS_FAIL,
+                ? healthProto.HealthStatus.HEALTH_STATUS_OK
+                : healthProto.HealthStatus.HEALTH_STATUS_FAIL,
             kafka: kafkaOk
-                ? healthGrpc.HealthStatus.HEALTH_STATUS_OK
-                : healthGrpc.HealthStatus.HEALTH_STATUS_FAIL,
+                ? healthProto.HealthStatus.HEALTH_STATUS_OK
+                : healthProto.HealthStatus.HEALTH_STATUS_FAIL,
         },
         timestamp: new Date(),
     };
 };
 
-export const status = async (): Promise<healthGrpc.ServiceStatus> => {
+export const status = async (): Promise<healthProto.ServiceStatus> => {
     const uptimeMs = Date.now() - startedAt;
 
     return {
@@ -42,11 +42,11 @@ export const status = async (): Promise<healthGrpc.ServiceStatus> => {
     };
 }
 
-export const livez = async (): Promise<healthGrpc.LiveStatus> => ({
+export const livez = async (): Promise<healthProto.LiveStatus> => ({
     live: true,
 });
 
-export const readyz = async (): Promise<healthGrpc.ReadyStatus> => {
+export const readyz = async (): Promise<healthProto.ReadyStatus> => {
     const [pgOk, kafkaOk] = await Promise.all([checkPostgres(), checkKafka()]);
     return {ready: pgOk && kafkaOk};
 };

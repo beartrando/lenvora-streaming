@@ -1,5 +1,5 @@
 import {RawData, WebSocket, WebSocketServer} from 'ws';
-import * as streamingGrpc from "../grpc/generated/streaming";
+import * as streamingProto from "../grpc/generated/streaming";
 import {battleHandler, isAllowedUser} from "./handlers/battle.handler";
 import config from "../config/config";
 import logger from "@shared/logger";
@@ -14,10 +14,10 @@ logger.info(`WebSocket listening on ${config.webSocketPort}`);
 function decodeMessage(
     data: RawData,
     encoding: SocketEncoding,
-): streamingGrpc.BattleRequest {
+): streamingProto.BattleRequest {
     return (encoding === SocketEncoding.PLAIN)
         ? JSON.parse(data.toString())
-        : streamingGrpc.BattleRequest.decode(data as Uint8Array);
+        : streamingProto.BattleRequest.decode(data as Uint8Array);
 }
 
 const handlers: Record<
@@ -26,7 +26,7 @@ const handlers: Record<
         ws: WebSocket,
         token: string,
         profileId: string,
-        request: streamingGrpc.BattleRequest,
+        request: streamingProto.BattleRequest,
         encoding: SocketEncoding
     ) => Promise<void>
 > = {

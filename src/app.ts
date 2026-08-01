@@ -18,7 +18,7 @@ import engineStream from "./grpc/channels/engine.stream";
 const GRPC_PORT =
     process.env.GRPC_PORT ?? '50051';
 
-async function startGrpc(): Promise<void> {
+async function startProto(): Promise<void> {
     return new Promise<void>(
         (resolve, reject) => {
             grpcServer.bindAsync(
@@ -125,17 +125,17 @@ async function startWebSocket() {
     return initWss();
 }
 
-async function startGrpcStreamToEngineService() {
+async function startProtoStreamToEngineService() {
     return engineStream.connect();
 }
 
 async function bootstrap(): Promise<void> {
 
     try {
-        await startGrpc();
+        await startProto();
         await startPgBoss();
         await createKafkaConsumers();
-        await startGrpcStreamToEngineService();
+        await startProtoStreamToEngineService();
         await startWebSocket();
 
         logger.info(

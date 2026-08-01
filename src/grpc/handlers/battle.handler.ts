@@ -1,6 +1,6 @@
 // import * as grpc from '@grpc/grpc-js';
-// import * as battleGrpc from '../generated/battle';
-// import * as streamingGrpc from '../generated/streaming';
+// import * as battleProto from '../generated/battle';
+// import * as streamingProto from '../generated/streaming';
 // import grpcRequestMetadata from "../../utils/grpcRequestMetadata";
 // import * as engineService from "../../services/engine.service";
 // import * as battleService from "../../services/battle.service";
@@ -8,9 +8,9 @@
 // import BattleStreamRegistry from "../../channels/engine.battle.stream";
 //
 // export async function battleChannel(
-//   call: grpc.ServerDuplexStream<streamingGrpc.BattleRequest, battleGrpc.BattleObject>) {
+//   call: grpc.ServerDuplexStream<streamingProto.BattleRequest, battleProto.BattleObject>) {
 //
-//   call.on('data', async (event: streamingGrpc.BattleRequest) => {
+//   call.on('data', async (event: streamingProto.BattleRequest) => {
 //
 //
 //     const userId = grpcRequestMetadata(call);

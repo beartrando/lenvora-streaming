@@ -10,7 +10,7 @@ import * as errorProto from "../../grpc/generated/common/error";
 import engineStream from "../../grpc/channels/engine.stream";
 import pgBossManager from "@shared/pg-boss-manager";
 
-import {kafkaProducersConfig} from "../../config/kafka.config";
+import {messageProducersConfig} from "../../config/kafka.config";
 import * as emptyProto from "../../grpc/generated/common/empty";
 
 
@@ -149,7 +149,7 @@ export async function battleHandlerConnectBot(
     logger.log("Messaging to Bot service");
 
     await pgBossManager.queue.enqueue(
-        kafkaProducersConfig.aiConnectingRequest,
+        messageProducersConfig.aiConnectingRequest,
         battleIdRequest,
     );
 }

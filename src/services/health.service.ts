@@ -1,6 +1,6 @@
 import prisma from '../lib/prisma';
 import logger from '@shared/logger';
-import kafkaConfig from '../config/kafka.config';
+import messageConfig from '../config/kafka.config';
 import {createProducer} from '@shared/kafka-manager';
 import * as healthProto from '../grpc/generated/common/health';
 
@@ -63,7 +63,7 @@ export const checkPostgres = async (): Promise<boolean> => {
 
 export const checkKafka = async (): Promise<boolean> => {
     try {
-        const producer = await createProducer(kafkaConfig);
+        const producer = await createProducer(messageConfig);
         producer.send('healthcheck', [{value: 'ping'}]);
         return true;
     } catch (err) {

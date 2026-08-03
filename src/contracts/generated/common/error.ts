@@ -5,241 +5,246 @@
 // source: common/error.proto
 
 /* eslint-disable */
-import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
+import {BinaryReader, BinaryWriter} from "@bufbuild/protobuf/wire";
 
 export const protobufPackage = "common.error";
 
 export enum ErrorCode {
-  UNKNOWN = 0,
-  INVALID_SESSION = 1,
-  ACCESS_DENIED = 2,
-  NOT_FOUND = 3,
-  VALIDATION_FAILED = 4,
-  SERVICE_UNAVAILABLE = 5,
-  INVALID_RESPONSE = 6,
-  ENTITY_SPECIFIC = 100,
-  UNRECOGNIZED = -1,
+    UNKNOWN = 0,
+    INVALID_SESSION = 1,
+    ACCESS_DENIED = 2,
+    NOT_FOUND = 3,
+    VALIDATION_FAILED = 4,
+    SERVICE_UNAVAILABLE = 5,
+    INVALID_RESPONSE = 6,
+    ENTITY_SPECIFIC = 100,
+    UNRECOGNIZED = -1,
 }
 
 export function errorCodeFromJSON(object: any): ErrorCode {
-  switch (object) {
-    case 0:
-    case "UNKNOWN":
-      return ErrorCode.UNKNOWN;
-    case 1:
-    case "INVALID_SESSION":
-      return ErrorCode.INVALID_SESSION;
-    case 2:
-    case "ACCESS_DENIED":
-      return ErrorCode.ACCESS_DENIED;
-    case 3:
-    case "NOT_FOUND":
-      return ErrorCode.NOT_FOUND;
-    case 4:
-    case "VALIDATION_FAILED":
-      return ErrorCode.VALIDATION_FAILED;
-    case 5:
-    case "SERVICE_UNAVAILABLE":
-      return ErrorCode.SERVICE_UNAVAILABLE;
-    case 6:
-    case "INVALID_RESPONSE":
-      return ErrorCode.INVALID_RESPONSE;
-    case 100:
-    case "ENTITY_SPECIFIC":
-      return ErrorCode.ENTITY_SPECIFIC;
-    case -1:
-    case "UNRECOGNIZED":
-    default:
-      return ErrorCode.UNRECOGNIZED;
-  }
+    switch (object) {
+        case 0:
+        case "UNKNOWN":
+            return ErrorCode.UNKNOWN;
+        case 1:
+        case "INVALID_SESSION":
+            return ErrorCode.INVALID_SESSION;
+        case 2:
+        case "ACCESS_DENIED":
+            return ErrorCode.ACCESS_DENIED;
+        case 3:
+        case "NOT_FOUND":
+            return ErrorCode.NOT_FOUND;
+        case 4:
+        case "VALIDATION_FAILED":
+            return ErrorCode.VALIDATION_FAILED;
+        case 5:
+        case "SERVICE_UNAVAILABLE":
+            return ErrorCode.SERVICE_UNAVAILABLE;
+        case 6:
+        case "INVALID_RESPONSE":
+            return ErrorCode.INVALID_RESPONSE;
+        case 100:
+        case "ENTITY_SPECIFIC":
+            return ErrorCode.ENTITY_SPECIFIC;
+        case -1:
+        case "UNRECOGNIZED":
+        default:
+            return ErrorCode.UNRECOGNIZED;
+    }
 }
 
 export function errorCodeToJSON(object: ErrorCode): string {
-  switch (object) {
-    case ErrorCode.UNKNOWN:
-      return "UNKNOWN";
-    case ErrorCode.INVALID_SESSION:
-      return "INVALID_SESSION";
-    case ErrorCode.ACCESS_DENIED:
-      return "ACCESS_DENIED";
-    case ErrorCode.NOT_FOUND:
-      return "NOT_FOUND";
-    case ErrorCode.VALIDATION_FAILED:
-      return "VALIDATION_FAILED";
-    case ErrorCode.SERVICE_UNAVAILABLE:
-      return "SERVICE_UNAVAILABLE";
-    case ErrorCode.INVALID_RESPONSE:
-      return "INVALID_RESPONSE";
-    case ErrorCode.ENTITY_SPECIFIC:
-      return "ENTITY_SPECIFIC";
-    case ErrorCode.UNRECOGNIZED:
-    default:
-      return "UNRECOGNIZED";
-  }
+    switch (object) {
+        case ErrorCode.UNKNOWN:
+            return "UNKNOWN";
+        case ErrorCode.INVALID_SESSION:
+            return "INVALID_SESSION";
+        case ErrorCode.ACCESS_DENIED:
+            return "ACCESS_DENIED";
+        case ErrorCode.NOT_FOUND:
+            return "NOT_FOUND";
+        case ErrorCode.VALIDATION_FAILED:
+            return "VALIDATION_FAILED";
+        case ErrorCode.SERVICE_UNAVAILABLE:
+            return "SERVICE_UNAVAILABLE";
+        case ErrorCode.INVALID_RESPONSE:
+            return "INVALID_RESPONSE";
+        case ErrorCode.ENTITY_SPECIFIC:
+            return "ENTITY_SPECIFIC";
+        case ErrorCode.UNRECOGNIZED:
+        default:
+            return "UNRECOGNIZED";
+    }
 }
 
 export interface ErrorObject {
-  code: ErrorCode;
-  message: string;
+    code: ErrorCode;
+    message: string;
 }
 
 export interface EmptyResponse {
-  error: ErrorObject | undefined;
+    error: ErrorObject | undefined;
 }
 
 function createBaseErrorObject(): ErrorObject {
-  return { code: 0, message: "" };
+    return {code: 0, message: ""};
 }
 
 export const ErrorObject: MessageFns<ErrorObject> = {
-  encode(message: ErrorObject, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.code !== 0) {
-      writer.uint32(8).int32(message.code);
-    }
-    if (message.message !== "") {
-      writer.uint32(18).string(message.message);
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): ErrorObject {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseErrorObject();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 8) {
-            break;
-          }
-
-          message.code = reader.int32() as any;
-          continue;
+    encode(message: ErrorObject, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+        if (message.code !== 0) {
+            writer.uint32(8).int32(message.code);
         }
-        case 2: {
-          if (tag !== 18) {
-            break;
-          }
-
-          message.message = reader.string();
-          continue;
+        if (message.message !== "") {
+            writer.uint32(18).string(message.message);
         }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+        return writer;
+    },
 
-  fromJSON(object: any): ErrorObject {
-    return {
-      code: isSet(object.code) ? errorCodeFromJSON(object.code) : 0,
-      message: isSet(object.message) ? globalThis.String(object.message) : "",
-    };
-  },
+    decode(input: BinaryReader | Uint8Array, length?: number): ErrorObject {
+        const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseErrorObject();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 8) {
+                        break;
+                    }
 
-  toJSON(message: ErrorObject): unknown {
-    const obj: any = {};
-    if (message.code !== 0) {
-      obj.code = errorCodeToJSON(message.code);
-    }
-    if (message.message !== "") {
-      obj.message = message.message;
-    }
-    return obj;
-  },
+                    message.code = reader.int32() as any;
+                    continue;
+                }
+                case 2: {
+                    if (tag !== 18) {
+                        break;
+                    }
 
-  create(base?: DeepPartial<ErrorObject>): ErrorObject {
-    return ErrorObject.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<ErrorObject>): ErrorObject {
-    const message = createBaseErrorObject();
-    message.code = object.code ?? 0;
-    message.message = object.message ?? "";
-    return message;
-  },
+                    message.message = reader.string();
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
+
+    fromJSON(object: any): ErrorObject {
+        return {
+            code: isSet(object.code) ? errorCodeFromJSON(object.code) : 0,
+            message: isSet(object.message) ? globalThis.String(object.message) : "",
+        };
+    },
+
+    toJSON(message: ErrorObject): unknown {
+        const obj: any = {};
+        if (message.code !== 0) {
+            obj.code = errorCodeToJSON(message.code);
+        }
+        if (message.message !== "") {
+            obj.message = message.message;
+        }
+        return obj;
+    },
+
+    create(base?: DeepPartial<ErrorObject>): ErrorObject {
+        return ErrorObject.fromPartial(base ?? {});
+    },
+    fromPartial(object: DeepPartial<ErrorObject>): ErrorObject {
+        const message = createBaseErrorObject();
+        message.code = object.code ?? 0;
+        message.message = object.message ?? "";
+        return message;
+    },
 };
 
 function createBaseEmptyResponse(): EmptyResponse {
-  return { error: undefined };
+    return {error: undefined};
 }
 
 export const EmptyResponse: MessageFns<EmptyResponse> = {
-  encode(message: EmptyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
-    if (message.error !== undefined) {
-      ErrorObject.encode(message.error, writer.uint32(10).fork()).join();
-    }
-    return writer;
-  },
-
-  decode(input: BinaryReader | Uint8Array, length?: number): EmptyResponse {
-    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
-    const end = length === undefined ? reader.len : reader.pos + length;
-    const message = createBaseEmptyResponse();
-    while (reader.pos < end) {
-      const tag = reader.uint32();
-      switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
-            break;
-          }
-
-          message.error = ErrorObject.decode(reader, reader.uint32());
-          continue;
+    encode(message: EmptyResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+        if (message.error !== undefined) {
+            ErrorObject.encode(message.error, writer.uint32(10).fork()).join();
         }
-      }
-      if ((tag & 7) === 4 || tag === 0) {
-        break;
-      }
-      reader.skip(tag & 7);
-    }
-    return message;
-  },
+        return writer;
+    },
 
-  fromJSON(object: any): EmptyResponse {
-    return { error: isSet(object.error) ? ErrorObject.fromJSON(object.error) : undefined };
-  },
+    decode(input: BinaryReader | Uint8Array, length?: number): EmptyResponse {
+        const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+        const end = length === undefined ? reader.len : reader.pos + length;
+        const message = createBaseEmptyResponse();
+        while (reader.pos < end) {
+            const tag = reader.uint32();
+            switch (tag >>> 3) {
+                case 1: {
+                    if (tag !== 10) {
+                        break;
+                    }
 
-  toJSON(message: EmptyResponse): unknown {
-    const obj: any = {};
-    if (message.error !== undefined) {
-      obj.error = ErrorObject.toJSON(message.error);
-    }
-    return obj;
-  },
+                    message.error = ErrorObject.decode(reader, reader.uint32());
+                    continue;
+                }
+            }
+            if ((tag & 7) === 4 || tag === 0) {
+                break;
+            }
+            reader.skip(tag & 7);
+        }
+        return message;
+    },
 
-  create(base?: DeepPartial<EmptyResponse>): EmptyResponse {
-    return EmptyResponse.fromPartial(base ?? {});
-  },
-  fromPartial(object: DeepPartial<EmptyResponse>): EmptyResponse {
-    const message = createBaseEmptyResponse();
-    message.error = (object.error !== undefined && object.error !== null)
-      ? ErrorObject.fromPartial(object.error)
-      : undefined;
-    return message;
-  },
+    fromJSON(object: any): EmptyResponse {
+        return {error: isSet(object.error) ? ErrorObject.fromJSON(object.error) : undefined};
+    },
+
+    toJSON(message: EmptyResponse): unknown {
+        const obj: any = {};
+        if (message.error !== undefined) {
+            obj.error = ErrorObject.toJSON(message.error);
+        }
+        return obj;
+    },
+
+    create(base?: DeepPartial<EmptyResponse>): EmptyResponse {
+        return EmptyResponse.fromPartial(base ?? {});
+    },
+    fromPartial(object: DeepPartial<EmptyResponse>): EmptyResponse {
+        const message = createBaseEmptyResponse();
+        message.error = (object.error !== undefined && object.error !== null)
+            ? ErrorObject.fromPartial(object.error)
+            : undefined;
+        return message;
+    },
 };
 
 type Builtin = Date | Function | Uint8Array | string | number | boolean | undefined;
 
 export type DeepPartial<T> = T extends Builtin ? T
-  : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
-  : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
-  : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
-  : Partial<T>;
+    : T extends globalThis.Array<infer U> ? globalThis.Array<DeepPartial<U>>
+        : T extends ReadonlyArray<infer U> ? ReadonlyArray<DeepPartial<U>>
+            : T extends {} ? { [K in keyof T]?: DeepPartial<T[K]> }
+                : Partial<T>;
 
 function isSet(value: any): boolean {
-  return value !== null && value !== undefined;
+    return value !== null && value !== undefined;
 }
 
 export interface MessageFns<T> {
-  encode(message: T, writer?: BinaryWriter): BinaryWriter;
-  decode(input: BinaryReader | Uint8Array, length?: number): T;
-  fromJSON(object: any): T;
-  toJSON(message: T): unknown;
-  create(base?: DeepPartial<T>): T;
-  fromPartial(object: DeepPartial<T>): T;
+    encode(message: T, writer?: BinaryWriter): BinaryWriter;
+
+    decode(input: BinaryReader | Uint8Array, length?: number): T;
+
+    fromJSON(object: any): T;
+
+    toJSON(message: T): unknown;
+
+    create(base?: DeepPartial<T>): T;
+
+    fromPartial(object: DeepPartial<T>): T;
 }

@@ -18,7 +18,6 @@ import {
   type ServiceError,
   type UntypedServiceImplementation,
 } from "@grpc/grpc-js";
-import { UserIdRequest } from "./auth";
 import { ErrorObject } from "./common/error";
 import { Timestamp } from "./google/protobuf/timestamp";
 import { ProfileIdRequest } from "./profile";
@@ -65,7 +64,7 @@ export function battleCellValueToJSON(object: BattleCellValue): string {
 }
 
 export enum BattleStatus {
-  BATTLE_STATUS_UNKNOWN = 0,
+  UNKNOWN = 0,
   NEW = 1,
   ACTIVE = 2,
   FINISHED = 3,
@@ -75,8 +74,8 @@ export enum BattleStatus {
 export function battleStatusFromJSON(object: any): BattleStatus {
   switch (object) {
     case 0:
-    case "BATTLE_STATUS_UNKNOWN":
-      return BattleStatus.BATTLE_STATUS_UNKNOWN;
+    case "UNKNOWN":
+      return BattleStatus.UNKNOWN;
     case 1:
     case "NEW":
       return BattleStatus.NEW;
@@ -95,8 +94,8 @@ export function battleStatusFromJSON(object: any): BattleStatus {
 
 export function battleStatusToJSON(object: BattleStatus): string {
   switch (object) {
-    case BattleStatus.BATTLE_STATUS_UNKNOWN:
-      return "BATTLE_STATUS_UNKNOWN";
+    case BattleStatus.UNKNOWN:
+      return "UNKNOWN";
     case BattleStatus.NEW:
       return "NEW";
     case BattleStatus.ACTIVE:
@@ -120,7 +119,7 @@ export interface BattleStartRequest {
 
 export interface BattleObject {
   id: string;
-  cells: BattleCellValue[];
+  board: BattleCellValue[];
   playerIds: string[];
   status: BattleStatus;
   winnerId: string;
@@ -131,6 +130,15 @@ export interface BattleObject {
 
 export interface BattleResponse {
   battle?: BattleObject | undefined;
+  error?: ErrorObject | undefined;
+}
+
+export interface BattleList {
+  items: BattleObject[];
+}
+
+export interface BattlesResponse {
+  battles?: BattleList | undefined;
   error?: ErrorObject | undefined;
 }
 
@@ -285,7 +293,7 @@ export const BattleStartRequest: MessageFns<BattleStartRequest> = {
 function createBaseBattleObject(): BattleObject {
   return {
     id: "",
-    cells: [],
+    board: [],
     playerIds: [],
     status: 0,
     winnerId: "",
@@ -301,7 +309,7 @@ export const BattleObject: MessageFns<BattleObject> = {
       writer.uint32(10).string(message.id);
     }
     writer.uint32(18).fork();
-    for (const v of message.cells) {
+    for (const v of message.board) {
       writer.int32(v);
     }
     writer.join();
@@ -343,7 +351,7 @@ export const BattleObject: MessageFns<BattleObject> = {
         }
         case 2: {
           if (tag === 16) {
-            message.cells.push(reader.int32() as any);
+            message.board.push(reader.int32() as any);
 
             continue;
           }
@@ -351,7 +359,7 @@ export const BattleObject: MessageFns<BattleObject> = {
           if (tag === 18) {
             const end2 = reader.uint32() + reader.pos;
             while (reader.pos < end2) {
-              message.cells.push(reader.int32() as any);
+              message.board.push(reader.int32() as any);
             }
 
             continue;
@@ -419,7 +427,7 @@ export const BattleObject: MessageFns<BattleObject> = {
   fromJSON(object: any): BattleObject {
     return {
       id: isSet(object.id) ? globalThis.String(object.id) : "",
-      cells: globalThis.Array.isArray(object?.cells) ? object.cells.map((e: any) => battleCellValueFromJSON(e)) : [],
+      board: globalThis.Array.isArray(object?.board) ? object.board.map((e: any) => battleCellValueFromJSON(e)) : [],
       playerIds: globalThis.Array.isArray(object?.playerIds)
         ? object.playerIds.map((e: any) => globalThis.String(e))
         : globalThis.Array.isArray(object?.player_ids)
@@ -454,8 +462,8 @@ export const BattleObject: MessageFns<BattleObject> = {
     if (message.id !== "") {
       obj.id = message.id;
     }
-    if (message.cells?.length) {
-      obj.cells = message.cells.map((e) => battleCellValueToJSON(e));
+    if (message.board?.length) {
+      obj.board = message.board.map((e) => battleCellValueToJSON(e));
     }
     if (message.playerIds?.length) {
       obj.playerIds = message.playerIds;
@@ -484,7 +492,7 @@ export const BattleObject: MessageFns<BattleObject> = {
   fromPartial(object: DeepPartial<BattleObject>): BattleObject {
     const message = createBaseBattleObject();
     message.id = object.id ?? "";
-    message.cells = object.cells?.map((e) => e) || [];
+    message.board = object.board?.map((e) => e) || [];
     message.playerIds = object.playerIds?.map((e) => e) || [];
     message.status = object.status ?? 0;
     message.winnerId = object.winnerId ?? "";
@@ -575,37 +583,168 @@ export const BattleResponse: MessageFns<BattleResponse> = {
   },
 };
 
+function createBaseBattleList(): BattleList {
+  return { items: [] };
+}
+
+export const BattleList: MessageFns<BattleList> = {
+  encode(message: BattleList, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.items) {
+      BattleObject.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BattleList {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBattleList();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.items.push(BattleObject.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BattleList {
+    return {
+      items: globalThis.Array.isArray(object?.items) ? object.items.map((e: any) => BattleObject.fromJSON(e)) : [],
+    };
+  },
+
+  toJSON(message: BattleList): unknown {
+    const obj: any = {};
+    if (message.items?.length) {
+      obj.items = message.items.map((e) => BattleObject.toJSON(e));
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<BattleList>): BattleList {
+    return BattleList.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<BattleList>): BattleList {
+    const message = createBaseBattleList();
+    message.items = object.items?.map((e) => BattleObject.fromPartial(e)) || [];
+    return message;
+  },
+};
+
+function createBaseBattlesResponse(): BattlesResponse {
+  return { battles: undefined, error: undefined };
+}
+
+export const BattlesResponse: MessageFns<BattlesResponse> = {
+  encode(message: BattlesResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.battles !== undefined) {
+      BattleList.encode(message.battles, writer.uint32(10).fork()).join();
+    }
+    if (message.error !== undefined) {
+      ErrorObject.encode(message.error, writer.uint32(18).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): BattlesResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    const end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseBattlesResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.battles = BattleList.decode(reader, reader.uint32());
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.error = ErrorObject.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): BattlesResponse {
+    return {
+      battles: isSet(object.battles) ? BattleList.fromJSON(object.battles) : undefined,
+      error: isSet(object.error) ? ErrorObject.fromJSON(object.error) : undefined,
+    };
+  },
+
+  toJSON(message: BattlesResponse): unknown {
+    const obj: any = {};
+    if (message.battles !== undefined) {
+      obj.battles = BattleList.toJSON(message.battles);
+    }
+    if (message.error !== undefined) {
+      obj.error = ErrorObject.toJSON(message.error);
+    }
+    return obj;
+  },
+
+  create(base?: DeepPartial<BattlesResponse>): BattlesResponse {
+    return BattlesResponse.fromPartial(base ?? {});
+  },
+  fromPartial(object: DeepPartial<BattlesResponse>): BattlesResponse {
+    const message = createBaseBattlesResponse();
+    message.battles = (object.battles !== undefined && object.battles !== null)
+      ? BattleList.fromPartial(object.battles)
+      : undefined;
+    message.error = (object.error !== undefined && object.error !== null)
+      ? ErrorObject.fromPartial(object.error)
+      : undefined;
+    return message;
+  },
+};
+
 export type BattleService = typeof BattleService;
 export const BattleService = {
-  getActiveByUser: {
-    path: "/battle.Battle/GetActiveByUser" as const,
-    requestStream: false as const,
-    responseStream: false as const,
-    requestSerialize: (value: UserIdRequest): Buffer => Buffer.from(UserIdRequest.encode(value).finish()),
-    requestDeserialize: (value: Buffer): UserIdRequest => UserIdRequest.decode(value),
-    responseSerialize: (value: BattleResponse): Buffer => Buffer.from(BattleResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BattleResponse => BattleResponse.decode(value),
-  },
   get: {
     path: "/battle.Battle/Get" as const,
     requestStream: false as const,
     responseStream: false as const,
     requestSerialize: (value: BattleIdRequest): Buffer => Buffer.from(BattleIdRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer): BattleIdRequest => BattleIdRequest.decode(value),
-    responseSerialize: (value: BattleResponse): Buffer => Buffer.from(BattleResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BattleResponse => BattleResponse.decode(value),
+    responseSerialize: (value: BattlesResponse): Buffer => Buffer.from(BattlesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): BattlesResponse => BattlesResponse.decode(value),
   },
-  getOrCreate: {
-    path: "/battle.Battle/GetOrCreate" as const,
+  getActiveByProfile: {
+    path: "/battle.Battle/GetActiveByProfile" as const,
     requestStream: false as const,
     responseStream: false as const,
     requestSerialize: (value: ProfileIdRequest): Buffer => Buffer.from(ProfileIdRequest.encode(value).finish()),
     requestDeserialize: (value: Buffer): ProfileIdRequest => ProfileIdRequest.decode(value),
-    responseSerialize: (value: BattleResponse): Buffer => Buffer.from(BattleResponse.encode(value).finish()),
-    responseDeserialize: (value: Buffer): BattleResponse => BattleResponse.decode(value),
+    responseSerialize: (value: BattlesResponse): Buffer => Buffer.from(BattlesResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer): BattlesResponse => BattlesResponse.decode(value),
   },
-  join: {
-    path: "/battle.Battle/Join" as const,
+  start: {
+    path: "/battle.Battle/Start" as const,
     requestStream: false as const,
     responseStream: false as const,
     requestSerialize: (value: BattleStartRequest): Buffer => Buffer.from(BattleStartRequest.encode(value).finish()),
@@ -616,68 +755,52 @@ export const BattleService = {
 } as const;
 
 export interface BattleServer extends UntypedServiceImplementation {
-  getActiveByUser: handleUnaryCall<UserIdRequest, BattleResponse>;
-  get: handleUnaryCall<BattleIdRequest, BattleResponse>;
-  getOrCreate: handleUnaryCall<ProfileIdRequest, BattleResponse>;
-  join: handleUnaryCall<BattleStartRequest, BattleResponse>;
+  get: handleUnaryCall<BattleIdRequest, BattlesResponse>;
+  getActiveByProfile: handleUnaryCall<ProfileIdRequest, BattlesResponse>;
+  start: handleUnaryCall<BattleStartRequest, BattleResponse>;
 }
 
 export interface BattleClient extends Client {
-  getActiveByUser(
-    request: UserIdRequest,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
-  ): ClientUnaryCall;
-  getActiveByUser(
-    request: UserIdRequest,
-    metadata: Metadata,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
-  ): ClientUnaryCall;
-  getActiveByUser(
-    request: UserIdRequest,
-    metadata: Metadata,
-    options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
-  ): ClientUnaryCall;
   get(
     request: BattleIdRequest,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
   get(
     request: BattleIdRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
   get(
     request: BattleIdRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
-  getOrCreate(
+  getActiveByProfile(
     request: ProfileIdRequest,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
-  getOrCreate(
+  getActiveByProfile(
     request: ProfileIdRequest,
     metadata: Metadata,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
-  getOrCreate(
+  getActiveByProfile(
     request: ProfileIdRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,
-    callback: (error: ServiceError | null, response: BattleResponse) => void,
+    callback: (error: ServiceError | null, response: BattlesResponse) => void,
   ): ClientUnaryCall;
-  join(
+  start(
     request: BattleStartRequest,
     callback: (error: ServiceError | null, response: BattleResponse) => void,
   ): ClientUnaryCall;
-  join(
+  start(
     request: BattleStartRequest,
     metadata: Metadata,
     callback: (error: ServiceError | null, response: BattleResponse) => void,
   ): ClientUnaryCall;
-  join(
+  start(
     request: BattleStartRequest,
     metadata: Metadata,
     options: Partial<CallOptions>,

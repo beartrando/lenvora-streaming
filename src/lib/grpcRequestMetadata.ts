@@ -3,7 +3,7 @@ import config from '../config/config';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
 
-const jwtSecret = config.jwtAccessSecret;
+const jwtSecret = config.accessSecret;
 
 export const getUserIdFromJwt = (token: string): string => {
 

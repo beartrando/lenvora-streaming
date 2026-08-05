@@ -115,4 +115,4 @@ LABEL org.opencontainers.image.version="$VERSION"
 
 WORKDIR /usr/src/app/services/streaming
 
-CMD ["pnpm", "--filter", "streaming", "migrate"]
+CMD ["pnpm", "--filter", "streaming", "migrate:deploy"]

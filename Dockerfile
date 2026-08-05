@@ -115,4 +115,4 @@ LABEL org.opencontainers.image.version="$VERSION"
 
 WORKDIR /usr/src/app/services/streaming
 
-CMD ["npx", "prisma", "migrate", "deploy", "--schema=src/infrastructure/db/prisma/schema.prisma"]
+CMD ["pnpm", "--filter", "streaming", "migrate"]

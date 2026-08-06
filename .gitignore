@@ -5,7 +5,7 @@ node_modules/
 dist/
 build/
 
-# TypeScript cache
+# TypeScript state-store
 *.tsbuildinfo
 
 # Env files
@@ -30,7 +30,7 @@ docker-compose.override.yml
 # VSCode settings
 .vscode/
 
-# Jest coverage and cache
+# Jest coverage and state-store
 coverage/
 jest-cache/
 jest-coverage/

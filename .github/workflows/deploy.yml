@@ -7,9 +7,14 @@ on:
       - uat
       - prod
 
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: true
+
 jobs:
   determine-version:
     runs-on: ubuntu-latest
+    timeout-minutes: 2
     environment: ${{ github.ref_name }}
     outputs:
       version: ${{ steps.bump_version.outputs.version }}

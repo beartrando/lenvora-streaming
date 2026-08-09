@@ -1,5 +1,5 @@
 export const appConfig = {
-    appName: process.env.APP_NAME ?? 'engine',
+    appName: process.env.APP_NAME ?? 'streaming',
     appVersion: process.env.APP_VERSION ?? '0.0.0',
     appEnv: process.env.APP_ENV ?? 'prod',
 };

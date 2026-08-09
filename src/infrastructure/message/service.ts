@@ -10,7 +10,7 @@ export class MessageService {
     constructor(
         private readonly config: KafkaConfig,
         private readonly consumersConfig: Record<string, string>,
-        private readonly battleUpdatedConsumer: BattleStartedConsumer,
+        // private readonly battleUpdatedConsumer: BattleStartedConsumer,
     ) {
     }
 

@@ -4,6 +4,9 @@ import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
 import StateStoreService from "../infrastructure/state-store/service";
 import CacheService from "../infrastructure/cache/service";
+import WebsocketService from "../infrastructure/websocket/service";
+import EngineStreamService from "../infrastructure/engine-stream/service";
+import TimerService from "../infrastructure/timer/service";
 
 export class Application {
     constructor(
@@ -12,6 +15,9 @@ export class Application {
         private readonly jobService: JobService,
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
+        private readonly websocketService: WebsocketService,
+        private readonly engineStreamService: EngineStreamService,
+        private readonly timerService: TimerService,
     ) {
     }
 
@@ -33,6 +39,8 @@ export class Application {
             await this.cacheService.start();
             await this.stateStoreService.start();
             await this.grpcService.start();
+            await this.websocketService.start();
+            await this.engineStreamService.start();
             logger.info(
                 '🚀 Streaming service started',
             );
@@ -46,6 +54,8 @@ export class Application {
     }
 
     async stop() {
+        await this.engineStreamService.stop();
+        await this.websocketService.stop();
         await this.grpcService.stop();
         await this.stateStoreService.stop();
         await this.cacheService.stop();

@@ -10,7 +10,7 @@ export class GrpcService {
 
     constructor(
         private readonly port: number,
-        private readonly engineHandler: EngineHandler,
+        // private readonly engineHandler: EngineHandler,
         private readonly healthHandler: HealthHandler,
     ) {
         this.server = new grpc.Server();
@@ -47,11 +47,11 @@ export class GrpcService {
         this.server.forceShutdown();
     }
 
-    private registerEngineService() {
-        this.server.addService(engineProto.EngineService, {
-            battleChannel: this.engineHandler.battleChannel,
-        });
-    }
+    // private registerEngineService() {
+    //     this.server.addService(engineProto.EngineService, {
+    //         battleChannel: this.engineHandler.battleChannel,
+    //     });
+    // }
 
     private registerHealthService() {
         this.server.addService(healthProto.HealthService, {
@@ -63,7 +63,7 @@ export class GrpcService {
     }
 
     private addServices() {
-        this.registerEngineService();
+        // this.registerEngineService();
         this.registerHealthService();
     }
 }

@@ -3,26 +3,37 @@ import MessageService from "../../../infrastructure/message/service";
 import JobService from "../../../infrastructure/job/service";
 import appConfig from "../../../infrastructure/app/app.config";
 import CacheService from "../../../infrastructure/cache/service";
+import GrpcService from "../../../infrastructure/grpc/service";
+import StateStoreService from "../../../infrastructure/state-store/service";
+import WebsocketService from "../../../infrastructure/websocket/service";
+import EngineStreamService from "../../../infrastructure/engine-stream/service";
+import TimerService from "../../../infrastructure/timer/service";
 
 export class HealthUseCase {
     constructor(
-        private readonly messageService: MessageService,
         private readonly jobService: JobService,
+        private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
+        private readonly websocketService: WebsocketService,
+        private readonly engineStreamService: EngineStreamService,
     ) {
     }
 
     async execute(): Promise<healthProto.HealthReport> {
-        const [messageOk, jobOk, cacheOk] = await Promise.all([
-            this.messageService.check(),
+        const [jobOk, messageOk, cacheOk, websocketOk, engineStreamOk] = await Promise.all([
             this.jobService.check(),
+            this.messageService.check(),
             this.cacheService.check()
+            this.websocketService.check()
+            this.engineStreamService.check()
         ]);
 
         const components = {
-            message: messageOk,
             job: jobOk,
+            message: messageOk,
             cache: cacheOk,
+            websocket: websocketOk,
+            engineStream: engineStreamOk,
         };
 
         return {

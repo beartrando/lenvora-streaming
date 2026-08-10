@@ -5,7 +5,7 @@ import appConfig from "../../../infrastructure/app/app.config";
 import CacheService from "../../../infrastructure/cache/service";
 import GrpcService from "../../../infrastructure/grpc/service";
 import StateStoreService from "../../../infrastructure/state-store/service";
-import WebsocketService from "../../../infrastructure/websocket/service";
+import WebsocketService from "../../../infrastructure/websocket-server/service";
 import EngineStreamService from "../../../infrastructure/engine-stream/service";
 import TimerService from "../../../infrastructure/timer/service";
 

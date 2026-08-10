@@ -159,7 +159,7 @@ class FrontBattleStreamRegistry {
     }
 
     writeStream(ws: WebSocket, streamRequest: streamingProto.BattleResponse) {
-        // logger.log("new websocket channel message:", streamRequest);
+        // logger.log("new websocket-server channel message:", streamRequest);
 
         const encoding =
             this.getSocketContext(ws)?.encoding ?? SocketEncoding.PROTOBUF;

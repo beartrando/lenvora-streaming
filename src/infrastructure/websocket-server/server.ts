@@ -36,7 +36,7 @@ const handlers: Record<
 export function initWss() {
     wss.on('connection', async (ws, req) => {
 
-        logger.info('New websocket connection established');
+        logger.info('New websocket-server connection established');
 
         const url = new URL(req.url!, `http://${req.headers.host}`);
         let userId: string;

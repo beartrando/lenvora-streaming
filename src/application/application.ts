@@ -4,7 +4,7 @@ import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
 import StateStoreService from "../infrastructure/state-store/service";
 import CacheService from "../infrastructure/cache/service";
-import WebsocketService from "../infrastructure/websocket/service";
+import WebsocketService from "../infrastructure/websocket-server/service";
 import EngineStreamService from "../infrastructure/engine-stream/service";
 import TimerService from "../infrastructure/timer/service";
 

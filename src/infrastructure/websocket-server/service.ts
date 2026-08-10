@@ -1,6 +1,6 @@
 import {WebSocketServer} from "ws";
 import logger from "@shared/logger";
-import WebsocketConfig from "./websocket.config";
+import WebsocketConfig from "./types";
 
 export class WebsocketService {
     private wss: WebSocketServer | null = null;
@@ -16,7 +16,7 @@ export class WebsocketService {
         }
 
         this.wss = new WebSocketServer({
-            port: this.config.webSocketPort,
+            port: this.config.port,
         });
 
         await new Promise<void>((resolve, reject) => {
@@ -24,9 +24,8 @@ export class WebsocketService {
             this.wss!.once("error", reject);
         });
 
-        logger.info("🚀 Websocket service started");
         logger.info(
-            `WebSocket listening on ${this.config.webSocketPort}`,
+            `WebSocket listening on ${this.config.port}`,
         );
     }
 

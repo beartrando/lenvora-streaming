@@ -18,9 +18,9 @@ import TimerService from "../infrastructure/timer/service";
 import TimerCallbackFactoryRegistry from "../infrastructure/timer/callback-factory-registry";
 import grpcConfig from "../infrastructure/grpc/grpc.config";
 import HealthUseCase from "../application/use-cases/health/health";
-import websocketConfig from "../infrastructure/websocket/websocket.config";
+import websocketConfig from "../infrastructure/websocket-server/websocket.config";
 import MessageService from "../infrastructure/message/service";
-import WebsocketService from "../infrastructure/websocket/service";
+import WebsocketService from "../infrastructure/websocket-server/service";
 import StatusUseCase from "../application/use-cases/health/status";
 import LivezUseCase from "../application/use-cases/health/livez";
 import ReadyzUseCase from "../application/use-cases/health/readyz";
@@ -121,7 +121,7 @@ function buildApplication() {
     );
 
     const websocketService = new WebsocketService(
-        // websocketConfig,
+        websocketConfig,
     );
 
     const engineStreamService = new EngineStreamService(

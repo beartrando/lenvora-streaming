@@ -19,7 +19,12 @@ export class WebsocketService {
 
         this.wss = new WebSocketServer({port: this.config.port});
 
-        this.wss.on("connection", (ws, req) => this.connectionHandler.handle(ws, req));
+        this.wss.on(
+            "connection",
+            (ws, req) => {
+                void this.connectionHandler.handle(ws, req);
+            }
+        );
 
         await new Promise<void>((resolve, reject) => {
             this.wss!.once("listening", resolve);
@@ -53,7 +58,7 @@ export class WebsocketService {
     }
 
     async check(): Promise<boolean> {
-        return this.wss?.address() !== null;
+        return this.wss?.address() != null;
     }
 }
 

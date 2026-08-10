@@ -1,5 +1,5 @@
 import * as engineProto from '../generated/engine';
-import config from "../../config/config";
+import config from "../../configs/configs";
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
 import * as battleService from "../../services/battle.service";

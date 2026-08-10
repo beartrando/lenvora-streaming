@@ -1,22 +1,14 @@
 import type {WebSocket} from "ws";
 import * as streamingProto from "../../grpc/generated/streaming";
-
-import SocketEncoding from "../value-objects/socket-encoding.vo";
 import WebsocketHandler from "../interfaces/websocket-handler.interface";
 
-import BattleStartUseCase from "../../application/use-cases/battle-start";
-import BattleMoveUseCase from "../../application/use-cases/battle-move";
-import BattleLeaveUseCase from "../../application/use-cases/battle-leave";
-import BattleConnectBotUseCase from "../../application/use-cases/battle-connect-bot";
-import BattlePingUseCase from "../../application/use-cases/battle-ping";
+import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
+import BattleMoveUseCase from "../../../application/use-cases/battle/battle-move";
+import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
+import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
+import BattlePingUseCase from "../../../application/use-cases/battle/battle-ping";
 
 import logger from "@shared/logger";
-import {
-    battleHandlerConnectBot, battleHandlerLeave,
-    battleHandlerMove,
-    battleHandlerPing,
-    battleHandlerStart
-} from "../../websocket-server-bkp/handlers/battle.handler";
 
 export class BattleHandler implements WebsocketHandler {
     constructor(
@@ -28,11 +20,7 @@ export class BattleHandler implements WebsocketHandler {
     ) {
     }
 
-    export
-
-    async function
-
-    handle(ws: WebSocket, jwt: string, profileId: string, payload: streamingProto.BattleRequest): Promise<void> {
+    async handle(ws: WebSocket, jwt: string, profileId: string, payload: streamingProto.BattleRequest): Promise<void> {
         logger.log('battleHandler got event');
         logger.log(payload);
 
@@ -53,3 +41,5 @@ export class BattleHandler implements WebsocketHandler {
 }
 
 export default BattleHandler;
+
+

@@ -1,5 +1,5 @@
 import StateStoreInterface from "./interfaces/state-store.interface";
-import {StateStoreEntity, StateStoreKey} from "./config/state-store.config";
+import {StateStoreEntity, StateStoreKey} from "./configs/state-store.config";
 
 
 export class StateStoreService {

@@ -1,7 +1,7 @@
 import * as grpc from '@grpc/grpc-js';
 import * as authProto from '../generated/auth';
 import * as profileProto from '../generated/profile';
-import config from '../../config/config';
+import config from '../../configs/configs';
 import {GrpcClientManager} from '@shared/grpc-client-manager';
 
 const profileManager = new GrpcClientManager<profileProto.ProfileClient>(() => {

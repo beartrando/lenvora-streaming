@@ -6,27 +6,29 @@ import AuthService from "../infrastructure/auth/service";
 import authConfig from "../infrastructure/auth/auth.config";
 
 import CacheService from "../infrastructure/cache/service";
-import redisConfig from "../infrastructure/cache/config/redis.config";
+import redisConfig from "../infrastructure/cache/configs/redis.config";
 import StateStoreService from "../infrastructure/state-store/service";
 
 import JobService from "../infrastructure/job/service";
 import jobConfig from "../infrastructure/job/job.config";
-import messageConfig from "../infrastructure/message/config/message.config";
-import messageProducersConfig from "../infrastructure/message/config/producers.config";
+import messageConfig from "../infrastructure/message/configs/message.config";
+import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 
 import TimerService from "../infrastructure/timer/service";
 import TimerCallbackFactoryRegistry from "../infrastructure/timer/callback-factory-registry";
-import grpcConfig from "../infrastructure/grpc/grpc.config";
+import grpcConfig from "../infrastructure/grpc/configs/grpc.config";
 import HealthUseCase from "../application/use-cases/health/health";
-import websocketConfig from "../infrastructure/websocket-server/websocket.config";
+import websocketConfig from "../infrastructure/websocket-server/configs/websocket.config";
 import MessageService from "../infrastructure/message/service";
 import WebsocketService from "../infrastructure/websocket-server/service";
 import StatusUseCase from "../application/use-cases/health/status";
 import LivezUseCase from "../application/use-cases/health/livez";
 import ReadyzUseCase from "../application/use-cases/health/readyz";
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
-import messageConsumersConfig from "../infrastructure/message/config/consumers.config";
+import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
 import EngineStreamService from "../infrastructure/engine-stream/service";
+import battleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
+import BattleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
 
 
 function buildApplication() {
@@ -120,8 +122,10 @@ function buildApplication() {
         // battleStartedConsumer,
     );
 
+    const battleConnectionHandler = new BattleConnectionHandler();
     const websocketService = new WebsocketService(
         websocketConfig,
+        battleConnectionHandler,
     );
 
     const engineStreamService = new EngineStreamService(

@@ -5,7 +5,7 @@ import logger from "@shared/logger";
 import sleep from "../../utils/sleep";
 import RedisConfig from "./interfaces/redis-config";
 import CacheStoreInterface from "./interfaces/cache-store.interface";
-import {CacheStoreKey, CacheStoreEntity} from "./config/cache-store.config";
+import {CacheStoreKey, CacheStoreEntity} from "./configs/cache-store.config";
 
 
 export class CacheService {

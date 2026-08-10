@@ -2,7 +2,7 @@ import * as grpc from '@grpc/grpc-js';
 import * as battleProto from '../generated/battle';
 import * as emptyProto from '../generated/common/empty';
 import * as profileProto from '../generated/profile';
-import config from '../../config/config';
+import config from '../../configs/configs';
 import {GrpcClientManager} from '@shared/grpc-client-manager';
 import logger from "@shared/logger";
 

@@ -1,12 +1,7 @@
-import {
-    IncomingMessage,
-} from "http";
-import {
-    RawData,
-    WebSocket,
-} from "ws";
+import {IncomingMessage} from "http";
+import {RawData, WebSocket,} from "ws";
 
-import * as streamingProto from "../../grpc/generated/streaming";
+import * as streamingProto from "../../../contracts/proto/streaming";
 import logger from "@shared/logger";
 
 import SocketEncoding from "../value-objects/socket-encoding.vo";

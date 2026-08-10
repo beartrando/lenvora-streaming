@@ -5,8 +5,7 @@ import logger from "@shared/logger";
 import sleep from "../../utils/sleep";
 import RedisConfig from "./interfaces/redis-config";
 import CacheStoreInterface from "./interfaces/cache-store.interface";
-import {CacheStoreKey} from "./config/cache-store.config";
-import {StateStoreEntity} from "../state-store/config/state-store.config";
+import {CacheStoreKey, CacheStoreEntity} from "./config/cache-store.config";
 
 
 export class CacheService {
@@ -47,7 +46,7 @@ export class CacheService {
 
     register<K extends CacheStoreKey>(
         key: K,
-        store: CacheStoreInterface<StateStoreEntity<K>>,
+        store: CacheStoreInterface<CacheStoreEntity<K>>,
     ): void {
         if (this.registry.has(key)) {
             throw new Error(
@@ -74,7 +73,7 @@ export class CacheService {
 
     store<K extends CacheStoreKey>(
         key: K,
-    ): CacheStoreInterface<StateStoreEntity<K>> {
+    ): CacheStoreInterface<CacheStoreEntity<K>> {
         const store = this.registry.get(key);
 
         if (!store) {
@@ -83,7 +82,7 @@ export class CacheService {
             );
         }
 
-        return store as CacheStoreInterface<StateStoreEntity<K>>;
+        return store as CacheStoreInterface<CacheStoreEntity<K>>;
     }
 
     async loadAll(): Promise<void> {

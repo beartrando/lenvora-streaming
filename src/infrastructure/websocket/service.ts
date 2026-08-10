@@ -1,4 +1,4 @@
-export class WebsocketService implements TokenService {
+export class WebsocketService {
     async start(): Promise<void> {
     }
 

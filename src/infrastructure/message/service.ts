@@ -47,10 +47,10 @@ export class MessageService {
     }
 
     private async createConsumers(): Promise<void> {
-        createConsumer(this.config, {
-            topic: this.consumersConfig.battleUpdated,
-            handler: this.battleUpdatedConsumer.execute
-        })
+        // createConsumer(this.config, {
+        //     topic: this.consumersConfig.battleUpdated,
+        //     handler: this.battleUpdatedConsumer.execute
+        // })
     }
 
     private async retryInit(

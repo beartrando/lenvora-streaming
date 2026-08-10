@@ -23,9 +23,9 @@ export class HealthUseCase {
         const [jobOk, messageOk, cacheOk, websocketOk, engineStreamOk] = await Promise.all([
             this.jobService.check(),
             this.messageService.check(),
-            this.cacheService.check()
-            this.websocketService.check()
-            this.engineStreamService.check()
+            this.cacheService.check(),
+            this.websocketService.check(),
+            this.engineStreamService.check(),
         ]);
 
         const components = {

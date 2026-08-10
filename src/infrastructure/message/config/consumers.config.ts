@@ -1,6 +1,4 @@
-export const messageConsumersConfig: Record<string, string> = {
-    battleUpdated: process.env.MESSAGE_CONSUMER_TOPIC_BATTLE_STARTED ?? 'battle.started',
-};
+export const messageConsumersConfig: Record<string, string> = {};
 
 export default messageConsumersConfig;
 

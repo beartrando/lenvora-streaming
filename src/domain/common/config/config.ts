@@ -1,5 +1,5 @@
 export const domainConfig = {
-    accessSecret: process.env.ACCESS_SECRET!,
+    heartbeatTimeout: Number(process.env.HEARTBEAT_TIMEOUT) ?? 30,
 };
 
 export default domainConfig;

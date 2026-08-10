@@ -1,6 +1,4 @@
 export const messageProducersConfig: Record<string, string> = {
-    battleUpdated: process.env.MESSAGE_PRODUCER_TOPIC_BATTLE_UPDATED ?? 'engine.battle_updated',
-    battleStarted: process.env.MESSAGE_PRODUCER_TOPIC_BATTLE_STARTED ?? 'engine.battle_started',
+    aiConnectingRequest: process.env.MESSAGE_TOPIC_AI_CONNECTING_REQUEST ?? 'bot.connecting-request',
 };
-
 export default messageProducersConfig;

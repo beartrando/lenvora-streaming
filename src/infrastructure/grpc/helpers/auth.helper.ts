@@ -15,9 +15,9 @@ export class AuthHelper {
         return new AccessToken(authHeader.slice(7));
     };
 
-    static getMetadata(jwt: string): grpc.Metadata {
+    static getMetadata(accessToken: AccessToken): grpc.Metadata {
         const metadata = new grpc.Metadata();
-        metadata.add('authorization', 'Bearer ' + jwt);
+        metadata.add('authorization', 'Bearer ' + accessToken.value);
         return metadata;
     }
 }

@@ -34,6 +34,10 @@ import ProfileClient from "../infrastructure/grpc/clients/profile.client";
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
 import Id from "../domain/common/value-objects/id.vo";
 
+import {WebSocket,} from "ws";
+import SocketEncoding from "../infrastructure/websocket-server/enums/socket-encoding";
+
+
 
 function buildApplication() {
     const authService = new AuthService(authConfig);
@@ -105,11 +109,13 @@ function buildApplication() {
         // battleStartedConsumer,
     );
 
-    const wsProfileEncodingStateStore = new StateStore<WebSocket, Id>();
+    const wsProfileStateStore = new StateStore<WebSocket, Id>();
+    const wsEncodingStateStore = new StateStore<WebSocket, SocketEncoding>();
     const battleConnectionHandler = new BattleConnectionHandler(
         authService,
         authorizeProfileUseCase,
-        wsProfileEncodingStateStore,
+        wsProfileStateStore,
+        wsEncodingStateStore,
     );
     const websocketService = new WebsocketService(
         websocketConfig,

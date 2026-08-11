@@ -9,8 +9,9 @@ import BattleConnectBotUseCase from "../../../application/use-cases/battle/battl
 import BattlePingUseCase from "../../../application/use-cases/battle/battle-ping";
 
 import logger from "@shared/logger";
+import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
-export class BattleHandler implements WebsocketHandler {
+export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
         private readonly start: BattleStartUseCase,
         private readonly move: BattleMoveUseCase,

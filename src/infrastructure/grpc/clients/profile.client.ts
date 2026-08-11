@@ -1,5 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 
+import * as authProto from "../../../contracts/proto/auth";
 import * as profileProto from "../../../contracts/proto/profile";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
@@ -19,9 +20,12 @@ export class ProfileClient {
         );
     }
 
-    async getByUser (metadata: grpc.Metadata): Promise<profileProto.ProfileResponse | null> => {
-        return this.manager.call((client, callback) => client.getByUser(empty, metadata, callback));
-    };
+    async getByUser(
+        request: authProto.UserIdRequest,
+        metadata: grpc.Metadata,
+    ): Promise<profileProto.ProfileResponse | null> {
+        return this.manager.call((client, callback) => client.getByUser(request, metadata, callback));
+    }
 }
 
 

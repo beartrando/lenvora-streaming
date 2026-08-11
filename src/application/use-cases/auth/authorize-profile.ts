@@ -3,6 +3,7 @@ import * as authProto from "../../../contracts/proto/auth";
 import * as grpc from "@grpc/grpc-js";
 import Id from "../../../domain/common/value-objects/id.vo";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 
 export class AuthorizeProfileUseCase {
     constructor(
@@ -20,10 +21,10 @@ export class AuthorizeProfileUseCase {
 
         const resp = await this.profileClient.getByUser(
             protoReq,
-            accessToken.value,
+            AuthHelper.getMetadata(accessToken),
         );
 
-        return resp?.profile?.id === profileId;
+        return resp?.profile?.id === profileId.value;
     }
 }
 

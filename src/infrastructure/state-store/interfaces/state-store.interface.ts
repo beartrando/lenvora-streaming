@@ -1,11 +1,11 @@
 export interface StateStoreInterface<KEntity, VEntity> {
-    save(key: KEntity, entity: VEntity): Promise<void>;
+    save(key: KEntity, entity: VEntity): void;
 
-    get(key: KEntity): Promise<VEntity | null>;
+    get(key: KEntity): VEntity | null;
 
-    drop(key: KEntity): Promise<void>;
+    drop(key: KEntity): void;
 
-    clear(): Promise<void>;
+    clear(): void;
 }
 
 export default StateStoreInterface;

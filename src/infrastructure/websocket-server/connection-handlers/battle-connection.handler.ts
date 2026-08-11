@@ -13,6 +13,7 @@ import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import Id from "../../../domain/common/value-objects/id.vo";
 import {AuthorizeProfileUseCase} from "../../../application/use-cases/auth/authorize-profile";
 import StateStore from "../../state-store/state-stores/state-store";
+import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
 
 export class BattleConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -25,7 +26,9 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly wsProfileStateStore: StateStore<WebSocket, Id>,
         private readonly wsEncodingStateStore: StateStore<WebSocket, SocketEncoding>,
-        // private readonly profileQueries: ProfileQueries,
+        private readonly wsBattlesStateStore: StateStore<WebSocket, Set<Id>>,
+        private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
+        private readonly battleLeaveUseCase: BattleLeaveUseCase,
     ) {
     }
 
@@ -165,27 +168,25 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
     private async disconnect(
         ws: WebSocket,
     ): Promise<void> {
-        const context =
-            frontBattleStreamRegistry.getSocketContext(ws);
 
-        if (!context) {
-            logger.warn(
-                "Disconnect: socket is not registered",
-            );
+        this.wsProfileStateStore.drop(ws);
+        this.wsEncodingStateStore.drop(ws);
 
+        const battleIds = this.wsBattlesStateStore.get(ws);
+        if (!battleIds) {
             return;
         }
 
         await Promise.all(
-            [...context.battleIds].map(
-                id => battleService.leave(
-                    id,
-                    profileId,
-                ),
+            [...battleIds].map(
+                (battleId: Id) => null
+
+                // battleId: Id => battleService.leave(
+                //     id,
+                //     profileId,
+                // ),
             ),
         );
-
-        frontBattleStreamRegistry.unregisterSocket(ws);
     }
 }
 

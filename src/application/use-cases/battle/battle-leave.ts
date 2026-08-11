@@ -1,20 +1,21 @@
-import * as streamingProto from "../../grpc/generated/streaming";
-import BattleService from "../../services/battle.service";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
+import Id from "../../../domain/common/value-objects/id.vo";
 
 export class BattleLeaveUseCase {
     constructor(
-        private readonly battleService: BattleService,
+        private readonly battleClient: BattleClient,
     ) {
     }
 
     async execute(
-        profileId: string,
-        payload: streamingProto.BattleLeave,
+        profileId: Id,
+        battleId: Id,
     ): Promise<void> {
-        await this.battleService.leave(
-            payload.battleId,
-            profileId,
-        );
+        // await this.battleService.leave(
+        //     payload.battleId,
+        //     profileId,
+        // );
     }
 }
 

@@ -36,6 +36,8 @@ import Id from "../domain/common/value-objects/id.vo";
 
 import {WebSocket,} from "ws";
 import SocketEncoding from "../infrastructure/websocket-server/enums/socket-encoding";
+import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
+import BattleClient from "../infrastructure/grpc/clients/battle.client";
 
 
 
@@ -109,14 +111,26 @@ function buildApplication() {
         // battleStartedConsumer,
     );
 
+    const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
+    const battleLeaveUseCase = new BattleLeaveUseCase(battleClient);
+
     const wsProfileStateStore = new StateStore<WebSocket, Id>();
     const wsEncodingStateStore = new StateStore<WebSocket, SocketEncoding>();
+    const wsBattlesStateStore = new StateStore<WebSocket, Set<Id>>();
+    const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
+
     const battleConnectionHandler = new BattleConnectionHandler(
         authService,
         authorizeProfileUseCase,
         wsProfileStateStore,
         wsEncodingStateStore,
+        wsBattlesStateStore,
+        battleWsStateStore,
+        battleLeaveUseCase
     );
+
+
+
     const websocketService = new WebsocketService(
         websocketConfig,
         battleConnectionHandler,

@@ -6,29 +6,22 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
     constructor() {
     }
 
-    async save(
-        key: KEntity,
-        entity: VEntity,
-    ): Promise<void> {
+    save(key: KEntity, entity: VEntity): void {
         this._registry.set(
             key,
             entity,
         );
     }
 
-    async get(
-        key: KEntity,
-    ): Promise<VEntity | null> {
+    get(key: KEntity): VEntity | null {
         return this._registry.get(key) ?? null;
     }
 
-    async drop(
-        key: KEntity,
-    ): Promise<void> {
+    drop(key: KEntity): void {
         this._registry.delete(key);
     }
 
-    async clear(): Promise<void> {
+    clear(): void {
         this._registry.clear();
     }
 }

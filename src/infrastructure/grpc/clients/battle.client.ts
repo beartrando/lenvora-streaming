@@ -4,6 +4,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 import * as profileProto from "../../../contracts/proto/profile";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
+import logger from "@shared/logger";
 
 export class BattleClient {
     private readonly manager: GrpcClientManager<battleProto.BattleClient>;
@@ -18,18 +19,18 @@ export class BattleClient {
 
     async join(grpcRequest: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.join(grpcRequest, metadata, cb)
+            (client, cb) => client.start(grpcRequest, metadata, cb)
         ).catch((err) => {
-            logger.error("joinBattle failed:", err);
+            logger.error("Join battle failed:", err);
             return null;
         });
     }
 
-    async upsert(grpcRequest: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async GetActiveByProfile(grpcRequest: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.getOrCreate(grpcRequest, metadata, cb)
+            (client, cb) => client.getActiveByProfile(grpcRequest, metadata, cb)
         ).catch((err) => {
-            logger.error("Upsert battle failed:", err);
+            logger.error("Get active  battles by profile failed:", err);
             return null;
         });
     }

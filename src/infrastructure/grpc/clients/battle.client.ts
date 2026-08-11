@@ -1,29 +1,38 @@
-import * as grpc from '@grpc/grpc-js';
-import * as battleProto from '../generated/battle';
-import * as emptyProto from '../generated/common/empty';
-import * as profileProto from '../generated/profile';
-import config from '../../configs/configs';
-import {GrpcClientManager} from '@shared/grpc-client-manager';
-import logger from "@shared/logger";
+import * as grpc from "@grpc/grpc-js";
 
-const battleManager = new GrpcClientManager<battleProto.BattleClient>(() => {
-    return new battleProto.BattleClient(config.serviceBattleUrl, grpc.credentials.createInsecure());
-});
+import * as battleProto from "../../../contracts/proto/battle";
+import * as profileProto from "../../../contracts/proto/profile";
 
-export const join = (grpcRequest: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> => {
-    return battleManager.call<battleProto.BattleResponse>(
-        (client, cb) => client.join(grpcRequest, metadata, cb)
-    ).catch((err) => {
-        logger.error("joinBattle failed:", err);
-        return null;
-    });
-};
+import {GrpcClientManager} from "@shared/grpc-client-manager";
 
-export const upsert = (grpcRequest: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> => {
-    return battleManager.call<battleProto.BattleResponse>(
-        (client, cb) => client.getOrCreate(grpcRequest, metadata, cb)
-    ).catch((err) => {
-        logger.error("Upsert battle failed:", err);
-        return null;
-    });
-};
+export class BattleClient {
+    private readonly manager: GrpcClientManager<battleProto.BattleClient>;
+
+    constructor(
+        private readonly url: string,
+    ) {
+        this.manager = new GrpcClientManager(
+            () => new battleProto.BattleClient(this.url, grpc.credentials.createInsecure()),
+        );
+    }
+
+    async join(grpcRequest: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+        return this.manager.call<battleProto.BattleResponse>(
+            (client, cb) => client.join(grpcRequest, metadata, cb)
+        ).catch((err) => {
+            logger.error("joinBattle failed:", err);
+            return null;
+        });
+    }
+
+    async upsert(grpcRequest: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+        return this.manager.call<battleProto.BattleResponse>(
+            (client, cb) => client.getOrCreate(grpcRequest, metadata, cb)
+        ).catch((err) => {
+            logger.error("Upsert battle failed:", err);
+            return null;
+        });
+    }
+}
+
+export default BattleClient;

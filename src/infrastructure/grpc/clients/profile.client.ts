@@ -1,13 +1,28 @@
-import * as grpc from '@grpc/grpc-js';
-import * as authProto from '../generated/auth';
-import * as profileProto from '../generated/profile';
-import config from '../../configs/configs';
-import {GrpcClientManager} from '@shared/grpc-client-manager';
+import * as grpc from "@grpc/grpc-js";
 
-const profileManager = new GrpcClientManager<profileProto.ProfileClient>(() => {
-    return new profileProto.ProfileClient(config.serviceProfileUrl, grpc.credentials.createInsecure());
-});
+import * as profileProto from "../../../contracts/proto/profile";
 
-export const getByUser = (grpcRequest: authProto.UserIdRequest, metadata: grpc.Metadata): Promise<profileProto.ProfileResponse | null> => {
-    return profileManager.call((client, cb) => client.getByUser(grpcRequest, metadata, cb));
-};
+import {GrpcClientManager} from "@shared/grpc-client-manager";
+
+export class ProfileClient {
+    private readonly manager: GrpcClientManager<profileProto.ProfileClient>;
+
+    constructor(
+        private readonly url: string,
+    ) {
+        this.manager = new GrpcClientManager(
+            () =>
+                new profileProto.ProfileClient(
+                    this.url,
+                    grpc.credentials.createInsecure(),
+                ),
+        );
+    }
+
+    async getByUser (metadata: grpc.Metadata): Promise<profileProto.ProfileResponse | null> => {
+        return this.manager.call((client, callback) => client.getByUser(empty, metadata, callback));
+    };
+}
+
+
+export default ProfileClient;

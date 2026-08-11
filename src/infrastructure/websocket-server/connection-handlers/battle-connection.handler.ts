@@ -4,31 +4,53 @@ import {RawData, WebSocket,} from "ws";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import logger from "@shared/logger";
 
-import SocketEncoding from "../value-objects/socket-encoding.vo";
-import WebsocketHandler from "../interfaces/websocket-handler.interface";
-import FrontBattleStreamRegistry from "../channels/front.battle.stream";
+import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
-import ProfileQueries from "../../application/queries/profile";
-import {ProfileQuery} from "../../application/queries/profile/profile-query.enum";
 import WebsocketConnectionHandlerInterface from "../interfaces/websocket-connection-handler.interface";
+import SocketEncoding from "../enums/socket-encoding";
+import AuthService from "../../auth/service";
+import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import Id from "../../../domain/common/value-objects/id.vo";
+import {AuthorizeProfileUseCase} from "../../../application/use-cases/auth/authorize-profile";
+import StateStore from "../../state-store/state-stores/state-store";
 
 export class BattleConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
         string,
-        WebsocketHandler
+        WebsocketHandlerInterface
     >();
 
     constructor(
-        // private readonly frontBattleStreamRegistry: FrontBattleStreamRegistry,
+        private readonly authService: AuthService,
+        private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
+        private readonly wsProfileEncodingStateStore: StateStore<WebSocket, Id>,
         // private readonly profileQueries: ProfileQueries,
     ) {
     }
 
     register(
         route: string,
-        handler: WebsocketHandler,
+        handler: WebsocketHandlerInterface,
     ): void {
         this.handlers.set(route, handler);
+    }
+
+    getAccessToken(
+        req: IncomingMessage,
+    ): AccessToken | null {
+        const url = new URL(
+            req.url ?? "/",
+            `http://${req.headers.host}`,
+        );
+
+        const value =
+            req.headers.authorization
+                ?.replace(/^Bearer\s+/i, "") ??
+            url.searchParams.get("token");
+
+        return value
+            ? new AccessToken(value)
+            : null;
     }
 
     async handle(
@@ -39,41 +61,30 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
             "New websocket-server connection established",
         );
 
-        const url = new URL(
-            req.url!,
-            `http://${req.headers.host}`,
-        );
+        const token = this.getAccessToken(req);
 
-        const token =
-            req.headers.authorization
-                ?.replace(/^Bearer\s+/i, "") ??
-            url.searchParams.get("token");
-
-        if (!token) {
+        if (!token?.value) {
             ws.close();
             logger.error("❌ Token is missing");
             return;
         }
 
-        let userId: string;
+        let userId: Id;
 
         try {
-            userId = getUserIdFromJwt(token);
+            userId = this.authService.verifyAccessToken(token);
         } catch {
             ws.close();
             logger.error("❌ JWT token is invalid");
             return;
         }
 
-        const profileId =
-            url.searchParams.get("profileId") ?? "";
+        const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
+
+        const profileId = new Id(url.searchParams.get("profileId") ?? "");
 
         try {
-            const profile = await this.profileQueries
-                .get(ProfileQuery.GetByUser)
-                .execute(token);
-
-            if (profile?.profile?.id !== profileId) {
+            if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {
                 ws.close();
 
                 logger.error(
@@ -96,7 +107,7 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
                 ? SocketEncoding.PLAIN
                 : SocketEncoding.PROTOBUF;
 
-        this.frontBattleStreamRegistry.registerSocket(
+        this.wsProfileEncodingStateStore.save()registerSocket(
             ws,
             profileId,
             encoding,

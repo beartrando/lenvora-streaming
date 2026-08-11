@@ -1,15 +1,11 @@
-import Id from "../../../domain/common/value-objects/id.vo";
+export interface StateStoreInterface<KEntity, VEntity> {
+    save(key: KEntity, entity: VEntity): Promise<void>;
 
-export interface StateStoreInterface<TEntity extends { id: Id }> {
-    save(entity: TEntity): Promise<void>;
+    get(key: KEntity): Promise<VEntity | null>;
 
-    get(id: Id): Promise<TEntity | null>;
-
-    drop(id: Id): Promise<void>;
+    drop(key: KEntity): Promise<void>;
 
     clear(): Promise<void>;
-
-    restore(): Promise<TEntity[]>;
 }
 
 export default StateStoreInterface;

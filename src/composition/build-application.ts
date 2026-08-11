@@ -7,7 +7,7 @@ import authConfig from "../infrastructure/auth/auth.config";
 
 import CacheService from "../infrastructure/cache/service";
 import redisConfig from "../infrastructure/cache/configs/redis.config";
-import StateStoreService from "../infrastructure/state-store/service";
+// import StateStoreService from "../infrastructure/state-store/service";
 
 import JobService from "../infrastructure/job/service";
 import jobConfig from "../infrastructure/job/job.config";
@@ -29,6 +29,10 @@ import messageConsumersConfig from "../infrastructure/message/configs/consumers.
 import EngineStreamService from "../infrastructure/engine-stream/service";
 import battleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
 import BattleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
+import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
+import ProfileClient from "../infrastructure/grpc/clients/profile.client";
+import StateStore from "../infrastructure/state-store/state-stores/state-store";
+import Id from "../domain/common/value-objects/id.vo";
 
 
 function buildApplication() {
@@ -56,9 +60,9 @@ function buildApplication() {
     // );
     //
     // // State stores
-    const stateStoreService = new StateStoreService();
+    // const stateStoreService = new StateStoreService();
 
-    // const battleStateStore = new StateStore(
+    // const battleStateStore = new CachedIdStateStore(
     //     battleCacheStore,
     // );
     //
@@ -67,33 +71,12 @@ function buildApplication() {
     //     battleStateStore,
     // );
 
-    // // Battle use cases
-    // const battleStartUseCase = new BattleStartUseCase(
-    //     battleStateStore,
-    //     timerService,
-    //     timerCallbackFactoryRegistry,
-    //     jobService,
-    //     messageProducersConfig.battleStarted,
-    //     domainBattleConfig.battleTurnTimeLimit,
-    // );
-    //
-    // const battleMoveUseCase = new BattleMoveUseCase(
-    //     battleStateStore,
-    //     timerService,
-    //     timerCallbackFactoryRegistry,
-    //     jobService,
-    //     messageProducersConfig.battleUpdated,
-    //     domainBattleConfig.battleTurnTimeLimit,
-    // );
-    //
-    // const battleLeaveUseCase = new BattleLeaveUseCase(
-    //     battleStateStore,
-    //     timerService,
-    //     timerCallbackFactoryRegistry,
-    //     jobService,
-    //     messageProducersConfig.battleUpdated
-    // );
-    //
+    const profileClinent = new ProfileClient(grpcConfig.serviceProfileUrl);
+
+    const authorizeProfileUseCase = new AuthorizeProfileUseCase(
+        profileClinent,
+    );
+
     // const battleTimeoutUseCase = new BattleTimeoutUseCase(
     //     battleStateStore,
     //     timerService,
@@ -122,7 +105,12 @@ function buildApplication() {
         // battleStartedConsumer,
     );
 
-    const battleConnectionHandler = new BattleConnectionHandler();
+    const wsProfileEncodingStateStore = new StateStore<WebSocket, Id>();
+    const battleConnectionHandler = new BattleConnectionHandler(
+        authService,
+        authorizeProfileUseCase,
+        wsProfileEncodingStateStore,
+    );
     const websocketService = new WebsocketService(
         websocketConfig,
         battleConnectionHandler,
@@ -167,7 +155,7 @@ function buildApplication() {
 
     return new Application(
         grpcService,
-        stateStoreService,
+        // stateStoreService,
         jobService,
         messageService,
         cacheService,

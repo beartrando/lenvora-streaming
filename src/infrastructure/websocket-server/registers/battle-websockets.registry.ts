@@ -1,5 +1,5 @@
 import {WebSocket} from 'ws';
-import * as streamingProto from '../../../contracts/grpc/streaming';
+import * as streamingProto from '../../../contracts/proto/streaming';
 import logger from "@shared/logger";
 import SocketEncoding from "../enums/socket-encoding";
 import SocketContext from "../types/socket-context";
@@ -23,7 +23,7 @@ class BattleWebsocketsRegistry {
 
     registerSocket(
         ws: WebSocket,
-        profileId: string,
+        profileId: Id,
         encoding: SocketEncoding
     ) {
         const context = this.wsSocketContextStateStore.get(ws);
@@ -101,14 +101,14 @@ class BattleWebsocketsRegistry {
     }
 
     getBattleSockets(
-        battleId: string
-    ): Set<WebSocket> | undefined {
-        return this.battleSockets.get(battleId);
+        battleId: Id
+    ): Set<WebSocket> | null {
+        return this.battleWsStateStore.get(battleId);
     }
 
 
     unregisterSocket(ws: WebSocket): void {
-        this.clearHeartbeat(ws);
+        // this.clearHeartbeat(ws);
 
         const context = this.wsSocketContextStateStore.get(ws);
 
@@ -125,7 +125,7 @@ class BattleWebsocketsRegistry {
 
     subscribeBattle(
         ws: WebSocket,
-        battleId: string,
+        battleId: Id,
     ) {
         const context = this.getSocketContext(ws);
 
@@ -136,11 +136,11 @@ class BattleWebsocketsRegistry {
 
         context.battleIds.add(battleId);
 
-        let sockets = this.battleSockets.get(battleId);
+        let sockets = this.battleWsStateStore.get(battleId);
 
         if (!sockets) {
             sockets = new Set<WebSocket>();
-            this.battleSockets.set(battleId, sockets);
+            this.battleWsStateStore.set(battleId, sockets);
         }
 
         sockets.add(ws);
@@ -148,7 +148,7 @@ class BattleWebsocketsRegistry {
 
     unsubscribeBattle(
         ws: WebSocket,
-        battleId: string,
+        battleId: Id,
     ) {
         const context = this.getSocketContext(ws);
 
@@ -170,7 +170,7 @@ class BattleWebsocketsRegistry {
         sockets.delete(ws);
 
         if (sockets.size === 0) {
-            this.battleSockets.delete(battleId);
+            this.battleWsStateStore.delete(battleId);
         }
     }
 

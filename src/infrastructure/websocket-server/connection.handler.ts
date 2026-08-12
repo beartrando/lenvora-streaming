@@ -1,19 +1,19 @@
 import {IncomingMessage} from "http";
 import {RawData, WebSocket,} from "ws";
 
-import * as streamingProto from "../../../contracts/proto/streaming";
+import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
 
-import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
+import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface";
 
-import WebsocketConnectionHandlerInterface from "../interfaces/websocket-connection-handler.interface";
-import SocketEncoding from "../enums/socket-encoding";
-import AuthService from "../../auth/service";
-import AccessToken from "../../../domain/common/value-objects/access-token.vo";
-import Id from "../../../domain/common/value-objects/id.vo";
-import {AuthorizeProfileUseCase} from "../../../application/use-cases/auth/authorize-profile";
-import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
-import BattleSocketsRegistry from "../registers/battle-sockets.registers";
+import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connection-handler.interface";
+import SocketEncoding from "./enums/socket-encoding";
+import AuthService from "../auth/service";
+import AccessToken from "../../domain/common/value-objects/access-token.vo";
+import Id from "../../domain/common/value-objects/id.vo";
+import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
+import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
+import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -25,7 +25,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authService: AuthService,
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
-        private readonly battleSocketsRegistry: BattleSocketsRegistry,
+        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
     ) {
     }
 
@@ -98,7 +98,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                 ? SocketEncoding.PLAIN
                 : SocketEncoding.PROTOBUF;
 
-        this.battleSocketsRegistry.registerSocket(ws, profileId, encoding);
+        this.battleWebsocketsRegistry.registerSocket(ws, profileId, encoding);
 
         const handler = this.handlers.get(url.pathname);
 
@@ -167,7 +167,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         //     [...context.battleIds].map((battleId: Id) => this.battleLeaveUseCase(id, profileId))
         // );
         //
-        // this.wsSocketContextStateStore.drop(ws);
+        // this.wsSocketContextStateStore.delete(ws);
     }
 }
 

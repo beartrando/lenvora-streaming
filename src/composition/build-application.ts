@@ -27,8 +27,6 @@ import ReadyzUseCase from "../application/use-cases/health/readyz";
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
 import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
 import EngineStreamService from "../infrastructure/engine-stream/service";
-import battleConnectionHandler from "../infrastructure/websocket-server/connection/connection.handler";
-import ConnectionHandler from "../infrastructure/websocket-server/connection/connection.handler";
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
 import ProfileClient from "../infrastructure/grpc/clients/profile.client";
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
@@ -38,12 +36,18 @@ import {WebSocket,} from "ws";
 import SocketEncoding from "../infrastructure/websocket-server/enums/socket-encoding";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
+import ConnectionHandler from "../infrastructure/websocket-server/connection.handler";
+import SocketContext from "../infrastructure/websocket-server/types/socket-context";
+import BattleWebsocketsRegistry from "../infrastructure/websocket-server/registers/battle-websockets.registry";
+import TimerServiceInterface from "../infrastructure/timer/interfaces/timer-service.interface";
+import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
 
 
 
 function buildApplication() {
     const authService = new AuthService(authConfig);
-    const timerService = new TimerService();
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory();
+    const timerService = new TimerService(battleTimeoutCallbackFactory);
     const timerCallbackFactoryRegistry = new TimerCallbackFactoryRegistry();
     const cacheService = new CacheService(redisConfig);
 
@@ -116,13 +120,19 @@ function buildApplication() {
 
     const wsSocketContextStateStore = new StateStore<WebSocket, SocketContext>();
     const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
+    const heartbeatTimers = new TimerService();
+
+    const battleWebsocketsRegistry = new BattleWebsocketsRegistry(
+        wsSocketContextStateStore,
+        battleWsStateStore,
+        heartbeatTimers,
+    );
 
     const battleConnectionHandler = new ConnectionHandler(
         authService,
         authorizeProfileUseCase,
-        wsSocketContextStateStore,
-        battleWsStateStore,
-        battleLeaveUseCase
+        battleLeaveUseCase,
+        battleWebsocketsRegistry,
     );
 
 

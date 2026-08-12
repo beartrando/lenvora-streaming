@@ -1,9 +1,9 @@
 export interface StateStoreInterface<KEntity, VEntity> {
-    save(key: KEntity, entity: VEntity): void;
+    set(key: KEntity, entity: VEntity): void;
 
     get(key: KEntity): VEntity | null;
 
-    drop(key: KEntity): void;
+    delete(key: KEntity): void;
 
     clear(): void;
 }

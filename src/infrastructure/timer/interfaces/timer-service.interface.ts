@@ -3,17 +3,20 @@ import TimerCallbackInterface from "./timer-callback.interface";
 
 export interface TimerServiceInterface {
     start(
-        key: TimerKey,
+        key: string,
         timeoutMs: number,
-        callback: TimerCallbackInterface,
+        entity: any,
     ): void;
 
-    stop(key: TimerKey): void;
+    stop(
+        key: string,
+        entity: any,
+    ): void;
 
     restart(
-        key: TimerKey,
+        key: string,
         timeoutMs: number,
-        callback: TimerCallbackInterface,
+        entity: any,
     ): void;
 }
 

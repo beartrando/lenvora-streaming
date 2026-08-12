@@ -11,7 +11,7 @@ import SocketEncoding from "./enums/socket-encoding";
 import AuthService from "../auth/service";
 import AccessToken from "../../domain/common/value-objects/access-token.vo";
 import Id from "../../domain/common/value-objects/id.vo";
-import BattleLeaveUseCase from "../../application/use-cases/engine/battle-leave";
+import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import TimerService from "../timer/service";

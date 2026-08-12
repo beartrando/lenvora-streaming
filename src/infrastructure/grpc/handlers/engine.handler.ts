@@ -3,9 +3,9 @@ import * as engineProto from '../../../contracts/proto/engine';
 import * as emptyProto from '../../../contracts/proto/common/empty';
 import logger from "@shared/logger";
 import BattleEntity from "../../../domain/battle/battle.entity";
-import BattleStartedUseCase from "../../../application/use-cases/engine/battle-started";
-import BattleUpdatedUseCase from "../../../application/use-cases/engine/battle-updated";
-import BattleFinishedUseCase from "../../../application/use-cases/engine/battle-finished";
+import BattleStartedUseCase from "../../../application/use-cases/battle/battle-started";
+import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
+import BattleFinishedUseCase from "../../../application/use-cases/battle/battle-finished";
 
 
 export class EngineHandler {

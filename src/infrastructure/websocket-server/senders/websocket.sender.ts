@@ -2,11 +2,11 @@ import type {WebSocket} from "ws";
 import * as streamingProto from "../../grpc/generated/streaming";
 import WebsocketHandler from "../interfaces/websocket-handler.interface";
 
-import BattleStartUseCase from "../../../application/use-cases/engine/battle-start";
-import BattleMoveUseCase from "../../../application/use-cases/engine/battle-move";
-import BattleLeaveUseCase from "../../../application/use-cases/engine/battle-leave";
-import BattleConnectBotUseCase from "../../../application/use-cases/engine/battle-connect-bot";
-import BattlePingUseCase from "../../../application/use-cases/engine/battle-ping";
+import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
+import BattleMoveUseCase from "../../../application/use-cases/battle/battle-move";
+import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
+import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
+import BattlePingUseCase from "../../../application/use-cases/battle/battle-ping";
 
 import logger from "@shared/logger";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";

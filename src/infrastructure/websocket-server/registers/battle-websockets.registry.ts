@@ -6,7 +6,7 @@ import SocketContext from "../types/socket-context";
 import AuthService from "../../auth/service";
 import StateStore from "../../state-store/state-stores/state-store";
 import Id from "../../../domain/common/value-objects/id.vo";
-import BattleLeaveUseCase from "../../../application/use-cases/engine/battle-leave";
+import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
 import TimerServiceInterface from "../../timer/interfaces/timer-service.interface";
 import TimerKey from "../../timer/value-objects/timer-key.vo";
 

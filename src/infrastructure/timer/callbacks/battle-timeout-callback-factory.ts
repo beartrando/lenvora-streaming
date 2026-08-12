@@ -1,5 +1,5 @@
 import TimerCallbackInterface from "../interfaces/timer-callback.interface";
-import BattleTimeoutUseCase from "../../../application/use-cases/engine/battle-timeout";
+import BattleTimeoutUseCase from "../../../application/use-cases/battle/battle-timeout";
 import BattleEntity from "../../../domain/battle/battle.entity";
 import TimerCallbackFactoryInterface from "../interfaces/timer-callback-factory.interface";
 import {WebSocket,} from "ws";

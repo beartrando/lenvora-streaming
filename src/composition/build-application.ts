@@ -30,22 +30,22 @@ import StateStore from "../infrastructure/state-store/state-stores/state-store";
 import Id from "../domain/common/value-objects/id.vo";
 
 import {WebSocket,} from "ws";
-import BattleLeaveUseCase from "../application/use-cases/engine/battle-leave";
+import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
 import ConnectionHandler from "../infrastructure/websocket-server/connection.handler";
 import SocketContext from "../infrastructure/websocket-server/types/socket-context";
 import BattleWebsocketsRegistry from "../infrastructure/websocket-server/registers/battle-websockets.registry";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
 import BattleHandler from "../infrastructure/websocket-server/handlers/battle.handler";
-import BattleStartUseCase from "../application/use-cases/engine/battle-start";
-import BattleMoveUseCase from "../application/use-cases/engine/battle-move";
-import BattleConnectBotUseCase from "../application/use-cases/engine/battle-connect-bot";
+import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
+import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
 import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
-import BattleStartedUseCase from "../application/use-cases/engine/battle-started";
-import BattleUpdatedUseCase from "../application/use-cases/engine/battle-updated";
-import BattleFinishedUseCase from "../application/use-cases/engine/battle-finished";
+import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
+import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
+import BattleFinishedUseCase from "../application/use-cases/battle/battle-finished";
 import * as engineProto from "../contracts/proto/engine";
-import BattleTimeoutUseCase from "../application/use-cases/engine/battle-timeout";
+import BattleTimeoutUseCase from "../application/use-cases/battle/battle-timeout";
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
 import TimerKey from "../infrastructure/timer/value-objects/timer-key.vo";
 
@@ -109,8 +109,10 @@ function buildApplication() {
     );
 
     const battleConnectBotUseCase = new BattleConnectBotUseCase(
-        battleWebsocketsRegistry,
-        messageService,
+        jobService,
+        wsSocketContextStateStore,
+        battleWsStateStore,
+        messageProducersConfig.aiConnectingRequest,
     );
 
     const battleHandler = new BattleHandler(

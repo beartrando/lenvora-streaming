@@ -1,28 +1,34 @@
-import {PrismaClient} from "@prisma/client";
-import EngineStream from "./channels/engine.stream";
 import StreamInterface from "./interfaces/stream.interface";
 
-export class GrpcStreamService {
+export class GrpcStreamService<TRequest> {
+    private _stream: StreamInterface<TRequest> | null = null;
 
-    set stream(stream: StreamInterface<TRequest>)
-    {
+    set stream(stream: StreamInterface<TRequest>) {
+        if (this._stream) {
+            throw new Error("gRPC stream is initialized already");
+        }
+
         this._stream = stream;
     }
 
-    get stream(): EngineStream {
+    get stream(): StreamInterface<TRequest> {
+        if (!this._stream) {
+            throw new Error("gRPC stream is not initialized");
+        }
+
         return this._stream;
     }
 
     async start(): Promise<void> {
-        this._stream.connect();
+        this.stream.connect();
     }
 
     async stop(): Promise<void> {
-        this._stream.disconnect();
+        this.stream.disconnect();
     }
 
     async check(): Promise<boolean> {
-        return true;
+        return this._stream !== null;
     }
 }
 

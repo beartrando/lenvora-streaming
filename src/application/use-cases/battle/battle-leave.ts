@@ -6,7 +6,7 @@ import type {WebSocket} from "ws";
 export class BattleLeaveUseCase {
     constructor(
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly engineStreamService: GrpcStreamService,
+        private readonly grpcStreamService: GrpcStreamService,
     ) {
     }
 

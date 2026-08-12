@@ -42,6 +42,11 @@ import BattleHandler from "../infrastructure/websocket-server/handlers/battle.ha
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
+import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
+import EngineHandler from "../infrastructure/grpc/handlers/engine.handler";
+import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
+import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
+import BattleFinishedUseCase from "../application/use-cases/battle/battle-finished";
 
 
 function buildApplication() {
@@ -50,9 +55,7 @@ function buildApplication() {
     const timerService = new TimerService(timerCallbackFactoryRegistry);
     const cacheService = new CacheService(redisConfig);
 
-    const engineStreamService = new GrpcStreamService(
-        // websocketConfig,
-    );
+
 
     const jobService = new JobService(
         jobConfig,
@@ -92,7 +95,7 @@ function buildApplication() {
     const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
     const battleLeaveUseCase = new BattleLeaveUseCase(
         battleWebsocketsRegistry,
-        engineStreamService,
+        grpcStreamService,
     );
 
     const battleStartUseCase = new BattleStartUseCase(
@@ -101,12 +104,12 @@ function buildApplication() {
     );
     const battleMoveUseCase = new BattleMoveUseCase(
         battleWebsocketsRegistry,
-        engineStreamService,
+        grpcStreamService,
     );
 
     const battleConnectBotUseCase = new BattleConnectBotUseCase(
         battleWebsocketsRegistry,
-        engineStreamService,
+        messageService,
     );
 
     const battleHandler = new BattleHandler(
@@ -132,12 +135,29 @@ function buildApplication() {
         connectionHandler,
     );
 
+    const battleStartedUseCase = BattleStartedUseCase;
+    const battleUpdatedUseCase = BattleUpdatedUseCase;
+    const battleFinishedUseCase = BattleFinishedUseCase;
+
+    const engineStream = new EngineStream(
+        grpcConfig.serviceEngineUrl,
+        battleUpdatedUseCase
+    );
+
+    const grpcStreamService = new GrpcStreamService(engineStream);
+
+    const engineHandler = new EngineHandler(
+        battleStartedUseCase,
+        battleUpdatedUseCase,
+        battleFinishedUseCase,
+    );
+
     const healthUseCase = new HealthUseCase(
         jobService,
         messageService,
         cacheService,
         websocketService,
-        engineStreamService,
+        grpcStreamService,
     );
 
     const statusUseCase = new StatusUseCase();
@@ -153,7 +173,7 @@ function buildApplication() {
 
     const grpcService = new GrpcService(
         grpcConfig.port,
-        // engineHandler,
+        engineHandler,
         healthHandler,
     );
 
@@ -165,7 +185,7 @@ function buildApplication() {
         messageService,
         cacheService,
         websocketService,
-        engineStreamService,
+        grpcStreamService,
         timerService,
     );
 }

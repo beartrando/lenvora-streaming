@@ -10,7 +10,7 @@ export class GrpcService {
 
     constructor(
         private readonly port: number,
-        // private readonly engineHandler: EngineHandler,
+        private readonly engineHandler: EngineHandler,
         private readonly healthHandler: HealthHandler,
     ) {
         this.server = new grpc.Server();

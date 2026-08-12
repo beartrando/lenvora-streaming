@@ -4,11 +4,12 @@ import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/r
 import PgBossManager from "@shared/pg-boss-manager";
 // import {messageProducersConfig} from "../../configs/kafka.configs";
 import Id from "../../../domain/common/value-objects/id.vo";
+import MessageService from "../../../infrastructure/message/service";
 
 export class BattleConnectBotUseCase {
     constructor(
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly pgBossManager: PgBossManager,
+        private readonly messageService: MessageService,
     ) {
     }
 

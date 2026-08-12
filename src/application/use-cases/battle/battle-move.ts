@@ -24,7 +24,7 @@ export class BattleMoveUseCase {
             }),
         });
 
-        this.grpcStreamService.client.write(grpcRequest);
+        this.grpcStreamService.stream.write(grpcRequest);
     }
 }
 

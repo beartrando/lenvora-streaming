@@ -1,11 +1,11 @@
-import * as engineProto from '../generated/engine';
-import config from "../../configs/configs";
+import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
-import * as battleService from "../../services/battle.service";
+import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
+import StreamInterface from "../interfaces/stream.interface";
 
 
-class EngineStream {
+export class EngineStream implements StreamInterface<engineProto.BattleRequest>{
     private stream: grpc.ClientDuplexStream<any, any> | null = null;
     private client: engineProto.EngineClient | null = null;
     private reconnectDelay = 1000; // стартовый backoff
@@ -13,6 +13,13 @@ class EngineStream {
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private heartbeatPeriod = 5000;
     private reconnectScheduled = false;
+
+
+    constructor(
+        private readonly serviceEngineUrl: string,
+        private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
+    ) {
+    }
 
     getEngineStream = () => {
         if (!this.stream) {
@@ -32,7 +39,7 @@ class EngineStream {
         logger.log('Connection stream engine...')
 
         this.client = new engineProto.EngineClient(
-            config.serviceEngineUrl,
+            this.serviceEngineUrl,
             grpc.credentials.createInsecure()
         );
 
@@ -48,7 +55,7 @@ class EngineStream {
             logger.log(message);
 
             if (message.battle) {
-                battleService.update(message.battle);
+                this.battleUpdatedUseCase(message.battle);
             }
 
         });
@@ -73,6 +80,13 @@ class EngineStream {
         this.startHeartbeat();
 
         return this.stream;
+    }
+
+    disconnect(): void {
+        this.stopHeartbeat();
+        this.stream?.cancel();
+        this.stream = null;
+        this.client = null;
     }
 
     write(data: engineProto.BattleRequest) {
@@ -123,7 +137,4 @@ class EngineStream {
     }
 }
 
-const engineStream = new EngineStream();
-
-export default engineStream;
-
+export default EngineStream;

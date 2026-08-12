@@ -1,4 +1,4 @@
-import type {WebSocket} from "ws";
+import {WebSocket,} from "ws";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
@@ -11,10 +11,11 @@ import logger from "@shared/logger";
 import TimerService from "../../timer/service";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import Id from "../../../domain/common/value-objects/id.vo";
+import TimerKey from "../../timer/value-objects/timer-key.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
-        private readonly timerService: TimerService,
+        private readonly timerService: TimerService<TimerKey, WebSocket>,
         private readonly startUseCase: BattleStartUseCase,
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,

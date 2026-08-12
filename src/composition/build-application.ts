@@ -13,7 +13,6 @@ import messageConfig from "../infrastructure/message/configs/message.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 
 import TimerService from "../infrastructure/timer/service";
-import TimerCallbackFactoryRegistry from "../infrastructure/timer/callback-factory-registry";
 import grpcConfig from "../infrastructure/grpc/configs/grpc.config";
 import HealthUseCase from "../application/use-cases/health/health";
 import websocketConfig from "../infrastructure/websocket-server/configs/websocket.config";
@@ -47,12 +46,14 @@ import BattleUpdatedUseCase from "../application/use-cases/engine/battle-updated
 import BattleFinishedUseCase from "../application/use-cases/engine/battle-finished";
 import * as engineProto from "../contracts/proto/engine";
 import BattleTimeoutUseCase from "../application/use-cases/engine/battle-timeout";
+import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
+import TimerKey from "../infrastructure/timer/value-objects/timer-key.vo";
 
 
 function buildApplication() {
     const authService = new AuthService(authConfig);
-    const timerCallbackFactoryRegistry = new TimerCallbackFactoryRegistry();
-    const timerService = new TimerService(timerCallbackFactoryRegistry);
+    const timerCallbackFactoryHolder = new TimerCallbackFactoryHolder<WebSocket>();
+    const timerService = new TimerService<TimerKey, WebSocket>(timerCallbackFactoryHolder);
     const cacheService = new CacheService(redisConfig);
     const grpcStreamService = new GrpcStreamService<engineProto.BattleRequest>();
 
@@ -74,7 +75,7 @@ function buildApplication() {
         battleTimeoutUseCase,
     );
 
-    timerCallbackFactoryRegistry.register(battleTimeoutCallbackFactory);
+    timerCallbackFactoryHolder.factory = battleTimeoutCallbackFactory;
 
     const messageService = new MessageService(
         messageConfig,

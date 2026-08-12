@@ -9,6 +9,7 @@ import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
 import * as engineProto from "../contracts/proto/engine";
 import {WebSocket,} from "ws";
+import TimerKey from "../infrastructure/timer/value-objects/timer-key.vo";
 
 export class Application {
     constructor(
@@ -19,7 +20,7 @@ export class Application {
         private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
-        private readonly timerService: TimerService<WebSocket>,
+        private readonly timerService: TimerService<TimerKey, WebSocket>,
     ) {
     }
 

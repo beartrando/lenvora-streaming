@@ -2,10 +2,11 @@ import {WebSocket,} from "ws";
 
 import Id from "../../../domain/common/value-objects/id.vo";
 import TimerService from "../../../infrastructure/timer/service";
+import TimerKey from "../../../infrastructure/timer/value-objects/timer-key.vo";
 
 export class BattleTimeoutUseCase {
     constructor(
-        private readonly timerService: TimerService,
+        private readonly timerService: TimerService<TimerKey, WebSocket>,
     ) {
     }
 

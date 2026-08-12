@@ -5,7 +5,7 @@
 // } from "./configs/state-store.config";
 //
 // export class StateStoreService {
-//     private readonly registry = new Map<
+//     private readonly registers = new Map<
 //         StateStoreKey,
 //         StateStoreInterface<any, any>
 //     >();
@@ -16,20 +16,20 @@
 //     async stop(): Promise<void> {
 //     }
 //
-//     register<K extends StateStoreKey>(
+//     registerHandler<K extends StateStoreKey>(
 //         key: K,
 //         store: StateStoreInterface<
 //             string,
 //             StateStoreEntity<K>
 //         >,
 //     ): void {
-//         if (this.registry.has(key)) {
+//         if (this.registers.has(key)) {
 //             throw new Error(
 //                 `State store "${key}" is already registered`,
 //             );
 //         }
 //
-//         this.registry.set(key, store);
+//         this.registers.set(key, store);
 //     }
 //
 //     async check(): Promise<boolean> {
@@ -42,7 +42,7 @@
 //         string,
 //         StateStoreEntity<K>
 //     > {
-//         const store = this.registry.get(key);
+//         const store = this.registers.get(key);
 //
 //         if (!store) {
 //             throw new Error(
@@ -57,7 +57,7 @@
 //     }
 //
 //     async clearAll(): Promise<void> {
-//         for (const store of this.registry.values()) {
+//         for (const store of this.registers.values()) {
 //             await store.clear();
 //         }
 //     }

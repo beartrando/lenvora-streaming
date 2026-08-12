@@ -1,6 +1,6 @@
 import type {WebSocket} from "ws";
 import * as streamingProto from "../../grpc/generated/streaming";
-import FrontBattleStreamRegistry from "../../infrastructure/websocket/channels/front.battle.stream";
+import FrontBattleStreamRegistry from "../../infrastructure/websocket/registers/front.battle.stream";
 import PgBossManager from "@shared/pg-boss-manager";
 import {messageProducersConfig} from "../../configs/kafka.configs";
 

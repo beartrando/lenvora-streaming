@@ -1,6 +1,6 @@
 import type {WebSocket} from "ws";
 import * as emptyProto from "../../grpc/generated/common/empty";
-import FrontBattleStreamRegistry from "../../infrastructure/websocket/channels/front.battle.stream";
+import FrontBattleStreamRegistry from "../../infrastructure/websocket/registers/front.battle.stream";
 
 export class BattlePingUseCase {
     constructor(

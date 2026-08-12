@@ -27,8 +27,8 @@ import ReadyzUseCase from "../application/use-cases/health/readyz";
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
 import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
 import EngineStreamService from "../infrastructure/engine-stream/service";
-import battleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
-import BattleConnectionHandler from "../infrastructure/websocket-server/connection-handlers/battle-connection.handler";
+import battleConnectionHandler from "../infrastructure/websocket-server/connection/connection.handler";
+import ConnectionHandler from "../infrastructure/websocket-server/connection/connection.handler";
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
 import ProfileClient from "../infrastructure/grpc/clients/profile.client";
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
@@ -60,7 +60,7 @@ function buildApplication() {
     //     BattleRedisMapper,
     // );
     //
-    // cacheService.register(
+    // cacheService.registerHandler(
     //     "battle",
     //     battleCacheStore,
     // );
@@ -72,7 +72,7 @@ function buildApplication() {
     //     battleCacheStore,
     // );
     //
-    // stateStoreService.register(
+    // stateStoreService.registerHandler(
     //     "battle",
     //     battleStateStore,
     // );
@@ -96,7 +96,7 @@ function buildApplication() {
     //     battleTimeoutUseCase,
     // );
     //
-    // timerCallbackFactoryRegistry.register(
+    // timerCallbackFactoryRegistry.registerHandler(
     //     battleTimeoutCallbackFactory,
     // );
     //
@@ -114,17 +114,13 @@ function buildApplication() {
     const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
     const battleLeaveUseCase = new BattleLeaveUseCase(battleClient);
 
-    const wsProfileStateStore = new StateStore<WebSocket, Id>();
-    const wsEncodingStateStore = new StateStore<WebSocket, SocketEncoding>();
-    const wsBattlesStateStore = new StateStore<WebSocket, Set<Id>>();
+    const wsSocketContextStateStore = new StateStore<WebSocket, SocketContext>();
     const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
 
-    const battleConnectionHandler = new BattleConnectionHandler(
+    const battleConnectionHandler = new ConnectionHandler(
         authService,
         authorizeProfileUseCase,
-        wsProfileStateStore,
-        wsEncodingStateStore,
-        wsBattlesStateStore,
+        wsSocketContextStateStore,
         battleWsStateStore,
         battleLeaveUseCase
     );

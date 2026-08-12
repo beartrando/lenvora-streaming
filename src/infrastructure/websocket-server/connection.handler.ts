@@ -12,10 +12,10 @@ import AuthService from "../../auth/service";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import Id from "../../../domain/common/value-objects/id.vo";
 import {AuthorizeProfileUseCase} from "../../../application/use-cases/auth/authorize-profile";
-import StateStore from "../../state-store/state-stores/state-store";
 import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
+import BattleSocketsRegistry from "../registers/battle-sockets.registers";
 
-export class BattleConnectionHandler implements WebsocketConnectionHandlerInterface {
+export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
         string,
         WebsocketHandlerInterface
@@ -24,43 +24,30 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
     constructor(
         private readonly authService: AuthService,
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
-        private readonly wsProfileStateStore: StateStore<WebSocket, Id>,
-        private readonly wsEncodingStateStore: StateStore<WebSocket, SocketEncoding>,
-        private readonly wsBattlesStateStore: StateStore<WebSocket, Set<Id>>,
-        private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
+        private readonly battleSocketsRegistry: BattleSocketsRegistry,
     ) {
     }
 
-    register(
+    registerHandler(
         route: string,
         handler: WebsocketHandlerInterface,
     ): void {
         this.handlers.set(route, handler);
     }
 
-    getAccessToken(
-        req: IncomingMessage,
-    ): AccessToken | null {
-        const url = new URL(
-            req.url ?? "/",
-            `http://${req.headers.host}`,
-        );
+    buildUrl(req: IncomingMessage): URL {
+        return new URL(req.url ?? "/", `http://${req.headers.host}`);
+    }
+    getAccessToken(req: IncomingMessage): AccessToken | null {
+        const url = this.buildUrl(req);
 
-        const value =
-            req.headers.authorization
-                ?.replace(/^Bearer\s+/i, "") ??
-            url.searchParams.get("token");
+        const value = req.headers.authorization?.replace(/^Bearer\s+/i, "") ?? url.searchParams.get("token");
 
-        return value
-            ? new AccessToken(value)
-            : null;
+        return value ? new AccessToken(value) : null;
     }
 
-    async handle(
-        ws: WebSocket,
-        req: IncomingMessage,
-    ): Promise<void> {
+    async handle(ws: WebSocket, req: IncomingMessage): Promise<void> {
         logger.info(
             "New websocket-server connection established",
         );
@@ -83,7 +70,7 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
             return;
         }
 
-        const url = new URL(req.url ?? "/", `http://${req.headers.host}`);
+        const url = this.buildUrl(req);
 
         const profileId = new Id(url.searchParams.get("profileId") ?? "");
 
@@ -111,8 +98,7 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
                 ? SocketEncoding.PLAIN
                 : SocketEncoding.PROTOBUF;
 
-        this.wsProfileStateStore.save(ws, profileId);
-        this.wsEncodingStateStore.save(ws, encoding);
+        this.battleSocketsRegistry.registerSocket(ws, profileId, encoding);
 
         const handler = this.handlers.get(url.pathname);
 
@@ -146,7 +132,7 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
         });
 
         ws.on("close", () => {
-            void this.disconnect(ws);
+            void this.disconnect(ws, profileId);
         });
 
         ws.on("error", err => {
@@ -167,27 +153,22 @@ export class BattleConnectionHandler implements WebsocketConnectionHandlerInterf
 
     private async disconnect(
         ws: WebSocket,
+        profileId: Id,
     ): Promise<void> {
 
-        this.wsProfileStateStore.drop(ws);
-        this.wsEncodingStateStore.drop(ws);
-
-        const battleIds = this.wsBattlesStateStore.get(ws);
-        if (!battleIds) {
-            return;
-        }
-
-        await Promise.all(
-            [...battleIds].map(
-                (battleId: Id) => null
-
-                // battleId: Id => battleService.leave(
-                //     id,
-                //     profileId,
-                // ),
-            ),
-        );
+        // const context = this.wsSocketContextStateStore.get(ws);
+        //
+        // if (!context) {
+        //     return;
+        // }
+        //
+        // await Promise.all(
+        //     // [...context.battleIds].map((id: Id) => battleService.leave(id, profileId))
+        //     [...context.battleIds].map((battleId: Id) => this.battleLeaveUseCase(id, profileId))
+        // );
+        //
+        // this.wsSocketContextStateStore.drop(ws);
     }
 }
 
-export default BattleConnectionHandler;
+export default ConnectionHandler;

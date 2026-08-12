@@ -7,7 +7,7 @@ import logger from "@shared/logger";
 import frontBattleStreamRegistry from "../channels/front.battle.stream";
 import * as profileService from "../../services/profile.service";
 import * as errorProto from "../../grpc/generated/common/error";
-import engineStream from "../../grpc/channels/engine.stream";
+import engineStream from "../../grpc/registers/engine.stream";
 import pgBossManager from "@shared/pg-boss-manager";
 
 import {messageProducersConfig} from "../../configs/kafka.configs";

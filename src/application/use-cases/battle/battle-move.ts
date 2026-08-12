@@ -1,6 +1,6 @@
 import * as streamingProto from "../../grpc/generated/streaming";
 import * as engineProto from "../../grpc/generated/engine";
-import EngineStream from "../../grpc/channels/engine.stream";
+import EngineStream from "../../grpc/registers/engine.stream";
 
 export class BattleMoveUseCase {
     constructor(

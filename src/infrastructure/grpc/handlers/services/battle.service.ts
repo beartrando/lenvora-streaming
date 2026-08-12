@@ -3,11 +3,11 @@ import * as profileProto from "../grpc/generated/profile";
 import * as battleProto from "../grpc/generated/battle";
 import * as engineProto from "../grpc/generated/engine";
 import {BattleObject, BattleStatus} from "../grpc/generated/battle";
-import FrontBattleStreamRegistry from "../websocket-server/channels/front.battle.stream";
+import FrontBattleStreamRegistry from "../websocket-server/registers/front.battle.stream";
 import logger from "@shared/logger";
 import * as streamingProto from "../grpc/generated/streaming";
 import {metadataWithJwt} from "../lib/grpcRequestMetadata";
-import engineStream from "../grpc/channels/engine.stream";
+import engineStream from "../grpc/registers/engine.stream";
 
 export const upsert = async (profileId: string, jwt: string) => {
     const grpcRequest = profileProto.ProfileIdRequest.create({profileId});

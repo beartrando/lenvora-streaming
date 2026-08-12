@@ -5,8 +5,8 @@ import * as engineProto from "../../grpc/generated/engine";
 import * as errorProto from "../../grpc/generated/common/error";
 
 import * as battleService from "../../services/battle.service";
-import FrontBattleStreamRegistry from "../../infrastructure/websocket/channels/front.battle.stream";
-import EngineStream from "../../grpc/channels/engine.stream";
+import FrontBattleStreamRegistry from "../../infrastructure/websocket/registers/front.battle.stream";
+import EngineStream from "../../grpc/registers/engine.stream";
 
 export class BattleStartUseCase {
     constructor(

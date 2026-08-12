@@ -5,7 +5,7 @@
 // import * as engineService from "../../services/engine.service";
 // import * as battleService from "../../services/battle.service";
 // import logger from "@shared/logger";
-// import BattleStreamRegistry from "../../channels/engine.battle.stream";
+// import BattleStreamRegistry from "../../registers/engine.battle.stream";
 //
 // export async function battleChannel(
 //   call: grpc.ServerDuplexStream<streamingProto.BattleRequest, battleProto.BattleObject>) {

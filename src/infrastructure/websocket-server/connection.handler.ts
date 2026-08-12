@@ -14,6 +14,7 @@ import Id from "../../domain/common/value-objects/id.vo";
 import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
+import TimerService from "../timer/service";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -26,6 +27,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly timerService: TimerService,
     ) {
     }
 

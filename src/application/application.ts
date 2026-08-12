@@ -5,7 +5,7 @@ import MessageService from "../infrastructure/message/service";
 // import StateStoreService from "../infrastructure/state-store/service";
 import CacheService from "../infrastructure/cache/service";
 import WebsocketService from "../infrastructure/websocket-server/service";
-import EngineStreamService from "../infrastructure/engine-stream/service";
+import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
 
 export class Application {
@@ -16,7 +16,7 @@ export class Application {
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketService,
-        private readonly engineStreamService: EngineStreamService,
+        private readonly engineStreamService: GrpcStreamService,
         private readonly timerService: TimerService,
     ) {
     }

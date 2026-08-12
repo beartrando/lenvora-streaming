@@ -1,25 +1,30 @@
-import * as streamingProto from "../../grpc/generated/streaming";
-import * as engineProto from "../../grpc/generated/engine";
-import EngineStream from "../../grpc/registers/engine.stream";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import * as engineProto from "../../../contracts/proto/engine";
+import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
+import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
+import type {WebSocket} from "ws";
+import Id from "../../../domain/common/value-objects/id.vo";
 
 export class BattleMoveUseCase {
     constructor(
-        private readonly engineStream: EngineStream,
+        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly grpcStreamService: GrpcStreamService,
+
     ) {
     }
 
     async execute(
-        profileId: string,
+        profileId: Id,
         payload: streamingProto.BattleMove,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({
             move: engineProto.BattleMove.create({
-                profileId,
+                profileId: profileId.value,
                 ...payload,
             }),
         });
 
-        this.engineStream.write(grpcRequest);
+        this.grpcStreamService.client.write(grpcRequest);
     }
 }
 

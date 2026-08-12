@@ -17,18 +17,18 @@ export class BattleClient {
         );
     }
 
-    async join(grpcRequest: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async start(request: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.start(grpcRequest, metadata, cb)
+            (client, cb) => client.start(request, metadata, cb)
         ).catch((err) => {
-            logger.error("Join battle failed:", err);
+            logger.error("Start battle failed:", err);
             return null;
         });
     }
 
-    async GetActiveByProfile(grpcRequest: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async GetActiveByProfile(request: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.getActiveByProfile(grpcRequest, metadata, cb)
+            (client, cb) => client.getActiveByProfile(request, metadata, cb)
         ).catch((err) => {
             logger.error("Get active  battles by profile failed:", err);
             return null;

@@ -1,44 +1,72 @@
 import type {WebSocket} from "ws";
-import * as streamingProto from "../../grpc/generated/streaming";
-import WebsocketHandler from "../interfaces/websocket-handler.interface";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
 import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
 import BattleMoveUseCase from "../../../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
-import BattlePingUseCase from "../../../application/use-cases/battle/battle-ping";
 
 import logger from "@shared/logger";
-import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
+import TimerService from "../../timer/service";
+import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import Id from "../../../domain/common/value-objects/id.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
-        private readonly start: BattleStartUseCase,
-        private readonly move: BattleMoveUseCase,
-        private readonly ping: BattlePingUseCase,
-        private readonly connectBot: BattleConnectBotUseCase,
-        private readonly leave: BattleLeaveUseCase,
+        private readonly timerService: TimerService,
+        private readonly startUseCase: BattleStartUseCase,
+        private readonly moveUseCase: BattleMoveUseCase,
+        private readonly connectBotUseCase: BattleConnectBotUseCase,
+        private readonly leaveUseCase: BattleLeaveUseCase,
     ) {
     }
 
-    async handle(ws: WebSocket, jwt: string, profileId: string, payload: streamingProto.BattleRequest): Promise<void> {
+    async handle(ws: WebSocket, accessToken: AccessToken, profileId: Id, payload: streamingProto.BattleRequest): Promise<void> {
         logger.log('battleHandler got event');
         logger.log(payload);
 
         if (payload.start) {
-            return this.start.execute(ws, jwt, profileId, payload.start);
+            this.startHeartbeat(ws);
+            const battleId = payload.start.battleId ? new Id(payload.start.battleId) : undefined;
+            return this.startUseCase.execute(
+                accessToken,
+                profileId,
+                battleId
+            );
         } else if (payload.move) {
-            return this.move.execute(ws, profileId, payload.move);
+            this.startHeartbeat(ws)
+            return this.moveUseCase.execute(profileId, payload.move);
         } else if (payload.ping) {
-            return this.ping.execute(ws);
+            return;
         } else if (payload.connectBot) {
-            return this.connectBot.execute(ws, profileId, payload.connectBot);
+            return this.connectBotUseCase.execute(profileId, payload.connectBot);
         } else if (payload.leave) {
-            return this.leave.execute(ws, profileId, payload.leave);
+            const battleId = new Id(payload.leave.battleId);
+            return this.leaveUseCase.execute(profileId, battleId);
         }
 
         logger.warn(`⚠️ Unknown payload type:`, payload);
     }
+
+    private startHeartbeat(ws: WebSocket) {
+        // this.battleWebsocketsRegistry.getSocketContext(ws);
+        //
+        // if (empty)
+        //
+        //     this.timerService.restart()
+        //
+        // this.clearHeartbeat(ws);
+        //
+        //
+        // const timer = setTimeout(() => {
+        //     logger.warn("Heartbeat timeout, cleaning stream");
+        //     this.unregisterSocket(ws);
+        // }, this.heartbeatTimeoutMs);
+        // this.heartbeatTimers.set(ws, timer);
+    }
+
+
 }
 
 export default BattleHandler;

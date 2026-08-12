@@ -1,4 +1,4 @@
-export class EngineStreamService {
+export class GrpcStreamService {
     async start(): Promise<void> {
     }
 
@@ -10,4 +10,4 @@ export class EngineStreamService {
     }
 }
 
-export default EngineStreamService;
+export default GrpcStreamService;

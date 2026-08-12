@@ -1,10 +1,12 @@
-import * as streamingProto from "../../../contracts/proto/streaming";
-import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import Id from "../../../domain/common/value-objects/id.vo";
+import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
+import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
+import type {WebSocket} from "ws";
 
 export class BattleLeaveUseCase {
     constructor(
-        private readonly battleClient: BattleClient,
+        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly engineStreamService: GrpcStreamService,
     ) {
     }
 

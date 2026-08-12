@@ -47,11 +47,11 @@ export class GrpcService {
         this.server.forceShutdown();
     }
 
-    // private registerEngineService() {
-    //     this.server.addService(engineProto.EngineService, {
-    //         battleChannel: this.engineHandler.battleChannel,
-    //     });
-    // }
+    private registerEngineService() {
+        this.server.addService(engineProto.EngineService, {
+            battleChannel: this.engineHandler.battleChannel,
+        });
+    }
 
     private registerHealthService() {
         this.server.addService(healthProto.HealthService, {

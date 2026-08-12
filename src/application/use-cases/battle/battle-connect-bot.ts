@@ -1,40 +1,40 @@
 import type {WebSocket} from "ws";
-import * as streamingProto from "../../grpc/generated/streaming";
-import FrontBattleStreamRegistry from "../../infrastructure/websocket/registers/front.battle.stream";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
 import PgBossManager from "@shared/pg-boss-manager";
-import {messageProducersConfig} from "../../configs/kafka.configs";
+// import {messageProducersConfig} from "../../configs/kafka.configs";
+import Id from "../../../domain/common/value-objects/id.vo";
 
 export class BattleConnectBotUseCase {
     constructor(
-        private readonly frontBattleStreamRegistry: FrontBattleStreamRegistry,
+        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly pgBossManager: PgBossManager,
     ) {
     }
 
     async execute(
-        ws: WebSocket,
-        profileId: string,
+        profileId: Id,
         payload: streamingProto.BattleJoinBot,
     ): Promise<void> {
-        const battleId = payload.battleId;
-
-        const context = this.frontBattleStreamRegistry.getSocketContext(ws);
-
-        if (!context) {
-            return;
-        }
-
-        if (!context.battleIds.has(battleId)) {
-            return;
-        }
-
-        const battleIdRequest =
-            streamingProto.BattleStart.create({battleId});
-
-        await this.pgBossManager.queue.enqueue(
-            messageProducersConfig.aiConnectingRequest,
-            battleIdRequest,
-        );
+        // const battleId = payload.battleId;
+        //
+        // const context = this.frontBattleStreamRegistry.getSocketContext(ws);
+        //
+        // if (!context) {
+        //     return;
+        // }
+        //
+        // if (!context.battleIds.has(battleId)) {
+        //     return;
+        // }
+        //
+        // const battleIdRequest =
+        //     streamingProto.BattleStart.create({battleId});
+        //
+        // await this.pgBossManager.queue.enqueue(
+        //     messageProducersConfig.aiConnectingRequest,
+        //     battleIdRequest,
+        // );
     }
 }
 

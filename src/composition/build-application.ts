@@ -8,7 +8,6 @@ import authConfig from "../infrastructure/auth/auth.config";
 import CacheService from "../infrastructure/cache/service";
 import redisConfig from "../infrastructure/cache/configs/redis.config";
 // import StateStoreService from "../infrastructure/state-store/service";
-
 import JobService from "../infrastructure/job/service";
 import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
@@ -26,22 +25,23 @@ import LivezUseCase from "../application/use-cases/health/livez";
 import ReadyzUseCase from "../application/use-cases/health/readyz";
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
 import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
-import EngineStreamService from "../infrastructure/engine-stream/service";
+import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
 import ProfileClient from "../infrastructure/grpc/clients/profile.client";
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
 import Id from "../domain/common/value-objects/id.vo";
 
 import {WebSocket,} from "ws";
-import SocketEncoding from "../infrastructure/websocket-server/enums/socket-encoding";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
 import ConnectionHandler from "../infrastructure/websocket-server/connection.handler";
 import SocketContext from "../infrastructure/websocket-server/types/socket-context";
 import BattleWebsocketsRegistry from "../infrastructure/websocket-server/registers/battle-websockets.registry";
-import TimerServiceInterface from "../infrastructure/timer/interfaces/timer-service.interface";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
-
+import BattleHandler from "../infrastructure/websocket-server/handlers/battle.handler";
+import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
+import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
 
 
 function buildApplication() {
@@ -50,35 +50,15 @@ function buildApplication() {
     const timerService = new TimerService(timerCallbackFactoryRegistry);
     const cacheService = new CacheService(redisConfig);
 
+    const engineStreamService = new GrpcStreamService(
+        // websocketConfig,
+    );
+
     const jobService = new JobService(
         jobConfig,
         messageConfig,
         messageProducersConfig,
     );
-    //
-    // // Cache stores
-    // const battleCacheStore = new CacheStore(
-    //     "battle:",
-    //     "battle:index",
-    //     BattleRedisMapper,
-    // );
-    //
-    // cacheService.registerHandler(
-    //     "battle",
-    //     battleCacheStore,
-    // );
-    //
-    // // State stores
-    // const stateStoreService = new StateStoreService();
-
-    // const battleStateStore = new CachedIdStateStore(
-    //     battleCacheStore,
-    // );
-    //
-    // stateStoreService.registerHandler(
-    //     "battle",
-    //     battleStateStore,
-    // );
 
     const profileClinent = new ProfileClient(grpcConfig.serviceProfileUrl);
 
@@ -86,33 +66,17 @@ function buildApplication() {
         profileClinent,
     );
 
-    // const battleTimeoutUseCase = new BattleTimeoutUseCase(
-    //     battleStateStore,
-    //     timerService,
-    //     timerCallbackFactoryRegistry,
-    //     jobService,
-    //     messageProducersConfig.battleUpdated,
-    // );
-
     const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
-    //     battleTimeoutUseCase,
+        //     battleTimeoutUseCase,
     );
 
     timerCallbackFactoryRegistry.register(battleTimeoutCallbackFactory);
-
-    // // Message consumers
-    // const battleStartedConsumer = new BattleStartedConsumer(
-    //     battleStartUseCase,
-    // );
 
     const messageService = new MessageService(
         messageConfig,
         messageConsumersConfig,
         // battleStartedConsumer,
     );
-
-    const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
-    const battleLeaveUseCase = new BattleLeaveUseCase(battleClient);
 
     const wsSocketContextStateStore = new StateStore<WebSocket, SocketContext>();
     const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
@@ -125,22 +89,47 @@ function buildApplication() {
         heartbeatTimers,
     );
 
-    const battleConnectionHandler = new ConnectionHandler(
+    const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
+    const battleLeaveUseCase = new BattleLeaveUseCase(
+        battleWebsocketsRegistry,
+        engineStreamService,
+    );
+
+    const battleStartUseCase = new BattleStartUseCase(
+        battleWebsocketsRegistry,
+        battleClient,
+    );
+    const battleMoveUseCase = new BattleMoveUseCase(
+        battleWebsocketsRegistry,
+        engineStreamService,
+    );
+
+    const battleConnectBotUseCase = new BattleConnectBotUseCase(
+        battleWebsocketsRegistry,
+        engineStreamService,
+    );
+
+    const battleHandler = new BattleHandler(
+        timerService,
+        battleStartUseCase,
+        battleMoveUseCase,
+        battleConnectBotUseCase,
+        battleLeaveUseCase,
+    );
+
+    const connectionHandler = new ConnectionHandler(
         authService,
         authorizeProfileUseCase,
         battleLeaveUseCase,
         battleWebsocketsRegistry,
+        timerService,
     );
 
-
+    connectionHandler.registerHandler('/battle', battleHandler);
 
     const websocketService = new WebsocketService(
         websocketConfig,
-        battleConnectionHandler,
-    );
-
-    const engineStreamService = new EngineStreamService(
-        // websocketConfig,
+        connectionHandler,
     );
 
     const healthUseCase = new HealthUseCase(
@@ -155,13 +144,6 @@ function buildApplication() {
     const livezUseCase = new LivezUseCase();
     const readyzUseCase = new ReadyzUseCase();
 
-    // // Handlers
-    // const engineHandler = new EngineHandler(
-    //     battleStartUseCase,
-    //     battleMoveUseCase,
-    //     battleLeaveUseCase,
-    // );
-    //
     const healthHandler = new HealthHandler(
         healthUseCase,
         statusUseCase,

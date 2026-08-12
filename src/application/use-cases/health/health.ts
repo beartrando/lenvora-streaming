@@ -6,7 +6,7 @@ import CacheService from "../../../infrastructure/cache/service";
 import GrpcService from "../../../infrastructure/grpc/service";
 // import StateStoreService from "../../../infrastructure/state-store/service";
 import WebsocketService from "../../../infrastructure/websocket-server/service";
-import EngineStreamService from "../../../infrastructure/engine-stream/service";
+import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import TimerService from "../../../infrastructure/timer/service";
 
 export class HealthUseCase {
@@ -15,7 +15,7 @@ export class HealthUseCase {
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketService,
-        private readonly engineStreamService: EngineStreamService,
+        private readonly engineStreamService: GrpcStreamService,
     ) {
     }
 

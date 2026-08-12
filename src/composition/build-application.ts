@@ -46,6 +46,7 @@ import BattleStartedUseCase from "../application/use-cases/engine/battle-started
 import BattleUpdatedUseCase from "../application/use-cases/engine/battle-updated";
 import BattleFinishedUseCase from "../application/use-cases/engine/battle-finished";
 import * as engineProto from "../contracts/proto/engine";
+import BattleTimeoutUseCase from "../application/use-cases/engine/battle-timeout";
 
 
 function buildApplication() {
@@ -67,8 +68,10 @@ function buildApplication() {
         profileClinent,
     );
 
+    const battleTimeoutUseCase = new BattleTimeoutUseCase();
+
     const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
-    //     battleTimeoutUseCase,
+        battleTimeoutUseCase,
     );
 
     timerCallbackFactoryRegistry.register(battleTimeoutCallbackFactory);
@@ -91,6 +94,7 @@ function buildApplication() {
     );
 
     const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);
+
     const battleLeaveUseCase = new BattleLeaveUseCase(
         battleWebsocketsRegistry,
         grpcStreamService,

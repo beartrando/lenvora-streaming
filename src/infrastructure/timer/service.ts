@@ -1,61 +1,50 @@
-import TimerKey from "./value-objects/timer-key.vo";
 import TimerServiceInterface from "./interfaces/timer-service.interface";
-import TimerCallbackFactoryRegistry from "./callback-factory-registry";
+import TimerCallbackFactoryHolderInterface from "./interfaces/timer-callback-factory-holder.interface";
 
-export class TimerService implements TimerServiceInterface {
-    private readonly timers = new Map<TimerKey, NodeJS.Timeout>();
+export class TimerService<KEntity, TEntity> implements TimerServiceInterface<KEntity, TEntity> {
+    private readonly timers = new Map<KEntity, NodeJS.Timeout>();
 
     constructor(
-        private readonly _callbackFactoryRegistry: TimerCallbackFactoryRegistry,
+        private readonly _callbackFactoryHolder: TimerCallbackFactoryHolderInterface<TEntity>,
     ) {
     }
 
-    get callbackFactoryRegistry(): TimerCallbackFactoryRegistry {
-        return this._callbackFactoryRegistry;
-    }
-
     start(
-        key: string,
+        key: KEntity,
         timeoutMs: number,
-        entity: any,
+        entity: TEntity,
     ): void {
-        const callbackFactory = this.callbackFactoryRegistry.get(key);
+        const callbackFactory = this._callbackFactoryHolder.factory;
 
-        const timerKey = callbackFactory.createKey(entity);
         const callback = callbackFactory.create(entity);
 
-        this.stop(key, entity);
+        this.stop(key);
 
         const timer = setTimeout(async () => {
-            this.timers.delete(timerKey);
+            this.timers.delete(key);
             await callback();
         }, timeoutMs);
 
-        this.timers.set(timerKey, timer);
+        this.timers.set(key, timer);
     }
 
     stop(
-        key: string,
-        entity: any,
+        key: KEntity,
     ): void {
-        const callbackFactory = this.callbackFactoryRegistry.get(key);
-
-        const timerKey = callbackFactory.createKey(entity);
-
-        const timer = this.timers.get(timerKey);
+        const timer = this.timers.get(key);
 
         if (!timer) {
             return;
         }
 
         clearTimeout(timer);
-        this.timers.delete(timerKey);
+        this.timers.delete(key);
     }
 
     restart(
-        key: string,
+        key: KEntity,
         timeoutMs: number,
-        entity: any,
+        entity: TEntity,
     ): void {
         this.start(key, timeoutMs, entity);
     }

@@ -16,7 +16,7 @@ class BattleWebsocketsRegistry {
         // private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
         private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
-        private readonly heartbeatTimers: TimerServiceInterface,
+        private readonly heartbeatTimers: TimerServiceInterface<WebSocket>,
         // private readonly battleLeaveUseCase: BattleLeaveUseCase,
     ) {
     }

@@ -68,7 +68,7 @@ function buildApplication() {
         profileClinent,
     );
 
-    const battleTimeoutUseCase = new BattleTimeoutUseCase();
+    const battleTimeoutUseCase = new BattleTimeoutUseCase(timerService);
 
     const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
         battleTimeoutUseCase,
@@ -85,12 +85,10 @@ function buildApplication() {
     const wsSocketContextStateStore = new StateStore<WebSocket, SocketContext>();
     const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
 
-    const heartbeatTimers = new TimerService(timerCallbackFactoryRegistry);
-
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(
         wsSocketContextStateStore,
         battleWsStateStore,
-        heartbeatTimers,
+        timerService,
     );
 
     const battleClient = new BattleClient(grpcConfig.serviceBattleUrl);

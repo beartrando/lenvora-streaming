@@ -1,22 +1,21 @@
 import TimerKey from "../value-objects/timer-key.vo";
 import TimerCallbackInterface from "./timer-callback.interface";
 
-export interface TimerServiceInterface {
+export interface TimerServiceInterface<KEntity, TEntity> {
     start(
-        key: string,
+        key: KEntity,
         timeoutMs: number,
-        entity: any,
+        entity: TEntity,
     ): void;
 
     stop(
-        key: string,
-        entity: any,
+        key: KEntity,
     ): void;
 
     restart(
-        key: string,
+        key: KEntity,
         timeoutMs: number,
-        entity: any,
+        entity: TEntity,
     ): void;
 }
 

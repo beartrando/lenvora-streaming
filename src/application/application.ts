@@ -8,6 +8,7 @@ import WebsocketService from "../infrastructure/websocket-server/service";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
 import * as engineProto from "../contracts/proto/engine";
+import {WebSocket,} from "ws";
 
 export class Application {
     constructor(
@@ -18,7 +19,7 @@ export class Application {
         private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
-        private readonly timerService: TimerService,
+        private readonly timerService: TimerService<WebSocket>,
     ) {
     }
 

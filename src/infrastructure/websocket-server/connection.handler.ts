@@ -27,7 +27,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly timerService: TimerService,
+        private readonly timerService: TimerService<WebSocket>,
     ) {
     }
 

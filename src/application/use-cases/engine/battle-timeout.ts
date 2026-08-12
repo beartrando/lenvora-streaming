@@ -1,16 +1,15 @@
+import {WebSocket,} from "ws";
+
 import Id from "../../../domain/common/value-objects/id.vo";
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
-import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
-import type {WebSocket} from "ws";
-import * as engineProto from "../../../contracts/proto/engine";
+import TimerService from "../../../infrastructure/timer/service";
 
 export class BattleTimeoutUseCase {
     constructor(
+        private readonly timerService: TimerService,
     ) {
     }
 
-    async execute(
-    ): Promise<void> {
+    async execute(ws: WebSocket): Promise<void> {
         // await this.battleService.leave(
         //     payload.battleId,
         //     profileId,

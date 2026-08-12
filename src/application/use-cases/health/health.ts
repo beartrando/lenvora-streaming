@@ -8,6 +8,7 @@ import GrpcService from "../../../infrastructure/grpc/service";
 import WebsocketService from "../../../infrastructure/websocket-server/service";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import TimerService from "../../../infrastructure/timer/service";
+import * as engineProto from "../../../contracts/proto/engine";
 
 export class HealthUseCase {
     constructor(
@@ -15,7 +16,7 @@ export class HealthUseCase {
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketService,
-        private readonly engineStreamService: GrpcStreamService,
+        private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
     ) {
     }
 

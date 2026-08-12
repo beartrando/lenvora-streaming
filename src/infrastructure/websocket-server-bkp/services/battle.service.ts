@@ -1,8 +1,8 @@
-import * as battleClient from "../grpc/clients/battle.client";
+import * as battleClient from "../grpc/clients/engine.client";
 import * as profileProto from "../grpc/generated/profile";
-import * as battleProto from "../grpc/generated/battle";
+import * as battleProto from "../grpc/generated/engine";
 import * as engineProto from "../grpc/generated/engine";
-import {BattleObject, BattleStatus} from "../grpc/generated/battle";
+import {BattleObject, BattleStatus} from "../grpc/generated/engine";
 import FrontBattleStreamRegistry from "../websocket/channels/front.battle.stream";
 import logger from "@shared/logger";
 import * as streamingProto from "../grpc/generated/streaming";
@@ -34,7 +34,7 @@ export const leave = async (battleId: string, profileId: string) => {
 };
 
 export const update = async (battle: BattleObject) => {
-    // logger.log('update battle:', battle);
+    // logger.log('update engine:', engine);
     try {
         const message = streamingProto.BattleResponse.create({battle});
 

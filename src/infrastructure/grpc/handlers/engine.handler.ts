@@ -2,20 +2,17 @@ import * as grpc from '@grpc/grpc-js';
 import * as engineProto from '../../../contracts/proto/engine';
 import * as emptyProto from '../../../contracts/proto/common/empty';
 import logger from "@shared/logger";
-import BattleLeaveUseCase from "../../../application/use-cases/engine/battle-leave";
-import BattleMoveUseCase from "../../../application/use-cases/engine/battle-move";
-import BattleStartUseCase from "../../../application/use-cases/engine/battle-start";
 import BattleEntity from "../../../domain/battle/battle.entity";
-import BattleProtoMapper from "../mappers/battle.proto.mapper";
-import BattleMoveRedisMapper from "../mappers/battle-move.proto.mapper";
-import BattleLeaveRedisMapper from "../mappers/battle-leave.proto.mapper";
+import BattleStartedUseCase from "../../../application/use-cases/engine/battle-started";
+import BattleUpdatedUseCase from "../../../application/use-cases/engine/battle-updated";
+import BattleFinishedUseCase from "../../../application/use-cases/engine/battle-finished";
 
 
 export class EngineHandler {
     constructor(
-        private readonly battleStartUseCase: BattleStartUseCase,
-        private readonly battleMoveUseCase: BattleMoveUseCase,
-        private readonly battleLeaveUseCase: BattleLeaveUseCase
+        private readonly battleStartedUseCase: BattleStartedUseCase,
+        private readonly battleUpdatedUseCase: BattleUpdatedUseCase,
+        private readonly battleFinishedUseCase: BattleFinishedUseCase,
     ) {
     }
 
@@ -44,7 +41,7 @@ export class EngineHandler {
 
                         if (battleEntity) {
                             const battle = BattleProtoMapper.toProto(battleEntity);
-                            // logger.log(battle);
+                            // logger.log(engine);
                             call.write(engineProto.BattleResponse.create({battle}));
                         }
                     }

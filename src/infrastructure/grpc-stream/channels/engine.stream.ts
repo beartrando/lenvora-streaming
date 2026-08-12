@@ -1,7 +1,7 @@
 import * as engineProto from '../../../contracts/proto/engine';
 import * as grpc from '@grpc/grpc-js';
 import logger from "@shared/logger";
-import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-updated";
+import BattleUpdatedUseCase from "../../../application/use-cases/engine/battle-updated";
 import StreamInterface from "../interfaces/stream.interface";
 
 
@@ -55,7 +55,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest>{
             logger.log(message);
 
             if (message.battle) {
-                this.battleUpdatedUseCase(message.battle);
+                this.battleUpdatedUseCase.execute(message.battle);
             }
 
         });

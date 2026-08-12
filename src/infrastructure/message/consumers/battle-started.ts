@@ -1,6 +1,6 @@
 import * as battleProto from "../../../contracts/proto/battle";
-import BattleStartUseCase from "../../../application/use-cases/engine/battle-start";
-import BattleProtoMapper from "../../grpc/mappers/battle.proto.mapper";
+import BattleStartUseCase from "../../../application/use-cases/engine/engine-start";
+import BattleProtoMapper from "../../grpc/mappers/engine.proto.mapper";
 import logger from "@shared/logger";
 
 export class BattleStartedConsumer {

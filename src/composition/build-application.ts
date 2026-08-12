@@ -7,7 +7,6 @@ import authConfig from "../infrastructure/auth/auth.config";
 
 import CacheService from "../infrastructure/cache/service";
 import redisConfig from "../infrastructure/cache/configs/redis.config";
-// import StateStoreService from "../infrastructure/state-store/service";
 import JobService from "../infrastructure/job/service";
 import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
@@ -32,21 +31,21 @@ import StateStore from "../infrastructure/state-store/state-stores/state-store";
 import Id from "../domain/common/value-objects/id.vo";
 
 import {WebSocket,} from "ws";
-import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
+import BattleLeaveUseCase from "../application/use-cases/engine/battle-leave";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
 import ConnectionHandler from "../infrastructure/websocket-server/connection.handler";
 import SocketContext from "../infrastructure/websocket-server/types/socket-context";
 import BattleWebsocketsRegistry from "../infrastructure/websocket-server/registers/battle-websockets.registry";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
 import BattleHandler from "../infrastructure/websocket-server/handlers/battle.handler";
-import BattleStartUseCase from "../application/use-cases/battle/battle-start";
-import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
-import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
+import BattleStartUseCase from "../application/use-cases/engine/battle-start";
+import BattleMoveUseCase from "../application/use-cases/engine/battle-move";
+import BattleConnectBotUseCase from "../application/use-cases/engine/battle-connect-bot";
 import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
-import EngineHandler from "../infrastructure/grpc/handlers/engine.handler";
-import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
-import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
-import BattleFinishedUseCase from "../application/use-cases/battle/battle-finished";
+import BattleStartedUseCase from "../application/use-cases/engine/battle-started";
+import BattleUpdatedUseCase from "../application/use-cases/engine/battle-updated";
+import BattleFinishedUseCase from "../application/use-cases/engine/battle-finished";
+import * as engineProto from "../contracts/proto/engine";
 
 
 function buildApplication() {
@@ -54,8 +53,7 @@ function buildApplication() {
     const timerCallbackFactoryRegistry = new TimerCallbackFactoryRegistry();
     const timerService = new TimerService(timerCallbackFactoryRegistry);
     const cacheService = new CacheService(redisConfig);
-
-
+    const grpcStreamService = new GrpcStreamService<engineProto.BattleRequest>();
 
     const jobService = new JobService(
         jobConfig,
@@ -70,7 +68,7 @@ function buildApplication() {
     );
 
     const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
-        //     battleTimeoutUseCase,
+    //     battleTimeoutUseCase,
     );
 
     timerCallbackFactoryRegistry.register(battleTimeoutCallbackFactory);
@@ -135,22 +133,16 @@ function buildApplication() {
         connectionHandler,
     );
 
-    const battleStartedUseCase = BattleStartedUseCase;
-    const battleUpdatedUseCase = BattleUpdatedUseCase;
-    const battleFinishedUseCase = BattleFinishedUseCase;
+    const battleStartedUseCase = new BattleStartedUseCase;
+    const battleUpdatedUseCase = new BattleUpdatedUseCase;
+    const battleFinishedUseCase = new BattleFinishedUseCase;
 
     const engineStream = new EngineStream(
         grpcConfig.serviceEngineUrl,
         battleUpdatedUseCase
     );
 
-    const grpcStreamService = new GrpcStreamService(engineStream);
-
-    const engineHandler = new EngineHandler(
-        battleStartedUseCase,
-        battleUpdatedUseCase,
-        battleFinishedUseCase,
-    );
+    grpcStreamService.stream = engineStream;
 
     const healthUseCase = new HealthUseCase(
         jobService,
@@ -173,14 +165,12 @@ function buildApplication() {
 
     const grpcService = new GrpcService(
         grpcConfig.port,
-        engineHandler,
         healthHandler,
     );
 
 
     return new Application(
         grpcService,
-        // stateStoreService,
         jobService,
         messageService,
         cacheService,

@@ -21,7 +21,7 @@ export class BattleClient {
         return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.start(request, metadata, cb)
         ).catch((err) => {
-            logger.error("Start battle failed:", err);
+            logger.error("Start engine failed:", err);
             return null;
         });
     }

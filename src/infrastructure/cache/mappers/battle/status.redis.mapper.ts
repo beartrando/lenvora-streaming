@@ -1,5 +1,5 @@
-// import Status from "../../../../domain/battle/value-objects/status.vo";
-// import StatusEnum from "../../../../domain/battle/enums/status.enum";
+// import Status from "../../../../domain/engine/value-objects/status.vo";
+// import StatusEnum from "../../../../domain/engine/enums/status.enum";
 //
 // export class StatusRedisMapper {
 //

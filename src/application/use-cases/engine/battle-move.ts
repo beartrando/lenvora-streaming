@@ -8,7 +8,7 @@ import Id from "../../../domain/common/value-objects/id.vo";
 export class BattleMoveUseCase {
     constructor(
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly grpcStreamService: GrpcStreamService,
+        private readonly grpcStreamService: GrpcStreamService<engineProto.BattleRequest>,
 
     ) {
     }

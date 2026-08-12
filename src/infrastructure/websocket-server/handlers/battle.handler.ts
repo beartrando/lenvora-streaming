@@ -2,10 +2,10 @@ import type {WebSocket} from "ws";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
-import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
-import BattleMoveUseCase from "../../../application/use-cases/battle/battle-move";
-import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
-import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
+import BattleStartUseCase from "../../../application/use-cases/engine/battle-start";
+import BattleMoveUseCase from "../../../application/use-cases/engine/battle-move";
+import BattleLeaveUseCase from "../../../application/use-cases/engine/battle-leave";
+import BattleConnectBotUseCase from "../../../application/use-cases/engine/battle-connect-bot";
 
 import logger from "@shared/logger";
 import TimerService from "../../timer/service";

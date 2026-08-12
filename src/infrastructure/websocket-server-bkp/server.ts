@@ -5,7 +5,7 @@ import config from "../configs/configs";
 import logger from "@shared/logger";
 import frontBattleStreamRegistry, {SocketEncoding} from "./channels/front.battle.stream";
 import {getUserIdFromJwt} from "../lib/grpcRequestMetadata";
-import * as battleService from "../services/battle.service";
+import * as battleService from "../services/engine.service";
 
 
 export const wss = new WebSocketServer({port: config.webSocketPort});

@@ -1,10 +1,10 @@
-// import BattleEntity, {BattleEntityProps,} from "../../../domain/battle/battle.entity";
+// import BattleEntity, {BattleEntityProps,} from "../../../domain/engine/engine.entity";
 //
 //
-// import BoardMapper from "./battle/board.redis.mapper";
-// import StatusMapper from "./battle/status.redis.mapper";
+// import BoardMapper from "./engine/board.redis.mapper";
+// import StatusMapper from "./engine/status.redis.mapper";
 // import Id from "../../../domain/common/value-objects/id.vo";
-// import PlayerIds from "../../../domain/battle/value-objects/player-ids.vo";
+// import PlayerIds from "../../../domain/engine/value-objects/player-ids.vo";
 //
 // export interface BattleRedisObject {
 //     id: string;
@@ -17,25 +17,25 @@
 //
 // export class BattleRedisMapper {
 //
-//     static toPersistence(battle: BattleEntity): BattleRedisObject {
+//     static toPersistence(engine: BattleEntity): BattleRedisObject {
 //         return {
-//             id: battle.id.value,
-//             playerIds: battle.playerIds.value.map((id: Id) => id.value),
-//             board: BoardMapper.toPersistence(battle.board),
-//             status: StatusMapper.toPersistence(battle.status),
-//             winnerId: battle.winnerId?.value ?? null,
-//             lastMoveAt: battle.lastMoveAt,
+//             id: engine.id.value,
+//             playerIds: engine.playerIds.value.map((id: Id) => id.value),
+//             board: BoardMapper.toPersistence(engine.board),
+//             status: StatusMapper.toPersistence(engine.status),
+//             winnerId: engine.winnerId?.value ?? null,
+//             lastMoveAt: engine.lastMoveAt,
 //         };
 //     }
 //
-//     static toDomain(battle: BattleRedisObject): BattleEntity {
+//     static toDomain(engine: BattleRedisObject): BattleEntity {
 //         const props: BattleEntityProps = {
-//             id: new Id(battle.id),
-//             playerIds: new PlayerIds(battle.playerIds.map((id: string) => new Id(id))),
-//             board: BoardMapper.toDomain(battle.board),
-//             status: StatusMapper.toDomain(battle.status),
-//             winnerId: battle.winnerId ? new Id(battle.winnerId) : null,
-//             lastMoveAt: battle.lastMoveAt,
+//             id: new Id(engine.id),
+//             playerIds: new PlayerIds(engine.playerIds.map((id: string) => new Id(id))),
+//             board: BoardMapper.toDomain(engine.board),
+//             status: StatusMapper.toDomain(engine.status),
+//             winnerId: engine.winnerId ? new Id(engine.winnerId) : null,
+//             lastMoveAt: engine.lastMoveAt,
 //         };
 //
 //         return BattleEntity.create(props);

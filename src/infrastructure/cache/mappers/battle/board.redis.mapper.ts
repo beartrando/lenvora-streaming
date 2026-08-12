@@ -1,4 +1,4 @@
-// import Board from "../../../../domain/battle/value-objects/board.vo";
+// import Board from "../../../../domain/engine/value-objects/board.vo";
 // import CellValueMapper from "./cell-value.redis.mapper";
 //
 //

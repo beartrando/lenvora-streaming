@@ -1,5 +1,5 @@
 import TimerCallbackInterface from "../interfaces/timer-callback.interface";
-import BattleTimeoutUseCase from "../../../application/use-cases/engine/battle-timeout";
+// import BattleTimeoutUseCase from "../../../application/use-cases/engine/battle-timeout";
 import BattleEntity from "../../../domain/battle/battle.entity";
 import {TimerCallbackFactory} from "./timer-callback-factory";
 
@@ -8,7 +8,7 @@ export class BattleTimeoutCallbackFactory extends TimerCallbackFactory<BattleEnt
     protected readonly event = "leave";
 
     constructor(
-        private readonly battleTimeoutUseCase: BattleTimeoutUseCase,
+        // private readonly battleTimeoutUseCase: BattleTimeoutUseCase,
     ) {
         super();
     }
@@ -17,7 +17,7 @@ export class BattleTimeoutCallbackFactory extends TimerCallbackFactory<BattleEnt
         const battleId = entity.id;
 
         return async () => {
-            await this.battleTimeoutUseCase.execute(battleId);
+            // await this.battleTimeoutUseCase.execute(battleId);
         };
     }
 }

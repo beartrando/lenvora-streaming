@@ -46,9 +46,8 @@ import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/batt
 
 function buildApplication() {
     const authService = new AuthService(authConfig);
-    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory();
-    const timerService = new TimerService(battleTimeoutCallbackFactory);
     const timerCallbackFactoryRegistry = new TimerCallbackFactoryRegistry();
+    const timerService = new TimerService(timerCallbackFactoryRegistry);
     const cacheService = new CacheService(redisConfig);
 
     const jobService = new JobService(
@@ -94,16 +93,13 @@ function buildApplication() {
     //     jobService,
     //     messageProducersConfig.battleUpdated,
     // );
-    //
-    // // Timer callbacks
-    // const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
+
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
     //     battleTimeoutUseCase,
-    // );
-    //
-    // timerCallbackFactoryRegistry.registerHandler(
-    //     battleTimeoutCallbackFactory,
-    // );
-    //
+    );
+
+    timerCallbackFactoryRegistry.register(battleTimeoutCallbackFactory);
+
     // // Message consumers
     // const battleStartedConsumer = new BattleStartedConsumer(
     //     battleStartUseCase,
@@ -120,7 +116,8 @@ function buildApplication() {
 
     const wsSocketContextStateStore = new StateStore<WebSocket, SocketContext>();
     const battleWsStateStore = new StateStore<Id, Set<WebSocket>>();
-    const heartbeatTimers = new TimerService();
+
+    const heartbeatTimers = new TimerService(timerCallbackFactoryRegistry);
 
     const battleWebsocketsRegistry = new BattleWebsocketsRegistry(
         wsSocketContextStateStore,

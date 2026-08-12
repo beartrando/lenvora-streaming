@@ -52,36 +52,7 @@ class BattleWebsocketsRegistry {
             logger.error("Stream error:", err);
             this.unregisterSocket(ws);
         });
-
-        ws.on("message", () => this.resetHeartbeat(ws));
-
-        this.resetHeartbeat(ws);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     getSocketContext(ws: WebSocket): SocketContext | undefined {
         const context = this.wsSocketContextStateStore.get(ws);
@@ -171,24 +142,6 @@ class BattleWebsocketsRegistry {
 
         if (sockets.size === 0) {
             this.battleWsStateStore.delete(battleId);
-        }
-    }
-
-
-    private resetHeartbeat(ws: WebSocket) {
-        this.clearHeartbeat(ws);
-        const timer = setTimeout(() => {
-            logger.warn("Heartbeat timeout, cleaning stream");
-            this.unregisterSocket(ws);
-        }, this.heartbeatTimeoutMs);
-        this.heartbeatTimers.set(ws, timer);
-    }
-
-    private clearHeartbeat(ws: WebSocket) {
-        const timer = this.heartbeatTimers.get(ws);
-        if (timer) {
-            clearTimeout(timer);
-            this.heartbeatTimers.delete(ws);
         }
     }
 }

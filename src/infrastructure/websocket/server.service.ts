@@ -3,7 +3,7 @@ import logger from "@shared/logger";
 import WebsocketConfig from "./types/websocket-config";
 import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connection-handler.interface";
 
-export class WebsocketService {
+export class WebsocketServerService {
     private wss: WebSocketServer | null = null;
 
     constructor(
@@ -76,4 +76,4 @@ export class WebsocketService {
     }
 }
 
-export default WebsocketService;
+export default WebsocketServerService;

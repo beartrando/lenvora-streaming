@@ -15,9 +15,9 @@ import messageProducersConfig from "../infrastructure/message/configs/producers.
 import TimerService from "../infrastructure/timer/service";
 import grpcConfig from "../infrastructure/grpc/configs/grpc.config";
 import HealthUseCase from "../application/use-cases/health/health";
-import websocketConfig from "../infrastructure/websocket-server/configs/websocket.config";
+import websocketConfig from "../infrastructure/websocket/configs/websocket.config";
 import MessageService from "../infrastructure/message/service";
-import WebsocketService from "../infrastructure/websocket-server/service";
+import WebsocketServerService from "../infrastructure/websocket/server.service";
 import StatusUseCase from "../application/use-cases/health/status";
 import LivezUseCase from "../application/use-cases/health/livez";
 import ReadyzUseCase from "../application/use-cases/health/readyz";
@@ -32,11 +32,11 @@ import Id from "../domain/common/value-objects/id.vo";
 import {WebSocket,} from "ws";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleClient from "../infrastructure/grpc/clients/battle.client";
-import ConnectionHandler from "../infrastructure/websocket-server/connection.handler";
-import SocketContext from "../infrastructure/websocket-server/types/socket-context";
-import BattleWebsocketsRegistry from "../infrastructure/websocket-server/registers/battle-websockets.registry";
+import ConnectionHandler from "../infrastructure/websocket/connection.handler";
+import SocketContext from "../infrastructure/websocket/types/socket-context";
+import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/battle-websockets.registry";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
-import BattleHandler from "../infrastructure/websocket-server/handlers/battle.handler";
+import BattleHandler from "../infrastructure/websocket/handlers/battle.handler";
 import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
@@ -133,7 +133,7 @@ function buildApplication() {
 
     connectionHandler.registerHandler('/battle', battleHandler);
 
-    const websocketService = new WebsocketService(
+    const websocketService = new WebsocketServerService(
         websocketConfig,
         connectionHandler,
     );

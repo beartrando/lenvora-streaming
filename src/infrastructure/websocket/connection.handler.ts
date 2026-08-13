@@ -53,7 +53,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
 
     async handle(ws: WebSocket, req: IncomingMessage): Promise<void> {
         logger.info(
-            "New websocket-server connection established",
+            "New websocket connection established",
         );
 
         const token = this.getAccessToken(req);

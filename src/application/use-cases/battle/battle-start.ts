@@ -1,6 +1,6 @@
 import * as battleProto from "../../../contracts/proto/battle";
 
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
+import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";

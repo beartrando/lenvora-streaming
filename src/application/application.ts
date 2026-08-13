@@ -3,7 +3,7 @@ import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
 import CacheService from "../infrastructure/cache/service";
-import WebsocketService from "../infrastructure/websocket-server/service";
+import WebsocketServerService from "../infrastructure/websocket/server.service";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
 import * as engineProto from "../contracts/proto/engine";
@@ -16,7 +16,7 @@ export class Application {
         private readonly jobService: JobService,
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
-        private readonly websocketService: WebsocketService,
+        private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
         private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
     ) {

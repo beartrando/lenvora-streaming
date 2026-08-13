@@ -3,7 +3,7 @@
 // import * as battleProto from "../grpc/generated/engine";
 // import * as engineProto from "../grpc/generated/engine";
 // import {BattleObject, BattleStatus} from "../grpc/generated/engine";
-// import FrontBattleStreamRegistry from "../websocket-server/registers/front.engine.stream";
+// import FrontBattleStreamRegistry from "../websocket/registers/front.engine.stream";
 // import logger from "@shared/logger";
 // import * as streamingProto from "../grpc/generated/streaming";
 // import {metadataWithJwt} from "../lib/grpcRequestMetadata";

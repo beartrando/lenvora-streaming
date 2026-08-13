@@ -4,7 +4,7 @@ import JobService from "../../../infrastructure/job/service";
 import appConfig from "../../../infrastructure/app/app.config";
 import CacheService from "../../../infrastructure/cache/service";
 // import StateStoreService from "../../../infrastructure/state-store/service";
-import WebsocketService from "../../../infrastructure/websocket-server/service";
+import WebsocketServerService from "../../../infrastructure/websocket/server.service";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import * as engineProto from "../../../contracts/proto/engine";
 
@@ -13,7 +13,7 @@ export class HealthUseCase {
         private readonly jobService: JobService,
         private readonly messageService: MessageService,
         private readonly cacheService: CacheService,
-        private readonly websocketService: WebsocketService,
+        private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
     ) {
     }

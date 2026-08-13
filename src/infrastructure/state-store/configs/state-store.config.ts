@@ -1,7 +1,7 @@
-// import BattleEntity from "../../../domain/battle/battle.entity";
+// import DeviceEntity from "../../../domain/battle/battle.entity";
 //
 // export const stateStoreConfig = {
-//     battle: {} as BattleEntity,
+//     battle: {} as DeviceEntity,
 // } as const;
 //
 // export type StateStoreKey = keyof typeof stateStoreConfig;

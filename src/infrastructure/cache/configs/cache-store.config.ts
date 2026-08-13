@@ -1,7 +1,7 @@
-// import BattleEntity from "../../../domain/battle/battle.entity";
+// import DeviceEntity from "../../../domain/battle/battle.entity";
 
 export const cacheStoreConfig = {
-    // engine: {} as BattleEntity,
+    // engine: {} as DeviceEntity,
 } as const;
 
 export type CacheStoreKey = keyof typeof cacheStoreConfig;

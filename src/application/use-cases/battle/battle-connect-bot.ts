@@ -3,7 +3,7 @@ import Id from "../../../domain/common/value-objects/id.vo";
 import JobService from "../../../infrastructure/job/service";
 import StateStore from "../../../infrastructure/state-store/state-stores/state-store";
 import {WebSocket} from "ws";
-import SocketContext from "../../../infrastructure/websocket-server/types/socket-context";
+import SocketContext from "../../../infrastructure/websocket/types/socket-context";
 
 export class BattleConnectBotUseCase {
     constructor(

@@ -1,6 +1,6 @@
 import * as streamingProto from "../../../contracts/proto/streaming";
 import * as engineProto from "../../../contracts/proto/engine";
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
+import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import Id from "../../../domain/common/value-objects/id.vo";
 

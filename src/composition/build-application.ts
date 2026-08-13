@@ -57,7 +57,7 @@ import messageConfig from "../infrastructure/message/configs/message.config";
 import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 import redisConfig from "../infrastructure/cache/configs/redis.config";
-import websocketConfig from "../infrastructure/websocket/configs/websocket.config";
+import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import domainBattleConfig from "../domain/battle/config/config";
 
 
@@ -211,7 +211,7 @@ function buildApplication(): Application {
 
     const websocketService =
         new WebsocketServerService(
-            websocketConfig,
+            websocketServerConfig,
             connectionHandler,
         );
 

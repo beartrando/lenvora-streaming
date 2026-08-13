@@ -1,13 +1,13 @@
 import {WebSocketServer,} from "ws";
 import logger from "@shared/logger";
-import WebsocketConfig from "./types/websocket-config";
+import WebsocketServerConfig from "./types/websocket-server-config";
 import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connection-handler.interface";
 
 export class WebsocketServerService {
     private wss: WebSocketServer | null = null;
 
     constructor(
-        private readonly config: WebsocketConfig,
+        private readonly config: WebsocketServerConfig,
         private readonly connectionHandler: WebsocketConnectionHandlerInterface,
     ) {
     }

@@ -1,9 +1,9 @@
-// import {messageProducersConfig} from "../../configs/kafka.configs";
 import Id from "../../../domain/common/value-objects/id.vo";
 import JobService from "../../../infrastructure/job/service";
 import StateStore from "../../../infrastructure/state-store/state-stores/state-store";
 import {WebSocket} from "ws";
 import SocketContext from "../../../infrastructure/websocket/types/socket-context";
+import * as streamingProto from "../../../contracts/proto/streaming";
 
 export class BattleConnectBotUseCase {
     constructor(
@@ -27,7 +27,8 @@ export class BattleConnectBotUseCase {
         for (const websocket of websockets) {
             const context = this.wsSocketContextStateStore.get(websocket);
             if (profileId === context?.profileId) {
-                await this.jobService.enqueue(this.aiConnectingRequest, {battleId: battleId.value});
+                const message = streamingProto.BattleJoinBot.create({battleId: battleId.value});
+                await this.jobService.enqueue(this.aiConnectingRequest, message);
             }
         }
     }

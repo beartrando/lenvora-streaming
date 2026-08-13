@@ -43,7 +43,6 @@ import BattleConnectBotUseCase from "../application/use-cases/battle/battle-conn
 import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
 import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
 import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
-import BattleFinishedUseCase from "../application/use-cases/battle/battle-finished";
 import * as engineProto from "../contracts/proto/engine";
 import BattleTimeoutUseCase from "../application/use-cases/battle/battle-timeout";
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
@@ -140,7 +139,6 @@ function buildApplication() {
 
     const battleStartedUseCase = new BattleStartedUseCase;
     const battleUpdatedUseCase = new BattleUpdatedUseCase;
-    const battleFinishedUseCase = new BattleFinishedUseCase;
 
     const engineStream = new EngineStream(
         grpcConfig.serviceEngineUrl,

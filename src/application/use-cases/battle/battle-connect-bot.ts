@@ -1,0 +1,36 @@
+// import {messageProducersConfig} from "../../configs/kafka.configs";
+import Id from "../../../domain/common/value-objects/id.vo";
+import JobService from "../../../infrastructure/job/service";
+import StateStore from "../../../infrastructure/state-store/state-stores/state-store";
+import {WebSocket} from "ws";
+import SocketContext from "../../../infrastructure/websocket-server/types/socket-context";
+
+export class BattleConnectBotUseCase {
+    constructor(
+        private readonly jobService: JobService,
+        private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
+        private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
+        private readonly aiConnectingRequest: string,
+    ) {
+    }
+
+    async execute(
+        profileId: Id,
+        battleId: Id,
+    ): Promise<void> {
+
+        const websockets = this.battleWsStateStore.get(battleId);
+        if (!websockets) {
+            return;
+        }
+
+        for (const websocket of websockets) {
+            const context = this.wsSocketContextStateStore.get(websocket);
+            if (profileId === context?.profileId) {
+                await this.jobService.enqueue(this.aiConnectingRequest, {battleId: battleId.value});
+            }
+        }
+    }
+}
+
+export default BattleConnectBotUseCase;

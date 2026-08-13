@@ -1,5 +1,5 @@
 // import CachedIdStateStoreInterface from "./interfaces/cached-id-state-store.interface";
-// import {StateStoreEntity, StateStoreKey} from "./config/state-store.config";
+// import {StateStoreEntity, StateStoreKey} from "./configs/state-store.configs";
 //
 //
 // export class StateStoreService {

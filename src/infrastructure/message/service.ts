@@ -1,15 +1,16 @@
-import {createProducer, KafkaConfig, KafkaProducer} from "@shared/kafka-manager";
+import {createConsumer, createProducer, KafkaConfig, KafkaProducer} from "@shared/kafka-manager";
 import logger from "@shared/logger";
 import sleep from "../../utils/sleep";
+import MessageConsumerHandlerInterface from "./interfaces/message-consumer-handler.interface";
+import MessageConsumerInterface from "./interfaces/message-consumer.interface";
 
 export class MessageService {
 
     private producer?: KafkaProducer;
+    private readonly consumers: MessageConsumerInterface<any>[] = [];
 
     constructor(
         private readonly config: KafkaConfig,
-        private readonly consumersConfig: Record<string, string>,
-        // private readonly battleUpdatedConsumer: BattleStartedConsumer,
     ) {
     }
 
@@ -45,11 +46,18 @@ export class MessageService {
         }
     }
 
+    addConsumer(topic: string, handler: MessageConsumerHandlerInterface<any>): void {
+        const consumer: MessageConsumerInterface<any> = {topic, handler};
+        this.consumers.push(consumer);
+    }
+
     private async createConsumers(): Promise<void> {
-        // createConsumer(this.configs, {
-        //     topic: this.consumersConfig.battleUpdated,
-        //     handler: this.battleUpdatedConsumer.execute
-        // })
+        for (const consumer of this.consumers) {
+            await createConsumer(
+                this.config,
+                consumer,
+            );
+        }
     }
 
     private async retryInit(

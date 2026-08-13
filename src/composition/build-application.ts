@@ -54,7 +54,6 @@ import authConfig from "../infrastructure/auth/auth.config";
 import grpcConfig from "../infrastructure/grpc/configs/grpc.config";
 import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
-import messageConsumersConfig from "../infrastructure/message/configs/consumers.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 import redisConfig from "../infrastructure/cache/configs/redis.config";
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
@@ -76,10 +75,7 @@ function buildApplication(): Application {
         messageProducersConfig,
     );
 
-    const messageService = new MessageService(
-        messageConfig,
-        messageConsumersConfig,
-    );
+    const messageService = new MessageService(messageConfig);
 
     const timerCallbackFactoryHolder =
         new TimerCallbackFactoryHolder<BattleLeaveData>();

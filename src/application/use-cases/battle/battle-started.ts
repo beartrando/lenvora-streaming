@@ -1,8 +1,3 @@
-import Id from "../../../domain/common/value-objects/id.vo";
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
-import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
-import type {WebSocket} from "ws";
-
 export class BattleStartedUseCase {
     constructor(
         // private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,

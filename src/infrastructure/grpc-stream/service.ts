@@ -3,20 +3,20 @@ import StreamInterface from "./interfaces/stream.interface";
 export class GrpcStreamService<TRequest> {
     private _stream: StreamInterface<TRequest> | null = null;
 
-    set stream(stream: StreamInterface<TRequest>) {
-        if (this._stream) {
-            throw new Error("gRPC stream is initialized already");
-        }
-
-        this._stream = stream;
-    }
-
     get stream(): StreamInterface<TRequest> {
         if (!this._stream) {
             throw new Error("gRPC stream is not initialized");
         }
 
         return this._stream;
+    }
+
+    set stream(stream: StreamInterface<TRequest>) {
+        if (this._stream) {
+            throw new Error("gRPC stream is initialized already");
+        }
+
+        this._stream = stream;
     }
 
     async start(): Promise<void> {

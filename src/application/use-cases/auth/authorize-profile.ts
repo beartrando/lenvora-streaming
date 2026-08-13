@@ -1,6 +1,5 @@
 import ProfileClient from "../../../infrastructure/grpc/clients/profile.client";
 import * as authProto from "../../../contracts/proto/auth";
-import * as grpc from "@grpc/grpc-js";
 import Id from "../../../domain/common/value-objects/id.vo";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";

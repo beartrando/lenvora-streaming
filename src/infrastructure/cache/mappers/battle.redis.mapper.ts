@@ -1,4 +1,4 @@
-// import BattleEntity, {BattleEntityProps,} from "../../../domain/engine/engine.entity";
+// import BattleEntity, {BattleEntityProps,} from "../../../domain/battle/battle.entity";
 //
 //
 // import BoardMapper from "./engine/board.redis.mapper";

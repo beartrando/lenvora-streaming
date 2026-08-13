@@ -3,11 +3,9 @@ import MessageService from "../../../infrastructure/message/service";
 import JobService from "../../../infrastructure/job/service";
 import appConfig from "../../../infrastructure/app/app.config";
 import CacheService from "../../../infrastructure/cache/service";
-import GrpcService from "../../../infrastructure/grpc/service";
 // import StateStoreService from "../../../infrastructure/state-store/service";
 import WebsocketService from "../../../infrastructure/websocket-server/service";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
-import TimerService from "../../../infrastructure/timer/service";
 import * as engineProto from "../../../contracts/proto/engine";
 
 export class HealthUseCase {

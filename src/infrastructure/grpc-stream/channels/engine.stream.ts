@@ -5,7 +5,7 @@ import BattleUpdatedUseCase from "../../../application/use-cases/battle/battle-u
 import StreamInterface from "../interfaces/stream.interface";
 
 
-export class EngineStream implements StreamInterface<engineProto.BattleRequest>{
+export class EngineStream implements StreamInterface<engineProto.BattleRequest> {
     private stream: grpc.ClientDuplexStream<any, any> | null = null;
     private client: engineProto.EngineClient | null = null;
     private reconnectDelay = 1000; // стартовый backoff

@@ -1,4 +1,3 @@
-import type {WebSocket} from "ws";
 import * as battleProto from "../../../contracts/proto/battle";
 
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket-server/registers/battle-websockets.registry";
@@ -22,7 +21,7 @@ export class BattleStartUseCase {
 
         const grpcRequest = battleProto.BattleStartRequest.create({
             profileId: profileId.value,
-            battleId: battleId? battleId.value: undefined
+            battleId: battleId ? battleId.value : undefined
         });
         const metadata = AuthHelper.getMetadata(accessToken);
         await this.battleClient.start(grpcRequest, metadata);

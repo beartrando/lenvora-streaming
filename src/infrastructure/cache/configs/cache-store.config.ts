@@ -1,4 +1,4 @@
-// import BattleEntity from "../../../domain/engine/engine.entity";
+// import BattleEntity from "../../../domain/battle/battle.entity";
 
 export const cacheStoreConfig = {
     // engine: {} as BattleEntity,

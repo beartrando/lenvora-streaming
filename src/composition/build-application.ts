@@ -44,15 +44,18 @@ import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
 import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
 import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
 import * as engineProto from "../contracts/proto/engine";
-import BattleTimeoutUseCase from "../application/use-cases/battle/battle-timeout";
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
-import TimerKey from "../infrastructure/timer/value-objects/timer-key.vo";
+import domainBattleConfig from "../domain/battle/config/config";
+import BattleLeaveData from "../infrastructure/timer/value-objects/battle-leave-data.vo";
 
 
 function buildApplication() {
     const authService = new AuthService(authConfig);
-    const timerCallbackFactoryHolder = new TimerCallbackFactoryHolder<WebSocket>();
-    const timerService = new TimerService<TimerKey, WebSocket>(timerCallbackFactoryHolder);
+    const timerCallbackFactoryHolder = new TimerCallbackFactoryHolder<BattleLeaveData>();
+    const timerService = new TimerService<WebSocket, BattleLeaveData>(
+        timerCallbackFactoryHolder,
+        domainBattleConfig.battleTurnTimeLimit
+    );
     const cacheService = new CacheService(redisConfig);
     const grpcStreamService = new GrpcStreamService<engineProto.BattleRequest>();
 
@@ -67,14 +70,6 @@ function buildApplication() {
     const authorizeProfileUseCase = new AuthorizeProfileUseCase(
         profileClinent,
     );
-
-    const battleTimeoutUseCase = new BattleTimeoutUseCase(timerService);
-
-    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
-        battleTimeoutUseCase,
-    );
-
-    timerCallbackFactoryHolder.factory = battleTimeoutCallbackFactory;
 
     const messageService = new MessageService(
         messageConfig,
@@ -97,6 +92,12 @@ function buildApplication() {
         battleWebsocketsRegistry,
         grpcStreamService,
     );
+
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(
+        battleLeaveUseCase,
+    );
+
+    timerCallbackFactoryHolder.factory = battleTimeoutCallbackFactory;
 
     const battleStartUseCase = new BattleStartUseCase(
         battleWebsocketsRegistry,

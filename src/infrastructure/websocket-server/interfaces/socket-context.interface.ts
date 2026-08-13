@@ -1,4 +1,4 @@
-import {SocketEncoding} from "../../websocket-server-bkp/channels/front.battle.stream";
+import SocketEncoding from "../enums/socket-encoding";
 
 export interface SocketContext {
     profileId: string;

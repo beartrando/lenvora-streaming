@@ -1,35 +1,33 @@
-// import StateStoreInterface from "./interfaces/state-store.interface";
-// import {
-//     StateStoreEntity,
-//     StateStoreKey,
-// } from "./configs/state-store.config";
+// import CachedIdStateStoreInterface from "./interfaces/cached-id-state-store.interface";
+// import {StateStoreEntity, StateStoreKey} from "./config/state-store.config";
+//
 //
 // export class StateStoreService {
-//     private readonly registers = new Map<
+//
+//     private readonly registry = new Map<
 //         StateStoreKey,
-//         StateStoreInterface<any, any>
+//         CachedIdStateStoreInterface<any>
 //     >();
 //
 //     async start(): Promise<void> {
+//         await this.restore();
 //     }
 //
 //     async stop(): Promise<void> {
+//         await this.clearAll();
 //     }
 //
-//     registerHandler<K extends StateStoreKey>(
+//     register<K extends StateStoreKey>(
 //         key: K,
-//         store: StateStoreInterface<
-//             string,
-//             StateStoreEntity<K>
-//         >,
+//         store: CachedIdStateStoreInterface<StateStoreEntity<K>>,
 //     ): void {
-//         if (this.registers.has(key)) {
+//         if (this.registry.has(key)) {
 //             throw new Error(
 //                 `State store "${key}" is already registered`,
 //             );
 //         }
 //
-//         this.registers.set(key, store);
+//         this.registry.set(key, store);
 //     }
 //
 //     async check(): Promise<boolean> {
@@ -38,11 +36,8 @@
 //
 //     store<K extends StateStoreKey>(
 //         key: K,
-//     ): StateStoreInterface<
-//         string,
-//         StateStoreEntity<K>
-//     > {
-//         const store = this.registers.get(key);
+//     ): CachedIdStateStoreInterface<StateStoreEntity<K>> {
+//         const store = this.registry.get(key);
 //
 //         if (!store) {
 //             throw new Error(
@@ -50,15 +45,18 @@
 //             );
 //         }
 //
-//         return store as StateStoreInterface<
-//             string,
-//             StateStoreEntity<K>
-//         >;
+//         return store as CachedIdStateStoreInterface<StateStoreEntity<K>>;
 //     }
 //
 //     async clearAll(): Promise<void> {
-//         for (const store of this.registers.values()) {
+//         for (const store of this.registry.values()) {
 //             await store.clear();
+//         }
+//     }
+//
+//     async restore(): Promise<void> {
+//         for (const store of this.registry.values()) {
+//             await store.restore();
 //         }
 //     }
 // }

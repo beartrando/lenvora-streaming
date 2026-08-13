@@ -11,11 +11,11 @@ import logger from "@shared/logger";
 import TimerService from "../../timer/service";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import Id from "../../../domain/common/value-objects/id.vo";
-import TimerKey from "../../timer/value-objects/timer-key.vo";
+import BattleLeaveData from "../../timer/value-objects/battle-leave-data.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
-        private readonly timerService: TimerService<TimerKey, WebSocket>,
+        private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
         private readonly startUseCase: BattleStartUseCase,
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,
@@ -28,7 +28,6 @@ export class BattleHandler implements WebsocketHandlerInterface {
         logger.log(payload);
 
         if (payload.start) {
-            this.startHeartbeat(ws);
             const battleId = payload.start.battleId ? new Id(payload.start.battleId) : undefined;
             return this.startUseCase.execute(
                 accessToken,
@@ -36,7 +35,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
                 battleId
             );
         } else if (payload.move) {
-            this.startHeartbeat(ws)
+            this.startHeartbeat(ws, profileId, new Id(payload.move.battleId))
             return this.moveUseCase.execute(profileId, payload.move);
         } else if (payload.ping) {
             return;
@@ -50,21 +49,9 @@ export class BattleHandler implements WebsocketHandlerInterface {
         logger.warn(`⚠️ Unknown payload type:`, payload);
     }
 
-    private startHeartbeat(ws: WebSocket) {
-        // this.battleWebsocketsRegistry.getSocketContext(ws);
-        //
-        // if (empty)
-        //
-        //     this.timerService.restart()
-        //
-        // this.clearHeartbeat(ws);
-        //
-        //
-        // const timer = setTimeout(() => {
-        //     logger.warn("Heartbeat timeout, cleaning stream");
-        //     this.unregisterSocket(ws);
-        // }, this.heartbeatTimeoutMs);
-        // this.heartbeatTimers.set(ws, timer);
+    private startHeartbeat(ws: WebSocket, battleId: Id, profileId: Id) {
+        const battleLeaveData = new BattleLeaveData(battleId, profileId);
+        this.timerService.restart(ws, battleLeaveData);
     }
 
 

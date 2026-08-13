@@ -15,7 +15,7 @@ import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave"
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import TimerService from "../timer/service";
-import TimerKey from "../timer/value-objects/timer-key.vo";
+import BattleLeaveData from "../timer/value-objects/battle-leave-data.vo";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -28,7 +28,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly timerService: TimerService<TimerKey, WebSocket>,
+        private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
     ) {
     }
 
@@ -42,6 +42,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     buildUrl(req: IncomingMessage): URL {
         return new URL(req.url ?? "/", `http://${req.headers.host}`);
     }
+
     getAccessToken(req: IncomingMessage): AccessToken | null {
         const url = this.buildUrl(req);
 

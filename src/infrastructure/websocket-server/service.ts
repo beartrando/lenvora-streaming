@@ -57,6 +57,20 @@ export class WebsocketService {
         logger.info("🛑 Websocket service stopped");
     }
 
+    // const disconnect = async (ws: WebSocket, profileId: string) => {
+    //     const context = frontBattleStreamRegistry.getSocketContext(ws);
+    //
+    //     if (!context) {
+    //         logger.warn("Disconnect: socket is not registered");
+    //         return;
+    //     }
+    //
+    //     await Promise.all(
+    //         [...context.battleIds].map(id => battleService.leave(id, profileId))
+    //     );
+    //
+    //     frontBattleStreamRegistry.unregisterSocket(ws);
+    // };
     async check(): Promise<boolean> {
         return this.wss?.address() != null;
     }

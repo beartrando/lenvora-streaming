@@ -1,14 +1,11 @@
 import {WebSocket} from 'ws';
-import * as streamingProto from '../../../contracts/proto/streaming';
 import logger from "@shared/logger";
 import SocketEncoding from "../enums/socket-encoding";
 import SocketContext from "../types/socket-context";
-import AuthService from "../../auth/service";
 import StateStore from "../../state-store/state-stores/state-store";
 import Id from "../../../domain/common/value-objects/id.vo";
-import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
 import TimerServiceInterface from "../../timer/interfaces/timer-service.interface";
-import TimerKey from "../../timer/value-objects/timer-key.vo";
+import BattleLeaveData from "../../timer/value-objects/battle-leave-data.vo";
 
 
 class BattleWebsocketsRegistry {
@@ -17,7 +14,7 @@ class BattleWebsocketsRegistry {
         // private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
         private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
-        private readonly heartbeatTimers: TimerServiceInterface<TimerKey, WebSocket>,
+        private readonly heartbeatTimers: TimerServiceInterface<WebSocket, BattleLeaveData>,
         // private readonly battleLeaveUseCase: BattleLeaveUseCase,
     ) {
     }

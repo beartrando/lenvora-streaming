@@ -46,10 +46,10 @@ export class GrpcService {
 
     private registerHealthService() {
         this.server.addService(healthProto.HealthService, {
-            check: this.healthHandler.check,
-            status: this.healthHandler.status,
-            livez: this.healthHandler.livez,
-            readyz: this.healthHandler.readyz,
+            check: this.healthHandler.check.bind(this.healthHandler),
+            status: this.healthHandler.status.bind(this.healthHandler),
+            livez: this.healthHandler.livez.bind(this.healthHandler),
+            readyz: this.healthHandler.readyz.bind(this.healthHandler),
         });
     }
 

@@ -1,5 +1,5 @@
 export const grpcConfig = {
-    port: Number(process.env.GRPC_PORT) ?? 50051,
+    port: Number(process.env.GRPC_PORT ?? 50051),
 
     serviceAuthUrl: process.env.SERVICE_AUTH_URL ?? 'auth:50051',
     serviceProfileUrl: process.env.SERVICE_PROFILE_URL ?? 'profile:50051',

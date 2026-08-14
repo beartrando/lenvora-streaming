@@ -1,4 +1,4 @@
-// import DeviceEntity, {BattleEntityProps,} from "../../../domain/battle/battle.entity";
+// import ProfileEntity, {BattleEntityProps,} from "../../../domain/battle/battle.entity";
 //
 //
 // import BoardMapper from "./battle/board.redis.mapper";
@@ -17,7 +17,7 @@
 //
 // export class BattleRedisMapper {
 //
-//     static toPersistence(battle: DeviceEntity): BattleRedisObject {
+//     static toPersistence(battle: ProfileEntity): BattleRedisObject {
 //         return {
 //             id: battle.id.value,
 //             playerIds: battle.playerIds.value.map((id: Id) => id.value),
@@ -28,7 +28,7 @@
 //         };
 //     }
 //
-//     static toDomain(battle: BattleRedisObject): DeviceEntity {
+//     static toDomain(battle: BattleRedisObject): ProfileEntity {
 //         const props: BattleEntityProps = {
 //             id: new Id(battle.id),
 //             playerIds: new PlayerIds(battle.playerIds.map((id: string) => new Id(id))),
@@ -38,7 +38,7 @@
 //             lastMoveAt: battle.lastMoveAt,
 //         };
 //
-//         return DeviceEntity.create(props);
+//         return ProfileEntity.create(props);
 //     }
 // }
 //

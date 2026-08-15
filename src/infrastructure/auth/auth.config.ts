@@ -1,3 +1,5 @@
+import AuthConfig from "./interfaces/auth-config";
+
 function required(name: string): string {
     const value = process.env[name];
     if (!value) {
@@ -6,7 +8,7 @@ function required(name: string): string {
     return value;
 }
 
-export const authConfig = {
+export const authConfig: AuthConfig = {
     accessSecret: required("ACCESS_SECRET"),
 };
 

@@ -18,6 +18,8 @@ export class BattleClient {
     }
 
     async start(request: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+        // logger.log(request);
+
         return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.start(request, metadata, cb)
         ).catch((err) => {

@@ -5,6 +5,7 @@ import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 import Id from "../../../domain/common/value-objects/id.vo";
+import logger from "@shared/logger";
 
 export class BattleStartUseCase {
     constructor(
@@ -24,6 +25,7 @@ export class BattleStartUseCase {
             battleId: battleId ? battleId.value : undefined
         });
         const metadata = AuthHelper.getMetadata(accessToken);
+        // logger.log(grpcRequest);
         await this.battleClient.start(grpcRequest, metadata);
     }
 }

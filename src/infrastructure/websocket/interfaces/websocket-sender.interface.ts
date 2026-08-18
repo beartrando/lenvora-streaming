@@ -6,8 +6,8 @@ export interface WebsocketSenderInterface {
     writeStream(
         ws: WebSocket,
         streamResponse: streamingProto.BattleResponse,
-        encoding: SocketEncoding = SocketEncoding.PROTOBUF
-    );
+        encoding: SocketEncoding,
+    ): void;
 }
 
 export default WebsocketSenderInterface;

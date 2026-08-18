@@ -5,7 +5,11 @@ import SocketEncoding from "../enums/socket-encoding";
 
 export class WebsocketSender implements WebsocketSenderInterface {
 
-    writeStream(ws: WebSocket, streamResponse: streamingProto.BattleResponse, encoding: SocketEncoding = SocketEncoding.PROTOBUF) {
+    writeStream(
+        ws: WebSocket,
+        streamResponse: streamingProto.BattleResponse,
+        encoding: SocketEncoding = SocketEncoding.PROTOBUF
+    ): void {
 
         const buffer =
             encoding === SocketEncoding.PROTOBUF

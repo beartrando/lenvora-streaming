@@ -27,26 +27,31 @@ export class BattleHandler implements WebsocketHandlerInterface {
         // logger.log('battleHandler got event');
         // logger.log(payload);
 
-        if (payload.start) {
-            const battleId = payload.start.battleId ? new Id(payload.start.battleId) : undefined;
-            return this.startUseCase.execute(
-                accessToken,
-                profileId,
-                battleId
-            );
-        } else if (payload.move) {
-            this.startHeartbeat(ws, profileId, new Id(payload.move.battleId))
-            return this.moveUseCase.execute(profileId, payload.move);
-        } else if (payload.ping) {
-            return;
-        } else if (payload.connectBot) {
-            return this.connectBotUseCase.execute(profileId, new Id(payload.connectBot.battleId));
-        } else if (payload.leave) {
-            const battleId = new Id(payload.leave.battleId);
-            return this.leaveUseCase.execute(profileId, battleId);
-        }
+        try {
+            if (payload.start) {
+                const battleId = payload.start.battleId ? new Id(payload.start.battleId) : undefined;
+                return this.startUseCase.execute(
+                    ws,
+                    accessToken,
+                    profileId,
+                    battleId
+                );
+            } else if (payload.move) {
+                this.startHeartbeat(ws, profileId, new Id(payload.move.battleId))
+                return this.moveUseCase.execute(profileId, payload.move);
+            } else if (payload.ping) {
+                return;
+            } else if (payload.connectBot) {
+                return this.connectBotUseCase.execute(profileId, new Id(payload.connectBot.battleId));
+            } else if (payload.leave) {
+                const battleId = new Id(payload.leave.battleId);
+                return this.leaveUseCase.execute(profileId, battleId);
+            }
 
-        logger.warn(`⚠️ Unknown payload type:`, payload);
+            logger.warn(`⚠️ Unknown payload type:`, payload);
+        } catch (e) {
+            logger.error(`⚠️ error:`, e);
+        }
     }
 
     private startHeartbeat(ws: WebSocket, battleId: Id, profileId: Id) {

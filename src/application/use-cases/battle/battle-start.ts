@@ -1,3 +1,4 @@
+import {WebSocket} from 'ws';
 import * as battleProto from "../../../contracts/proto/battle";
 
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
@@ -6,15 +7,18 @@ import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 import Id from "../../../domain/common/value-objects/id.vo";
 import logger from "@shared/logger";
+import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
 
 export class BattleStartUseCase {
     constructor(
+        private readonly battleWebsocketSender: BattleWebsocketSender,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly battleClient: BattleClient,
     ) {
     }
 
     async execute(
+        ws: WebSocket,
         accessToken: AccessToken,
         profileId: Id,
         battleId?: Id,
@@ -26,7 +30,15 @@ export class BattleStartUseCase {
         });
         const metadata = AuthHelper.getMetadata(accessToken);
         // logger.log(grpcRequest);
-        await this.battleClient.start(grpcRequest, metadata);
+        const battleObject = await this.battleClient.start(grpcRequest, metadata);
+
+        if (!battleObject?.battle) {
+            return;
+        }
+
+        this.battleWebsocketsRegistry.subscribeBattle(ws, new Id(battleObject.battle.id));
+        this.battleWebsocketSender.send(battleObject.battle);
+
     }
 }
 

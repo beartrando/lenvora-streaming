@@ -58,6 +58,7 @@ import messageProducersConfig from "../infrastructure/message/configs/producers.
 import redisConfig from "../infrastructure/cache/configs/redis.config";
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import domainBattleConfig from "../domain/battle/config/config";
+import {BattleWebsocketSender} from "../infrastructure/websocket/senders/battle-websocket.sender";
 
 
 function buildApplication(): Application {
@@ -111,7 +112,6 @@ function buildApplication(): Application {
     const battleWebsocketsStore =
         new StateStore<Id, Set<WebSocket>>();
 
-
     /*
      * WebSocket infrastructure
      */
@@ -122,6 +122,8 @@ function buildApplication(): Application {
             battleWebsocketsStore,
             timerService,
         );
+
+    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry);
 
 
     /*
@@ -146,6 +148,7 @@ function buildApplication(): Application {
 
     const battleStartUseCase =
         new BattleStartUseCase(
+            battleWebsocketSender,
             battleWebsocketsRegistry,
             battleClient,
         );

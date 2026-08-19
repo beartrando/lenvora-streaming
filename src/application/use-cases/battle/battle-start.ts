@@ -30,14 +30,17 @@ export class BattleStartUseCase {
         });
         const metadata = AuthHelper.getMetadata(accessToken);
         // logger.log(grpcRequest);
-        const battleObject = await this.battleClient.start(grpcRequest, metadata);
+        const battleResponse = await this.battleClient.start(grpcRequest, metadata);
 
-        if (!battleObject?.battle) {
+        // logger.log(battleResponse);
+        if (!battleResponse?.battle) {
             return;
         }
+        // logger.log(battleResponse.battle);
 
-        this.battleWebsocketsRegistry.subscribeBattle(ws, new Id(battleObject.battle.id));
-        this.battleWebsocketSender.send(battleObject.battle);
+        this.battleWebsocketsRegistry.subscribeBattle(ws, new Id(battleResponse.battle.id));
+
+        this.battleWebsocketSender.send(battleResponse.battle);
 
     }
 }

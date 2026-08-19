@@ -13,7 +13,7 @@ class BattleWebsocketsRegistry {
         // private readonly authService: AuthService,
         // private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
-        private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
+        private readonly battleWsStateStore: StateStore<string, Set<WebSocket>>,
         private readonly heartbeatTimers: TimerServiceInterface<WebSocket, BattleLeaveData>,
         // private readonly battleLeaveUseCase: BattleLeaveUseCase,
     ) {
@@ -42,7 +42,7 @@ class BattleWebsocketsRegistry {
         });
 
         ws.on("close", () => {
-            logger.info("Close stream");
+            // logger.info("Close stream");
             this.unregisterSocket(ws);
         });
 
@@ -72,7 +72,10 @@ class BattleWebsocketsRegistry {
     getBattleSockets(
         battleId: Id
     ): Set<WebSocket> | null {
-        return this.battleWsStateStore.get(battleId);
+        // logger.log(this.battleWsStateStore);
+        // logger.log(battleId);
+        // logger.log(this.battleWsStateStore.get(battleId.value)?.size);
+        return this.battleWsStateStore.get(battleId.value);
     }
 
 
@@ -97,7 +100,7 @@ class BattleWebsocketsRegistry {
         battleId: Id,
     ) {
         const context = this.getSocketContext(ws);
-
+        // logger.log(battleId);
         if (!context) {
             logger.warn(`Unable to subscribe socket to battle ${battleId}: socket is not registered`);
             return;
@@ -105,11 +108,11 @@ class BattleWebsocketsRegistry {
 
         context.battleIds.add(battleId);
 
-        let sockets = this.battleWsStateStore.get(battleId);
+        let sockets = this.battleWsStateStore.get(battleId.value);
 
         if (!sockets) {
             sockets = new Set<WebSocket>();
-            this.battleWsStateStore.set(battleId, sockets);
+            this.battleWsStateStore.set(battleId.value, sockets);
         }
 
         sockets.add(ws);
@@ -139,7 +142,7 @@ class BattleWebsocketsRegistry {
         sockets.delete(ws);
 
         if (sockets.size === 0) {
-            this.battleWsStateStore.delete(battleId);
+            this.battleWsStateStore.delete(battleId.value);
         }
     }
 }

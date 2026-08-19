@@ -9,7 +9,7 @@ export class BattleConnectBotUseCase {
     constructor(
         private readonly jobService: JobService,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
-        private readonly battleWsStateStore: StateStore<Id, Set<WebSocket>>,
+        private readonly battleWsStateStore: StateStore<string, Set<WebSocket>>,
         private readonly aiConnectingRequest: string,
     ) {
     }
@@ -19,7 +19,7 @@ export class BattleConnectBotUseCase {
         battleId: Id,
     ): Promise<void> {
 
-        const websockets = this.battleWsStateStore.get(battleId);
+        const websockets = this.battleWsStateStore.get(battleId.value);
         if (!websockets) {
             return;
         }

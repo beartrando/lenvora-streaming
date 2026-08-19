@@ -110,7 +110,7 @@ function buildApplication(): Application {
         new StateStore<WebSocket, SocketContext>();
 
     const battleWebsocketsStore =
-        new StateStore<Id, Set<WebSocket>>();
+        new StateStore<string, Set<WebSocket>>();
 
     /*
      * WebSocket infrastructure

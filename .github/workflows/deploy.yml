@@ -97,7 +97,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: print payload
+      - name: Print payload
         run: |
           SERVICE_NAME=$(echo "${{ github.event.repository.name }}" | sed 's/^tic-tac-toe-//')
           

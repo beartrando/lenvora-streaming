@@ -40,25 +40,17 @@ class BattleWebsocketsRegistry {
             battleIds: new Set(),
             encoding,
         });
-
-        ws.on("close", () => {
-            // logger.info("Close stream");
-            this.unregisterSocket(ws);
-        });
-
-        ws.on("error", (err) => {
-            logger.error("Stream error:", err);
-            this.unregisterSocket(ws);
-        });
     }
 
     getSocketContext(ws: WebSocket): SocketContext | undefined {
         const context = this.wsSocketContextStateStore.get(ws);
 
+
         if (!context) {
             logger.warn("Socket is not registered");
             return undefined;
         }
+        // logger.log(new Error().stack);
 
         return context;
     }
@@ -125,9 +117,7 @@ class BattleWebsocketsRegistry {
         const context = this.getSocketContext(ws);
 
         if (!context) {
-            logger.warn(
-                `unsubscribeBattle: socket is not registered (battleId=${battleId})`,
-            );
+            logger.warn(`unsubscribeBattle: socket is not registered (battleId=${battleId})`,);
             return;
         }
 

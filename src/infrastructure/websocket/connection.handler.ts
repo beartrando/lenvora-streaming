@@ -80,17 +80,13 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
             if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {
                 ws.close();
 
-                logger.error(
-                    "❌ JWT token does not match to profile",
-                );
+                logger.error("❌ JWT token does not match to profile");
 
                 return;
             }
         } catch {
             ws.close();
-            logger.error(
-                "❌ Failed to authorize profile",
-            );
+            logger.error("❌ Failed to authorize profile");
 
             return;
         }
@@ -105,9 +101,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         const handler = this.handlers.get(url.pathname);
 
         if (!handler) {
-            logger.warn(
-                `Unknown websocket route: ${url.pathname}`,
-            );
+            logger.warn(`Unknown websocket route: ${url.pathname}`);
 
             ws.close();
             return;
@@ -126,10 +120,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                     encoding,
                 );
             } catch (err) {
-                logger.error(
-                    {err},
-                    "WebSocket message handling failed",
-                );
+                logger.error({err}, "WebSocket message handling failed",);
             }
         });
 
@@ -140,6 +131,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
 
         ws.on("error", err => {
             logger.error(err);
+            void this.disconnect(ws, profileId);
         });
     }
 
@@ -158,6 +150,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws: WebSocket,
         profileId: Id,
     ): Promise<void> {
+        // logger.log(new Error().stack);
 
         const context = this.battleWebsocketsRegistry.getSocketContext(ws);
 

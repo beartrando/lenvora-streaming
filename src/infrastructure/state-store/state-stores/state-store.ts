@@ -1,4 +1,5 @@
 import StateStoreInterface from "../interfaces/state-store.interface";
+import logger from "@shared/logger";
 
 export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity, VEntity> {
     private readonly _registry = new Map<KEntity, VEntity>();
@@ -8,6 +9,8 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
             key,
             entity,
         );
+        logger.log(this._registry.size);
+        logger.log(this._registry.values());
     }
 
     get(key: KEntity): VEntity | null {
@@ -24,3 +27,4 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
 }
 
 export default StateStore;
+

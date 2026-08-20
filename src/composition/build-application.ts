@@ -19,7 +19,6 @@ import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated
 
 // Infrastructure
 import AuthService from "../infrastructure/auth/service";
-import CacheService from "../infrastructure/cache/service";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
@@ -50,7 +49,6 @@ import grpcConfig from "../infrastructure/grpc/configs/grpc.config";
 import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
-import redisConfig from "../infrastructure/cache/configs/redis.config";
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import domainBattleConfig from "../domain/battle/config/config";
 import {BattleWebsocketSender} from "../infrastructure/websocket/senders/battle-websocket.sender";
@@ -62,8 +60,6 @@ function buildApplication(): Application {
      */
 
     const authService = new AuthService(authConfig);
-
-    const cacheService = new CacheService(redisConfig);
 
     const jobService = new JobService(
         jobConfig,
@@ -233,7 +229,6 @@ function buildApplication(): Application {
         new HealthUseCase(
             jobService,
             messageService,
-            cacheService,
             websocketService,
             grpcStreamService,
         );
@@ -270,7 +265,6 @@ function buildApplication(): Application {
         grpcService,
         jobService,
         messageService,
-        cacheService,
         websocketService,
         grpcStreamService,
         timerService,

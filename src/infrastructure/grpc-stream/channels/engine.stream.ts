@@ -54,7 +54,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
                 if (message.ping) {
                     return;
                 }
-                logger.log(message);
+                // logger.log(message);
 
                 if (message.battle) {
                     this.battleUpdatedUseCase.execute(message.battle);

@@ -2,7 +2,6 @@ import logger from "@shared/logger";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
-import CacheService from "../infrastructure/cache/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
@@ -15,7 +14,6 @@ export class Application {
         private readonly grpcService: GrpcService,
         private readonly jobService: JobService,
         private readonly messageService: MessageService,
-        private readonly cacheService: CacheService,
         private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
         private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
@@ -37,7 +35,6 @@ export class Application {
         try {
             await this.messageService.start();
             await this.jobService.start();
-            await this.cacheService.start();
             await this.grpcService.start();
             await this.websocketService.start();
             await this.engineStreamService.start();
@@ -57,7 +54,6 @@ export class Application {
         await this.engineStreamService.stop();
         await this.websocketService.stop();
         await this.grpcService.stop();
-        await this.cacheService.stop();
         await this.jobService.stop();
         await this.messageService.stop();
     }

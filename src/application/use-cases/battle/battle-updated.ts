@@ -14,7 +14,7 @@ export class BattleUpdatedUseCase {
     async execute(
         battle: battleProto.BattleObject,
     ): Promise<void> {
-        logger.log(battle);
+        // logger.log(battle);
         this.battleWebsocketSender.send(battle);
     }
 }

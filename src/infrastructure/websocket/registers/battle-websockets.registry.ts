@@ -72,7 +72,7 @@ class BattleWebsocketsRegistry {
     getBattleSockets(
         battleId: Id
     ): Set<WebSocket> | null {
-        // logger.log(this.battleWsStateStore);
+        logger.log(this.battleWsStateStore);
         // logger.log(battleId);
         // logger.log(this.battleWsStateStore.get(battleId.value)?.size);
         return this.battleWsStateStore.get(battleId.value);

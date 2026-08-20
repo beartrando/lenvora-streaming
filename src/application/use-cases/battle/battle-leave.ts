@@ -14,10 +14,13 @@ export class BattleLeaveUseCase {
         profileId: Id,
         battleId: Id,
     ): Promise<void> {
-        // await this.battleService.leave(
-        //     payload.battleId,
-        //     profileId,
-        // );
+        const grpcRequest = engineProto.BattleRequest.create({
+            leave: engineProto.BattleLeave.create({
+                battleId: battleId.value,
+                profileId: profileId.value,
+            }),
+        });
+        this.grpcStreamService.stream.write(grpcRequest);
     }
 }
 

@@ -47,15 +47,20 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
         this.stream.on('data', (message: engineProto.BattleResponse) => {
 
-            this.reconnectDelay = 1000
+            try {
 
-            if (message.ping) {
-                return;
-            }
-            logger.log(message);
+                this.reconnectDelay = 1000
 
-            if (message.battle) {
-                this.battleUpdatedUseCase.execute(message.battle);
+                if (message.ping) {
+                    return;
+                }
+                logger.log(message);
+
+                if (message.battle) {
+                    this.battleUpdatedUseCase.execute(message.battle);
+                }
+            } catch (e) {
+                logger.log(e);
             }
 
         });

@@ -15,7 +15,6 @@ import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
-import BattleStartedUseCase from "../application/use-cases/battle/battle-started";
 import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
 
 // Infrastructure
@@ -39,14 +38,10 @@ import BattleHandler from "../infrastructure/websocket/handlers/battle.handler";
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
 import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/battle-websockets.registry";
 
-import TimerCallbackFactoryHolder
-    from "../infrastructure/timer/callback-factory-holder";
-import BattleTimeoutCallbackFactory
-    from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
+import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
+import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
 
-import BattleLeaveData
-    from "../infrastructure/timer/value-objects/battle-leave-data.vo";
-import Id from "../domain/common/value-objects/id.vo";
+import BattleLeaveData from "../infrastructure/timer/value-objects/battle-leave-data.vo";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
 
 // Config
@@ -219,11 +214,7 @@ function buildApplication(): Application {
      * Engine stream
      */
 
-    const battleStartedUseCase =
-        new BattleStartedUseCase();
-
-    const battleUpdatedUseCase =
-        new BattleUpdatedUseCase();
+    const battleUpdatedUseCase = new BattleUpdatedUseCase(battleWebsocketSender);
 
     const engineStream =
         new EngineStream(

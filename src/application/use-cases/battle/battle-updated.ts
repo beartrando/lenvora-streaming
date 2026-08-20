@@ -1,36 +1,21 @@
 import * as battleProto from "../../../contracts/proto/battle";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
+import Id from "../../../domain/common/value-objects/id.vo";
+import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
+import logger from "@shared/logger";
 
 export class BattleUpdatedUseCase {
     constructor(
-        // private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        // private readonly grpcStreamService: GrpcStreamService,
+        private readonly battleWebsocketSender: BattleWebsocketSender,
     ) {
     }
 
     async execute(
-        battleId: battleProto.BattleObject,
+        battle: battleProto.BattleObject,
     ): Promise<void> {
-        // try {
-        //     const message = streamingProto.BattleResponse.create({battle});
-        //
-        //     FrontBattleStreamRegistry.writeBattleStreams(battle.id, message);
-        // } catch (e) {
-        //     logger.error(String(e));
-        // }
-        //
-        // if (battle.status == BattleStatus.FINISHED) {
-        //     logger.log(`Battle ${battle.id} finished. Closing streams...`);
-        //     const sockets = FrontBattleStreamRegistry.getBattleSockets(battle.id);
-        //
-        //     if (!sockets) {
-        //         return;
-        //     }
-        //
-        //     for (const ws of [...sockets]) {
-        //         FrontBattleStreamRegistry.unsubscribeBattle(ws, battle.id);
-        //     }
-        //     logger.log(`Removed battle ${battle.id} from activeBattleStreams`);
-        // }
+        logger.log(battle);
+        this.battleWebsocketSender.send(battle);
     }
 }
 

@@ -134,6 +134,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         });
 
         ws.on("close", () => {
+            logger.info("Websocket connection closed",);
             void this.disconnect(ws, profileId);
         });
 
@@ -158,18 +159,20 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         profileId: Id,
     ): Promise<void> {
 
-        // const context = this.wsSocketContextStateStore.get(ws);
-        //
-        // if (!context) {
-        //     return;
-        // }
-        //
-        // await Promise.all(
-        //     // [...context.battleIds].map((id: Id) => battleService.leave(id, profileId))
-        //     [...context.battleIds].map((battleId: Id) => this.battleLeaveUseCase(id, profileId))
-        // );
-        //
-        // this.wsSocketContextStateStore.delete(ws);
+        const context = this.battleWebsocketsRegistry.getSocketContext(ws);
+
+        if (!context) {
+            return;
+        }
+
+        try {
+            await Promise.allSettled(
+                [...context.battleIds].map(battleId => this.battleLeaveUseCase.execute(profileId, battleId))
+            );
+        } finally {
+            this.battleWebsocketsRegistry.unregisterSocket(ws);
+        }
+
     }
 }
 

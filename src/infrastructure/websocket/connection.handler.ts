@@ -139,6 +139,8 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws.isAlive = true;
 
         ws.on("pong", () => {
+            // logger.log("pong");
+
             ws.isAlive = true;
         });
     }

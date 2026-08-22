@@ -13,7 +13,7 @@ export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterfa
 
     create(ws: WebSocket): TimerCallbackInterface {
         return async () => {
-            await this.websocketDisconnectUseCase.execute(ws);
+            // await this.websocketDisconnectUseCase.execute(ws);
         };
     }
 }

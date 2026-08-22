@@ -20,7 +20,8 @@ export class BattleWebsocketSender extends WebsocketSender {
 
         // logger.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!----------------------------!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 
-        // logger.log(sockets?.size);
+        logger.log(sockets?.size);
+
         if (!sockets) {
             return;
         }

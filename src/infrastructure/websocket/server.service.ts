@@ -47,6 +47,8 @@ export class WebsocketServerService {
                 return;
             }
 
+            // logger.log('heartbeatInterval', this.wss.clients.size);
+
             for (const ws of this.wss.clients) {
                 const socket = ws as HeartbeatWebSocket;
 

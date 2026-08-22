@@ -20,6 +20,7 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
     }
 
     delete(key: KEntity): void {
+        // logger.log(new Error().stack);
         this._registry.delete(key);
     }
 

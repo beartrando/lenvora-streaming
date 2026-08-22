@@ -1,16 +1,14 @@
-export interface TimerServiceInterface<KEntity, TEntity> {
+export interface TimerServiceInterface<KEntity> {
     start(
-        key: KEntity,
         entity: TEntity,
         timeoutMs?: number,
     ): void;
 
     stop(
-        key: KEntity,
+        entity: TEntity,
     ): void;
 
     restart(
-        key: KEntity,
         entity: TEntity,
         timeoutMs?: number,
     ): void;

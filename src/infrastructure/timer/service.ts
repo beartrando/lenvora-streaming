@@ -1,8 +1,8 @@
 import TimerServiceInterface from "./interfaces/timer-service.interface";
 import TimerCallbackFactoryHolderInterface from "./interfaces/timer-callback-factory-holder.interface";
 
-export class TimerService<KEntity, TEntity> implements TimerServiceInterface<KEntity, TEntity> {
-    private readonly timers = new Map<KEntity, NodeJS.Timeout>();
+export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
+    private readonly timers = new Map<TEntity, NodeJS.Timeout>();
 
     constructor(
         private readonly _callbackFactoryHolder: TimerCallbackFactoryHolderInterface<TEntity>,
@@ -11,7 +11,6 @@ export class TimerService<KEntity, TEntity> implements TimerServiceInterface<KEn
     }
 
     start(
-        key: KEntity,
         entity: TEntity,
         timeoutMs?: number,
     ): void {
@@ -20,35 +19,34 @@ export class TimerService<KEntity, TEntity> implements TimerServiceInterface<KEn
 
         const callback = callbackFactory.create(entity);
 
-        this.stop(key);
+        this.stop(entity);
 
         const timer = setTimeout(async () => {
-            this.timers.delete(key);
+            this.timers.delete(entity);
             await callback();
         }, timeout);
 
-        this.timers.set(key, timer);
+        this.timers.set(entity, timer);
     }
 
     stop(
-        key: KEntity,
+        entity: TEntity,
     ): void {
-        const timer = this.timers.get(key);
+        const timer = this.timers.get(entity);
 
         if (!timer) {
             return;
         }
 
         clearTimeout(timer);
-        this.timers.delete(key);
+        this.timers.delete(entity);
     }
 
     restart(
-        key: KEntity,
         entity: TEntity,
         timeoutMs?: number,
     ): void {
-        this.start(key, entity, timeoutMs);
+        this.start(entity, timeoutMs);
     }
 }
 

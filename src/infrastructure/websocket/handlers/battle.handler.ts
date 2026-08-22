@@ -11,11 +11,10 @@ import logger from "@shared/logger";
 import TimerService from "../../timer/service";
 import AccessToken from "../../../domain/common/value-objects/access-token.vo";
 import Id from "../../../domain/common/value-objects/id.vo";
-import BattleLeaveData from "../../timer/value-objects/battle-leave-data.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
-        private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
+        private readonly timerService: TimerService<WebSocket>,
         private readonly startUseCase: BattleStartUseCase,
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,
@@ -37,7 +36,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
                     battleId
                 );
             } else if (payload.move) {
-                this.startHeartbeat(ws, profileId, new Id(payload.move.battleId))
+                this.timerService.restart(ws);
                 return this.moveUseCase.execute(profileId, payload.move);
             } else if (payload.ping) {
                 return;
@@ -53,12 +52,6 @@ export class BattleHandler implements WebsocketHandlerInterface {
             logger.error(`⚠️ error:`, e);
         }
     }
-
-    private startHeartbeat(ws: WebSocket, battleId: Id, profileId: Id) {
-        const battleLeaveData = new BattleLeaveData(battleId, profileId);
-        this.timerService.restart(ws, battleLeaveData);
-    }
-
 
 }
 

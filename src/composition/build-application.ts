@@ -16,6 +16,7 @@ import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
 import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
+import WebsocketDisconnectUseCase from "../application/use-cases/websocket/websocket-disconnect";
 
 // Infrastructure
 import AuthService from "../infrastructure/auth/service";
@@ -39,8 +40,6 @@ import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/batt
 
 import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
 import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
-
-import BattleLeaveData from "../infrastructure/timer/value-objects/battle-leave-data.vo";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
 
 // Config
@@ -70,10 +69,10 @@ function buildApplication(): Application {
     const messageService = new MessageService(messageConfig);
 
     const timerCallbackFactoryHolder =
-        new TimerCallbackFactoryHolder<BattleLeaveData>();
+        new TimerCallbackFactoryHolder<WebSocket>();
 
     const timerService =
-        new TimerService<WebSocket, BattleLeaveData>(
+        new TimerService<WebSocket>(
             timerCallbackFactoryHolder,
             domainBattleConfig.battleTurnTimeLimit,
         );
@@ -107,12 +106,7 @@ function buildApplication(): Application {
      * WebSocket infrastructure
      */
 
-    const battleWebsocketsRegistry =
-        new BattleWebsocketsRegistry(
-            socketContextStore,
-            battleWebsocketsStore,
-            timerService,
-        );
+    const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
 
     const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry);
 
@@ -158,15 +152,13 @@ function buildApplication(): Application {
             messageProducersConfig.aiConnectingRequest,
         );
 
+    const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(battleWebsocketsRegistry, battleLeaveUseCase);
 
     /*
      * Timer callbacks
      */
 
-    const battleTimeoutCallbackFactory =
-        new BattleTimeoutCallbackFactory(
-            battleLeaveUseCase,
-        );
+    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(websocketDisconnectUseCase);
 
     timerCallbackFactoryHolder.factory =
         battleTimeoutCallbackFactory;
@@ -185,11 +177,13 @@ function buildApplication(): Application {
             battleLeaveUseCase,
         );
 
+
     const connectionHandler =
         new ConnectionHandler(
             authService,
             authorizeProfileUseCase,
             battleLeaveUseCase,
+            websocketDisconnectUseCase,
             battleWebsocketsRegistry,
             timerService,
         );

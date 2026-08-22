@@ -16,6 +16,7 @@ import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import TimerService from "../timer/service";
 import BattleLeaveData from "../timer/value-objects/battle-leave-data.vo";
+import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -27,8 +28,9 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly authService: AuthService,
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
+        private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
+        private readonly timerService: TimerService<WebSocket>,
     ) {
     }
 
@@ -126,17 +128,12 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
 
         ws.on("close", () => {
             logger.info("Websocket connection closed",);
-            void this.disconnect(ws, profileId);
-        });
-
-        ws.on("terminate", () => {
-            logger.info("Websocket connection terminated",);
-            void this.disconnect(ws, profileId);
+            this.websocketDisconnectUseCase.execute(ws);
         });
 
         ws.on("error", err => {
             logger.error(err);
-            void this.disconnect(ws, profileId);
+            this.websocketDisconnectUseCase.execute(ws);
         });
     }
 
@@ -149,28 +146,6 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
             : streamingProto.BattleRequest.decode(
                 data as Uint8Array,
             );
-    }
-
-    private async disconnect(
-        ws: WebSocket,
-        profileId: Id,
-    ): Promise<void> {
-        // logger.log(new Error().stack);
-
-        const context = this.battleWebsocketsRegistry.getSocketContext(ws);
-
-        if (!context) {
-            return;
-        }
-
-        try {
-            await Promise.allSettled(
-                [...context.battleIds].map(battleId => this.battleLeaveUseCase.execute(profileId, battleId))
-            );
-        } finally {
-            this.battleWebsocketsRegistry.unregisterSocket(ws);
-        }
-
     }
 }
 

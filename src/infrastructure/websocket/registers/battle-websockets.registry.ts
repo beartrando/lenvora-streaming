@@ -10,12 +10,8 @@ import BattleLeaveData from "../../timer/value-objects/battle-leave-data.vo";
 
 class BattleWebsocketsRegistry {
     constructor(
-        // private readonly authService: AuthService,
-        // private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
         private readonly battleWsStateStore: StateStore<string, Set<WebSocket>>,
-        private readonly heartbeatTimers: TimerServiceInterface<WebSocket, BattleLeaveData>,
-        // private readonly battleLeaveUseCase: BattleLeaveUseCase,
     ) {
     }
 

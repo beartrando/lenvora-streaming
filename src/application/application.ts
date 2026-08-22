@@ -16,7 +16,7 @@ export class Application {
         private readonly messageService: MessageService,
         private readonly websocketService: WebsocketServerService,
         private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
-        private readonly timerService: TimerService<WebSocket, BattleLeaveData>,
+        private readonly timerService: TimerService<WebSocket>,
     ) {
     }
 

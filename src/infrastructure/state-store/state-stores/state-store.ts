@@ -9,11 +9,13 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
             key,
             entity,
         );
-        logger.log(this._registry.size);
-        logger.log(this._registry.values());
+        // logger.log(this.constructor.name);
+        // logger.log(this._registry.values());
     }
 
     get(key: KEntity): VEntity | null {
+        // logger.log(this.constructor.name);
+        // logger.log(this._registry.values());
         return this._registry.get(key) ?? null;
     }
 

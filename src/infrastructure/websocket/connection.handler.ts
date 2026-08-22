@@ -129,6 +129,11 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
             void this.disconnect(ws, profileId);
         });
 
+        ws.on("terminate", () => {
+            logger.info("Websocket connection terminated",);
+            void this.disconnect(ws, profileId);
+        });
+
         ws.on("error", err => {
             logger.error(err);
             void this.disconnect(ws, profileId);

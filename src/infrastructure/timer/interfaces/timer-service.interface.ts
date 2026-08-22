@@ -1,15 +1,15 @@
 export interface TimerServiceInterface<KEntity> {
     start(
-        entity: TEntity,
+        entity: KEntity,
         timeoutMs?: number,
     ): void;
 
     stop(
-        entity: TEntity,
+        entity: KEntity,
     ): void;
 
     restart(
-        entity: TEntity,
+        entity: KEntity,
         timeoutMs?: number,
     ): void;
 }

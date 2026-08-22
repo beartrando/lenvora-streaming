@@ -81,6 +81,7 @@ class BattleWebsocketsRegistry {
         }
 
         this.wsSocketContextStateStore.delete(ws);
+
     }
 
     subscribeBattle(

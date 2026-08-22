@@ -1,7 +1,7 @@
 export interface TimerServiceInterface<KEntity> {
     start(
         entity: KEntity,
-        timeoutMs?: number,
+        timeoutS?: number,
     ): void;
 
     stop(
@@ -10,7 +10,7 @@ export interface TimerServiceInterface<KEntity> {
 
     restart(
         entity: KEntity,
-        timeoutMs?: number,
+        timeoutS?: number,
     ): void;
 }
 

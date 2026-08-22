@@ -127,7 +127,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         });
 
         ws.on("close", () => {
-            logger.info("Websocket connection closed",);
+            // logger.info("Websocket connection closed",);
             this.websocketDisconnectUseCase.execute(ws);
         });
 

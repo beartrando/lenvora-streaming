@@ -1,24 +1,27 @@
 import TimerServiceInterface from "./interfaces/timer-service.interface";
 import TimerCallbackFactoryHolderInterface from "./interfaces/timer-callback-factory-holder.interface";
+import logger from "@shared/logger";
 
 export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
     private readonly timers = new Map<TEntity, NodeJS.Timeout>();
 
     constructor(
         private readonly _callbackFactoryHolder: TimerCallbackFactoryHolderInterface<TEntity>,
-        private readonly timeoutMs: number,
+        private readonly timeoutS: number,
     ) {
     }
 
     start(
         entity: TEntity,
-        timeoutMs?: number,
+        timeoutS?: number,
     ): void {
-        const timeout = timeoutMs ?? this.timeoutMs;
+        const timeout = 1000*(timeoutS ?? this.timeoutS);
         const callbackFactory = this._callbackFactoryHolder.factory;
 
         const callback = callbackFactory.create(entity);
 
+        // logger.log('1');
+        // logger.log(timeout);
         this.stop(entity);
 
         const timer = setTimeout(async () => {
@@ -44,9 +47,9 @@ export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
 
     restart(
         entity: TEntity,
-        timeoutMs?: number,
+        timeoutS?: number,
     ): void {
-        this.start(entity, timeoutMs);
+        this.start(entity, timeoutS);
     }
 }
 

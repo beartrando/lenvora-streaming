@@ -152,7 +152,11 @@ function buildApplication(): Application {
             messageProducersConfig.aiConnectingRequest,
         );
 
-    const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(battleWebsocketsRegistry, battleLeaveUseCase);
+    const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(
+        battleWebsocketsRegistry,
+        battleLeaveUseCase,
+        timerService
+    );
 
     /*
      * Timer callbacks

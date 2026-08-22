@@ -15,8 +15,8 @@ import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave"
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import TimerService from "../timer/service";
-import BattleLeaveData from "../timer/value-objects/battle-leave-data.vo";
 import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
+import HeartbeatWebSocket from "./types/heartbeat-websocket";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -53,7 +53,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         return value ? new AccessToken(value) : null;
     }
 
-    async handle(ws: WebSocket, req: IncomingMessage): Promise<void> {
+    async handle(ws: HeartbeatWebSocket, req: IncomingMessage): Promise<void> {
         // logger.info("New websocket connection established",);
 
         const token = this.getAccessToken(req);
@@ -134,6 +134,12 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         ws.on("error", err => {
             logger.error(err);
             this.websocketDisconnectUseCase.execute(ws);
+        });
+
+        ws.isAlive = true;
+
+        ws.on("pong", () => {
+            ws.isAlive = true;
         });
     }
 

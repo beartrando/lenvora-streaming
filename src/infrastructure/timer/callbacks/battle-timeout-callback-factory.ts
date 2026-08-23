@@ -14,7 +14,7 @@ export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterfa
 
     create(ws: WebSocket): TimerCallbackInterface {
         return async () => {
-            logger.log(2333);
+            // logger.log(2333);
             await this.websocketDisconnectUseCase.execute(ws);
         };
     }

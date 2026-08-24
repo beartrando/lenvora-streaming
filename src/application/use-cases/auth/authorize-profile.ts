@@ -1,8 +1,9 @@
 import ProfileClient from "../../../infrastructure/grpc/clients/profile.client";
 import * as authProto from "../../../contracts/proto/auth";
-import Id from "../../../domain/common/value-objects/id.vo";
-import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
+import UserId from "../../../domain/user/value-objects/user-id.vo";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 export class AuthorizeProfileUseCase {
     constructor(
@@ -11,9 +12,9 @@ export class AuthorizeProfileUseCase {
     }
 
     async execute(
-        userId: Id,
-        profileId: Id,
-        accessToken: AccessToken,
+        userId: UserId,
+        profileId: ProfileId,
+        accessToken: SessionAccessToken,
     ): Promise<boolean> {
 
         const protoReq = authProto.UserIdRequest.create({userId: userId.value});

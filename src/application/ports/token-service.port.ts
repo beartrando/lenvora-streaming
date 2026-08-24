@@ -1,10 +1,10 @@
-import AccessToken from "../../domain/common/value-objects/access-token.vo";
-import Id from "../../domain/common/value-objects/id.vo";
+import SessionAccessToken from "../../domain/session/value-objects/session-access-token.vo";
+import UserId from "../../domain/user/value-objects/user-id.vo";
 
 export interface TokenService {
     verifyAccessToken(
-        token: AccessToken,
-    ): Id;
+        token: SessionAccessToken,
+    ): UserId;
 }
 
 export default TokenService;

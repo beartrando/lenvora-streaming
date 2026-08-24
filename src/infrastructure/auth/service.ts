@@ -1,21 +1,21 @@
-import jwt, {JwtPayload} from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 
+import SessionAccessToken from "../../domain/session/value-objects/session-access-token.vo";
 
 import TokenService from "../../application/ports/token-service.port";
-import Id from "../../domain/common/value-objects/id.vo";
-import AccessToken from "../../domain/common/value-objects/access-token.vo";
 import AuthConfig from "./interfaces/auth-config";
 import TokenPayload from "./interfaces/token-payload";
+import UserId from "../../domain/user/value-objects/user-id.vo";
 
 
 export class AuthService implements TokenService {
     constructor(private readonly config: AuthConfig) {
     }
 
-    verifyAccessToken(token: AccessToken): Id {
+    verifyAccessToken(token: SessionAccessToken): UserId {
         const payload = this.payload(token.value, this.config.accessSecret);
 
-        return new Id(payload.sub);
+        return new UserId(payload.sub);
     }
 
     private payload(

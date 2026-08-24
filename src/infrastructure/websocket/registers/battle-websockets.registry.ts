@@ -3,9 +3,8 @@ import logger from "@shared/logger";
 import SocketEncoding from "../enums/socket-encoding";
 import SocketContext from "../types/socket-context";
 import StateStore from "../../state-store/state-stores/state-store";
-import Id from "../../../domain/common/value-objects/id.vo";
-import TimerServiceInterface from "../../timer/interfaces/timer-service.interface";
-import BattleLeaveData from "../../timer/value-objects/battle-leave-data.vo";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
+import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 
 
 class BattleWebsocketsRegistry {
@@ -17,7 +16,7 @@ class BattleWebsocketsRegistry {
 
     registerSocket(
         ws: WebSocket,
-        profileId: Id,
+        profileId: ProfileId,
         encoding: SocketEncoding
     ) {
         const context = this.wsSocketContextStateStore.get(ws);
@@ -58,7 +57,7 @@ class BattleWebsocketsRegistry {
     }
 
     getBattleSockets(
-        battleId: Id
+        battleId: BattleId
     ): Set<WebSocket> | null {
         // logger.log(this.battleWsStateStore);
         // logger.log(battleId);
@@ -86,7 +85,7 @@ class BattleWebsocketsRegistry {
 
     subscribeBattle(
         ws: WebSocket,
-        battleId: Id,
+        battleId: BattleId,
     ) {
         const context = this.getSocketContext(ws);
         // logger.log(battleId);
@@ -109,7 +108,7 @@ class BattleWebsocketsRegistry {
 
     unsubscribeBattle(
         ws: WebSocket,
-        battleId: Id,
+        battleId: BattleId,
     ) {
         const context = this.getSocketContext(ws);
 

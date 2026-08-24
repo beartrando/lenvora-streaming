@@ -1,18 +1,18 @@
-import Id from "../common/value-objects/id.vo";
+import BattleId from "./value-objects/user-id.vo";
 
 export type BattleEntityProps = {
-    id?: Id;
+    id?: BattleId;
 };
 
 export class BattleEntity {
     constructor(
-        readonly id: Id,
+        readonly id: BattleId,
     ) {
     }
 
     static create(props: BattleEntityProps): BattleEntity {
         return new BattleEntity(
-            props.id ?? Id.create(),
+            props.id ?? BattleId.create(),
         );
     }
 }

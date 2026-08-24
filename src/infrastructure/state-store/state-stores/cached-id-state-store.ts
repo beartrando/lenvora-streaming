@@ -1,8 +1,8 @@
-// import Id from "../../../domain/common/value-objects/id.vo";
+// import BattleId from "../../../domain/common/value-objects/id.vo";
 // import StateStoreInterface from "../interfaces/state-store.interface";
 // import CacheStore from "../../cache/cache-store";
 //
-// export class CachedIdStateStore<TEntity extends { id: Id }> implements StateStoreInterface<TEntity> {
+// export class CachedIdStateStore<TEntity extends { id: BattleId }> implements StateStoreInterface<TEntity> {
 //     private readonly _registry = new Map<string, TEntity>();
 //
 //     constructor(
@@ -22,13 +22,13 @@
 //     }
 //
 //     async get(
-//         id: Id,
+//         id: BattleId,
 //     ): Promise<TEntity | null> {
 //         return this._registry.get(id.value) ?? null;
 //     }
 //
 //     async drop(
-//         id: Id,
+//         id: BattleId,
 //     ): Promise<void> {
 //         this._registry.delete(id.value);
 //

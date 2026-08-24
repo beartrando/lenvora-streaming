@@ -2,7 +2,7 @@ import * as streamingProto from "../../../contracts/proto/streaming";
 import * as engineProto from "../../../contracts/proto/engine";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
-import Id from "../../../domain/common/value-objects/id.vo";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 export class BattleMoveUseCase {
     constructor(
@@ -12,7 +12,7 @@ export class BattleMoveUseCase {
     }
 
     async execute(
-        profileId: Id,
+        profileId: ProfileId,
         payload: streamingProto.BattleMove,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({

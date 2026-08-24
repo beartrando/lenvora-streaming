@@ -1,21 +1,21 @@
 import * as grpc from '@grpc/grpc-js';
 import {InvalidAuthorizationError} from "@shared/errors";
-import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 
 export class AuthHelper {
     static getAccessToken(
         call: grpc.ServerUnaryCall<any, any>
-    ): AccessToken {
+    ): SessionAccessToken {
         const authHeader = call.metadata.get('authorization')[0] as string;
         // logger.log(authHeader);
         if (!authHeader?.startsWith('Bearer ')) {
             throw new InvalidAuthorizationError();
         }
 
-        return new AccessToken(authHeader.slice(7));
+        return new SessionAccessToken(authHeader.slice(7));
     };
 
-    static getMetadata(accessToken: AccessToken): grpc.Metadata {
+    static getMetadata(accessToken: SessionAccessToken): grpc.Metadata {
         const metadata = new grpc.Metadata();
         metadata.add('authorization', 'Bearer ' + accessToken.value);
         return metadata;

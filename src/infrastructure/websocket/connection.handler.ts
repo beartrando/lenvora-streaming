@@ -9,14 +9,15 @@ import WebsocketHandlerInterface from "./interfaces/websocket-handler.interface"
 import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connection-handler.interface";
 import SocketEncoding from "./enums/socket-encoding";
 import AuthService from "../auth/service";
-import AccessToken from "../../domain/common/value-objects/access-token.vo";
-import Id from "../../domain/common/value-objects/id.vo";
+import SessionAccessToken from "../../domain/session/value-objects/session-access-token.vo";
 import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import TimerService from "../timer/service";
 import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
+import UserId from "../../domain/user/value-objects/user-id.vo";
+import ProfileId from "../../domain/profile/value-objects/profile-id.vo";
 
 export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private readonly handlers = new Map<
@@ -45,12 +46,12 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         return new URL(req.url ?? "/", `http://${req.headers.host}`);
     }
 
-    getAccessToken(req: IncomingMessage): AccessToken | null {
+    getAccessToken(req: IncomingMessage): SessionAccessToken | null {
         const url = this.buildUrl(req);
 
         const value = req.headers.authorization?.replace(/^Bearer\s+/i, "") ?? url.searchParams.get("token");
 
-        return value ? new AccessToken(value) : null;
+        return value ? new SessionAccessToken(value) : null;
     }
 
     async handle(ws: HeartbeatWebSocket, req: IncomingMessage): Promise<void> {
@@ -64,7 +65,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
             return;
         }
 
-        let userId: Id;
+        let userId: UserId;
 
         try {
             userId = this.authService.verifyAccessToken(token);
@@ -76,7 +77,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
 
         const url = this.buildUrl(req);
 
-        const profileId = new Id(url.searchParams.get("profileId") ?? "");
+        const profileId = new ProfileId(url.searchParams.get("profileId") ?? "");
 
         try {
             if (!this.authorizeProfileUseCase.execute(userId, profileId, token)) {

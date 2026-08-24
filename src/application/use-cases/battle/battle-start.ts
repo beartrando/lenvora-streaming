@@ -2,12 +2,12 @@ import {WebSocket} from 'ws';
 import * as battleProto from "../../../contracts/proto/battle";
 
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
-import AccessToken from "../../../domain/common/value-objects/access-token.vo";
+import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
-import Id from "../../../domain/common/value-objects/id.vo";
-import logger from "@shared/logger";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
+import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 
 export class BattleStartUseCase {
     constructor(
@@ -19,9 +19,9 @@ export class BattleStartUseCase {
 
     async execute(
         ws: WebSocket,
-        accessToken: AccessToken,
-        profileId: Id,
-        battleId?: Id,
+        accessToken: SessionAccessToken,
+        profileId: ProfileId,
+        battleId?: BattleId,
     ): Promise<void> {
 
         const grpcRequest = battleProto.BattleStartRequest.create({
@@ -38,7 +38,7 @@ export class BattleStartUseCase {
         }
         // logger.log(battleResponse.battle);
 
-        this.battleWebsocketsRegistry.subscribeBattle(ws, new Id(battleResponse.battle.id));
+        this.battleWebsocketsRegistry.subscribeBattle(ws, new BattleId(battleResponse.battle.id));
 
         this.battleWebsocketSender.send(battleResponse.battle);
 

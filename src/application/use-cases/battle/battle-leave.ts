@@ -1,7 +1,8 @@
-import Id from "../../../domain/common/value-objects/id.vo";
 import * as engineProto from "../../../contracts/proto/engine";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
+import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 
 export class BattleLeaveUseCase {
     constructor(
@@ -11,8 +12,8 @@ export class BattleLeaveUseCase {
     }
 
     async execute(
-        profileId: Id,
-        battleId: Id,
+        profileId: ProfileId,
+        battleId: BattleId,
     ): Promise<void> {
         const grpcRequest = engineProto.BattleRequest.create({
             leave: engineProto.BattleLeave.create({

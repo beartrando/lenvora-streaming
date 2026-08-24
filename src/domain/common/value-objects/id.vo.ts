@@ -1,28 +1,31 @@
 import {randomUUID} from "crypto";
 
-export class Id {
+export abstract class Id<T extends Id<T>> {
     constructor(
         readonly value: string,
     ) {
         if (!value) {
-            throw new Error("ProfileId cannot be empty");
+            throw new Error(`${this.constructor.name} cannot be empty`);
         }
 
         if (/\s/.test(value)) {
-            throw new Error("ProfileId cannot contain whitespace");
+            throw new Error(`${this.constructor.name} cannot contain whitespace`);
         }
     }
 
-    static create(): Id {
-        return new Id(randomUUID());
-    }
-
-    equals(other: Id): boolean {
+    equals(other: T): boolean {
         return this.value === other.value;
     }
 
     toString(): string {
         return this.value;
+    }
+
+    static create<T extends Id<T>>(
+        this: new (value: string) => T,
+        value?: string,
+    ): T {
+        return new this(value ?? randomUUID());
     }
 }
 

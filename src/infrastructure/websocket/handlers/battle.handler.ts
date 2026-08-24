@@ -9,8 +9,9 @@ import BattleConnectBotUseCase from "../../../application/use-cases/battle/battl
 
 import logger from "@shared/logger";
 import TimerService from "../../timer/service";
-import AccessToken from "../../../domain/common/value-objects/access-token.vo";
-import Id from "../../../domain/common/value-objects/id.vo";
+import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
+import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
@@ -22,13 +23,13 @@ export class BattleHandler implements WebsocketHandlerInterface {
     ) {
     }
 
-    async handle(ws: WebSocket, accessToken: AccessToken, profileId: Id, payload: streamingProto.BattleRequest): Promise<void> {
+    async handle(ws: WebSocket, accessToken: SessionAccessToken, profileId: ProfileId, payload: streamingProto.BattleRequest): Promise<void> {
         // logger.log('battleHandler got event');
         // logger.log(payload);
 
         try {
             if (payload.start) {
-                const battleId = payload.start.battleId ? new Id(payload.start.battleId) : undefined;
+                const battleId = payload.start.battleId ? new BattleId(payload.start.battleId) : undefined;
                 return this.startUseCase.execute(
                     ws,
                     accessToken,
@@ -41,9 +42,9 @@ export class BattleHandler implements WebsocketHandlerInterface {
             } else if (payload.ping) {
                 return;
             } else if (payload.connectBot) {
-                return this.connectBotUseCase.execute(profileId, new Id(payload.connectBot.battleId));
+                return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId));
             } else if (payload.leave) {
-                const battleId = new Id(payload.leave.battleId);
+                const battleId = new BattleId(payload.leave.battleId);
                 return this.leaveUseCase.execute(profileId, battleId);
             }
 

@@ -2,6 +2,7 @@ import {WebSocket} from "ws";
 import TimerCallbackInterface from "../interfaces/timer-callback.interface";
 import TimerCallbackFactoryInterface from "../interfaces/timer-callback-factory.interface";
 import WebsocketDisconnectUseCase from "../../../application/use-cases/websocket/websocket-disconnect";
+import logger from "@shared/logger";
 
 export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterface<WebSocket> {
 
@@ -12,7 +13,7 @@ export class BattleTimeoutCallbackFactory implements TimerCallbackFactoryInterfa
 
     create(ws: WebSocket): TimerCallbackInterface {
         return async () => {
-            // logger.log(2333);
+            logger.log('BattleTimeoutCallback');
             await this.websocketDisconnectUseCase.execute(ws);
         };
     }

@@ -1,5 +1,6 @@
 import TimerServiceInterface from "./interfaces/timer-service.interface";
 import TimerCallbackFactoryHolderInterface from "./interfaces/timer-callback-factory-holder.interface";
+import logger from "@shared/logger";
 
 export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
     private readonly timers = new Map<TEntity, NodeJS.Timeout>();

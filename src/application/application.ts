@@ -7,7 +7,6 @@ import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import TimerService from "../infrastructure/timer/service";
 import * as engineProto from "../contracts/proto/engine";
 import {WebSocket,} from "ws";
-import BattleLeaveData from "../infrastructure/timer/value-objects/battle-leave-data.vo";
 
 export class Application {
     constructor(

@@ -1,9 +1,5 @@
 import * as battleProto from "../../../contracts/proto/battle";
-import * as streamingProto from "../../../contracts/proto/streaming";
-import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
-import Id from "../../../domain/common/value-objects/id.vo";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
-import logger from "@shared/logger";
 
 export class BattleUpdatedUseCase {
     constructor(

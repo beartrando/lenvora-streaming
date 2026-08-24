@@ -117,7 +117,7 @@ jobs:
           
           echo "Payload:"
           echo "$PAYLOAD"
-      
+
       - name: Trigger monorepo build
         run: |
           SERVICE_NAME=$(echo "${{ github.event.repository.name }}" | sed 's/^tic-tac-toe-//')

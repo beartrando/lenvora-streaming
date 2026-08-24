@@ -1,9 +1,10 @@
 import SocketEncoding from "../enums/socket-encoding";
-import Id from "../../../domain/common/value-objects/id.vo";
+import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
+import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 
 export type SocketContext = {
     profileId: ProfileId;
-    battleIds: Set<Id>;
+    battleIds: Set<BattleId>;
     encoding: SocketEncoding;
 }
 

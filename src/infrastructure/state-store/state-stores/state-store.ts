@@ -1,5 +1,4 @@
 import StateStoreInterface from "../interfaces/state-store.interface";
-import logger from "@shared/logger";
 
 export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity, VEntity> {
     private readonly _registry = new Map<KEntity, VEntity>();

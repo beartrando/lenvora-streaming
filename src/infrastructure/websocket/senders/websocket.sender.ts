@@ -2,7 +2,6 @@ import {WebSocket} from 'ws';
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketSenderInterface from "../interfaces/websocket-sender.interface";
 import SocketEncoding from "../enums/socket-encoding";
-import logger from "@shared/logger";
 
 export class WebsocketSender implements WebsocketSenderInterface {
 

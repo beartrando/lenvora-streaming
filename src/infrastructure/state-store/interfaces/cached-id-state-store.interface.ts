@@ -1,11 +1,13 @@
 import Id from "../../../domain/common/value-objects/id.vo";
 
-export interface CachedIdStateStoreInterface<TEntity extends { id: Id }> {
-    save(entity: TEntity): Promise<void>;
+export interface CachedIdStateStoreInterface<
+    TEntity extends { id: Id<any> },
+> {
+    set(entity: TEntity): Promise<void>;
 
-    get(id: Id): Promise<TEntity | null>;
+    get(id: TEntity["id"]): Promise<TEntity | null>;
 
-    drop(id: Id): Promise<void>;
+    delete(id: TEntity["id"]): Promise<void>;
 
     clear(): Promise<void>;
 

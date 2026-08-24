@@ -13,19 +13,19 @@ export abstract class Id<T extends Id<T>> {
         }
     }
 
+    static create<T extends Id<T>>(
+        this: new (value: string) => T,
+        value?: string,
+    ): T {
+        return new this(value ?? randomUUID());
+    }
+
     equals(other: T): boolean {
         return this.value === other.value;
     }
 
     toString(): string {
         return this.value;
-    }
-
-    static create<T extends Id<T>>(
-        this: new (value: string) => T,
-        value?: string,
-    ): T {
-        return new this(value ?? randomUUID());
     }
 }
 

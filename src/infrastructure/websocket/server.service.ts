@@ -1,9 +1,8 @@
-import { WebSocketServer, WebSocket } from "ws";
+import {WebSocketServer} from "ws";
 import logger from "@shared/logger";
 import WebsocketServerConfig from "./types/websocket-server-config";
 import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connection-handler.interface";
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
-
 
 
 export class WebsocketServerService {

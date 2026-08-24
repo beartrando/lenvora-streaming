@@ -1,9 +1,8 @@
 import TimerServiceInterface from "./interfaces/timer-service.interface";
 import TimerCallbackFactoryHolderInterface from "./interfaces/timer-callback-factory-holder.interface";
-import logger from "@shared/logger";
 
-export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
-    private readonly timers = new Map<TEntity, NodeJS.Timeout>();
+export class TimerService<KEntity, TEntity> implements TimerServiceInterface<KEntity, TEntity> {
+    private readonly timers = new Map<KEntity, NodeJS.Timeout>();
 
     constructor(
         private readonly _callbackFactoryHolder: TimerCallbackFactoryHolderInterface<TEntity>,
@@ -12,44 +11,45 @@ export class TimerService<TEntity> implements TimerServiceInterface<TEntity> {
     }
 
     start(
+        key: KEntity,
         entity: TEntity,
         timeoutS?: number,
     ): void {
         const timeout = 1000 * (timeoutS ?? this.timeoutS);
+
         const callbackFactory = this._callbackFactoryHolder.factory;
 
         const callback = callbackFactory.create(entity);
 
-        // logger.log('1');
-        // logger.log(timeout);
-        this.stop(entity);
+        this.stop(key);
 
         const timer = setTimeout(async () => {
-            this.timers.delete(entity);
+            this.timers.delete(key);
             await callback();
         }, timeout);
 
-        this.timers.set(entity, timer);
+        this.timers.set(key, timer);
     }
 
     stop(
-        entity: TEntity,
+        key: KEntity,
     ): void {
-        const timer = this.timers.get(entity);
+        const timer = this.timers.get(key);
 
         if (!timer) {
             return;
         }
 
         clearTimeout(timer);
-        this.timers.delete(entity);
+        this.timers.delete(key);
     }
 
     restart(
+        key: KEntity,
         entity: TEntity,
         timeoutS?: number,
     ): void {
-        this.start(entity, timeoutS);
+        this.start(key, entity, timeoutS);
     }
 }
 

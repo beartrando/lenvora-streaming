@@ -1,12 +1,10 @@
 import * as streamingProto from "../../../contracts/proto/streaming";
 import * as engineProto from "../../../contracts/proto/engine";
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 export class BattleMoveUseCase {
     constructor(
-        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly grpcStreamService: GrpcStreamService<engineProto.BattleRequest>,
     ) {
     }

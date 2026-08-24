@@ -1,4 +1,4 @@
-import type {WebSocket} from "ws";
+import {WebSocket} from "ws";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import BattleLeaveUseCase from "../battle/battle-leave";
 import TimerService from "../../../infrastructure/timer/service";
@@ -7,7 +7,7 @@ export class WebsocketDisconnectUseCase {
     constructor(
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
-        private readonly timerService: TimerService<WebSocket>,
+        private readonly timerService: TimerService<WebSocket, WebSocket>,
     ) {
     }
 
@@ -25,6 +25,10 @@ export class WebsocketDisconnectUseCase {
         } finally {
             this.timerService.stop(ws);
             this.battleWebsocketsRegistry.unregisterSocket(ws);
+
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.close();
+            }
         }
     }
 }

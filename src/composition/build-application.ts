@@ -49,8 +49,8 @@ import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
-import domainBattleConfig from "../domain/battle/config/config";
-import {BattleWebsocketSender} from "../infrastructure/websocket/senders/battle-websocket.sender";
+import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
+import timerConfig from "../infrastructure/timer/config/config";
 
 
 function buildApplication(): Application {
@@ -72,9 +72,9 @@ function buildApplication(): Application {
         new TimerCallbackFactoryHolder<WebSocket>();
 
     const timerService =
-        new TimerService<WebSocket>(
+        new TimerService<WebSocket, WebSocket>(
             timerCallbackFactoryHolder,
-            domainBattleConfig.battleTurnTimeLimit,
+            timerConfig.iddleWebsocketTimeLimit,
         );
 
     const grpcStreamService =
@@ -140,7 +140,6 @@ function buildApplication(): Application {
 
     const battleMoveUseCase =
         new BattleMoveUseCase(
-            battleWebsocketsRegistry,
             grpcStreamService,
         );
 
@@ -189,7 +188,6 @@ function buildApplication(): Application {
             battleLeaveUseCase,
             websocketDisconnectUseCase,
             battleWebsocketsRegistry,
-            timerService,
         );
 
     connectionHandler.registerHandler(
@@ -265,7 +263,6 @@ function buildApplication(): Application {
         messageService,
         websocketService,
         grpcStreamService,
-        timerService,
     );
 }
 

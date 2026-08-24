@@ -15,7 +15,7 @@ import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
-        private readonly timerService: TimerService<WebSocket>,
+        private readonly timerService: TimerService<WebSocket, WebSocket>,
         private readonly startUseCase: BattleStartUseCase,
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,
@@ -37,7 +37,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
                     battleId
                 );
             } else if (payload.move) {
-                this.timerService.restart(ws);
+                this.timerService.restart(ws, ws);
                 return this.moveUseCase.execute(profileId, payload.move);
             } else if (payload.ping) {
                 return;

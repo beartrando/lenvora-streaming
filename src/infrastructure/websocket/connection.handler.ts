@@ -31,7 +31,6 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly timerService: TimerService<WebSocket>,
     ) {
     }
 

@@ -8,6 +8,7 @@ import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import logger from "@shared/logger";
 
 export class BattleStartUseCase {
     constructor(
@@ -24,6 +25,11 @@ export class BattleStartUseCase {
         battleId?: BattleId,
     ): Promise<void> {
 
+        logger.log(
+            accessToken,
+            profileId,
+            battleId,
+        )
         const grpcRequest = battleProto.BattleStartRequest.create({
             profileId: profileId.value,
             battleId: battleId ? battleId.value : undefined
@@ -32,7 +38,8 @@ export class BattleStartUseCase {
         // logger.log(grpcRequest);
         const battleResponse = await this.battleClient.start(grpcRequest, metadata);
 
-        // logger.log(battleResponse);
+        logger.log(battleResponse);
+
         if (!battleResponse?.battle) {
             return;
         }

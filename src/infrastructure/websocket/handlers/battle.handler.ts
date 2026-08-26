@@ -24,8 +24,8 @@ export class BattleHandler implements WebsocketHandlerInterface {
     }
 
     async handle(ws: WebSocket, accessToken: SessionAccessToken, profileId: ProfileId, payload: streamingProto.BattleRequest): Promise<void> {
-        // logger.log('battleHandler got event');
-        // logger.log(payload);
+        logger.log('battleHandler got event');
+        logger.log(payload);
 
         try {
             if (payload.start) {

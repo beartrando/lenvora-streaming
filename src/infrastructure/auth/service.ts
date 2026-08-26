@@ -13,16 +13,16 @@ export class AuthService implements TokenService {
     }
 
     verifyAccessToken(token: SessionAccessToken): UserId {
-        const payload = this.payload(token.value, this.config.accessSecret);
+        const payload = this.payload(token, this.config.accessSecret);
 
         return new UserId(payload.sub);
     }
 
     private payload(
-        token: string,
+        token: SessionAccessToken,
         secret: jwt.Secret,
     ): TokenPayload {
-        const payload = jwt.verify(token, secret) as TokenPayload;
+        const payload = jwt.verify(token.value, secret) as TokenPayload;
 
         if (!payload.sub) {
             throw new Error("JWT payload missing sub");

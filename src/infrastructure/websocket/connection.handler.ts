@@ -127,7 +127,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         });
 
         ws.on("close", () => {
-            logger.info("Websocket connection closed",);
+            // logger.info("Websocket connection closed",);
             this.websocketDisconnectUseCase.execute(ws);
         });
 
@@ -149,11 +149,19 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         data: RawData,
         encoding: SocketEncoding,
     ): streamingProto.BattleRequest {
-        return encoding === SocketEncoding.PLAIN
+
+        logger.log(data);
+        logger.log(encoding);
+
+        const message = encoding === SocketEncoding.PLAIN
             ? JSON.parse(data.toString())
             : streamingProto.BattleRequest.decode(
                 data as Uint8Array,
             );
+
+        logger.log(message);
+
+        return message;
     }
 }
 

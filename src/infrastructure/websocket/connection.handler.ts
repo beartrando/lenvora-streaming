@@ -1,5 +1,5 @@
 import {IncomingMessage} from "http";
-import {RawData, WebSocket,} from "ws";
+import {RawData,} from "ws";
 
 import * as streamingProto from "../../contracts/proto/streaming";
 import logger from "@shared/logger";
@@ -13,7 +13,6 @@ import SessionAccessToken from "../../domain/session/value-objects/session-acces
 import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
 import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
-import TimerService from "../timer/service";
 import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
 import UserId from "../../domain/user/value-objects/user-id.vo";
@@ -111,8 +110,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
 
         ws.on("message", data => {
             try {
-                const request =
-                    this.decodeMessage(data, encoding);
+                const request = this.decodeMessage(data, encoding);
 
                 void handler.handle(
                     ws,
@@ -150,8 +148,8 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
         encoding: SocketEncoding,
     ): streamingProto.BattleRequest {
 
-        logger.log(data);
-        logger.log(encoding);
+        // logger.log(data);
+        // logger.log(encoding);
 
         const message = encoding === SocketEncoding.PLAIN
             ? JSON.parse(data.toString())
@@ -159,7 +157,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                 data as Uint8Array,
             );
 
-        logger.log(message);
+        // logger.log(message);
 
         return message;
     }

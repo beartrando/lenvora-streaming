@@ -95,7 +95,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
     }
 
     write(data: engineProto.BattleRequest) {
-        // logger.info(data);
+        logger.info(data);
         if (!this.stream) {
             throw new Error('Engine stream not initialized');
         }

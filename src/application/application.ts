@@ -42,7 +42,7 @@ export class Application {
         } catch (err) {
             logger.error(
                 {err},
-                '💥 Failed to start Streaming',
+                '💥 Failed to start Streaming service',
             );
             process.exit(1);
         }

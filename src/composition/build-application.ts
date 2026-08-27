@@ -148,7 +148,7 @@ function buildApplication(): Application {
             jobService,
             socketContextStore,
             battleWebsocketsStore,
-            messageProducersConfig.aiConnectingRequest,
+            messageProducersConfig.botConnectingRequest,
         );
 
     const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(

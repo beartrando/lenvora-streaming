@@ -25,11 +25,11 @@ export class BattleStartUseCase {
         battleId?: BattleId,
     ): Promise<void> {
 
-        logger.log(
-            accessToken,
-            profileId,
-            battleId,
-        )
+        // logger.log(
+        //     accessToken,
+        //     profileId,
+        //     battleId,
+        // )
         const grpcRequest = battleProto.BattleStartRequest.create({
             profileId: profileId.value,
             battleId: battleId ? battleId.value : undefined
@@ -38,7 +38,7 @@ export class BattleStartUseCase {
         // logger.log(grpcRequest);
         const battleResponse = await this.battleClient.start(grpcRequest, metadata);
 
-        logger.log(battleResponse);
+        // logger.log(battleResponse);
 
         if (!battleResponse?.battle) {
             return;

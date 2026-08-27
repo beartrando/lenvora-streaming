@@ -11,7 +11,7 @@ export class BattleConnectBotUseCase {
         private readonly jobService: JobService,
         private readonly wsSocketContextStateStore: StateStore<WebSocket, SocketContext>,
         private readonly battleWsStateStore: StateStore<string, Set<WebSocket>>,
-        private readonly aiConnectingRequest: string,
+        private readonly botConnectingRequest: string,
     ) {
     }
 
@@ -29,7 +29,7 @@ export class BattleConnectBotUseCase {
             const context = this.wsSocketContextStateStore.get(websocket);
             if (profileId === context?.profileId) {
                 const message = streamingProto.BattleJoinBot.create({battleId: battleId.value});
-                await this.jobService.enqueue(this.aiConnectingRequest, message);
+                await this.jobService.enqueue(this.botConnectingRequest, message);
             }
         }
     }

@@ -4,6 +4,7 @@ import BattleWebsocketsRegistry from "../registers/battle-websockets.registry";
 import WebsocketSender from "./websocket.sender";
 import SocketEncoding from "../enums/socket-encoding";
 import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import logger from "@shared/logger";
 
 export class BattleWebsocketSender extends WebsocketSender {
     constructor(
@@ -13,7 +14,7 @@ export class BattleWebsocketSender extends WebsocketSender {
     }
 
     send(battleObject: battleProto.BattleObject) {
-        // logger.log(battleObject.id);
+        logger.log(battleObject);
         // logger.log(new BattleId(battleObject.id));
         const sockets = this.battleWebsocketsRegistry.getBattleSockets(new BattleId(battleObject.id));
 

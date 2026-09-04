@@ -1,4 +1,4 @@
-// import * as battleClient from "../grpc/clients/battle.client";
+// import * as battleClient from "../grpc/api/battle.client";
 // import * as profileProto from "../grpc/generated/profile";
 // import * as battleProto from "../grpc/generated/engine";
 // import * as engineProto from "../grpc/generated/engine";

@@ -1,4 +1,4 @@
-// import * as profileClient from "../grpc/clients/profile.client";
+// import * as profileClient from "../grpc/api/profile.client";
 // import * as profileProto from "../grpc/generated/profile";
 // import * as authProto from "../grpc/generated/auth";
 // import {metadataWithJwt} from "../lib/grpcRequestMetadata";

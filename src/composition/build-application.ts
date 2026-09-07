@@ -82,7 +82,7 @@ function buildApplication(): Application {
 
 
     /*
-     * External api
+     * External client
      */
 
     const profileClient =

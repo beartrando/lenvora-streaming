@@ -1,4 +1,4 @@
-// import ProfileEntity from "../../../domain/battle/battle.entity";
+// import ProfileEntity from "../../../setting/battle/battle.entity";
 //
 // export const stateStoreConfig = {
 //     battle: {} as ProfileEntity,

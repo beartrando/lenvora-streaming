@@ -1,4 +1,4 @@
-// import BattleId from "../../../domain/common/value-objects/id.vo";
+// import BattleId from "../../../setting/common/value-objects/id.vo";
 // import StateStoreInterface from "../interfaces/state-store.interface";
 // import CacheStore from "../../cache/cache-store";
 //

@@ -47,7 +47,7 @@ export class BattleCreateUseCase {
 
         this.battleWebsocketsRegistry.subscribeBattle(ws, new BattleId(battleResponse.battle.id));
 
-        this.battleWebsocketSender.send(battleResponse.battle);
+        // this.battleWebsocketSender.send(battleResponse.battle);
 
     }
 }

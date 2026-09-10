@@ -31,7 +31,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
     connect = () => {
         if (this.stream) {
-            logger.log('Garbage stream was canceled...')
+            logger.log('Garbage stream was cancelled...')
             this.stream.cancel?.();
             this.stopHeartbeat();
         }

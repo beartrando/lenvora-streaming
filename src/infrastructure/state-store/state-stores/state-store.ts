@@ -23,6 +23,11 @@ export class StateStore<KEntity, VEntity> implements StateStoreInterface<KEntity
         this._registry.delete(key);
     }
 
+
+    keys(): KEntity[] {
+        return [...this._registry.keys()];
+    }
+
     clear(): void {
         this._registry.clear();
     }

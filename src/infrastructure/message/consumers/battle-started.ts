@@ -1,17 +1,17 @@
 // import * as battleProto from "../../../contracts/proto/battle";
-// import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
+// import BattleCreateUseCase from "../../../application/use-cases/battle/battle-start";
 // import BattleProtoMapper from "../../grpc/mappers/engine.proto.mapper";
 // import logger from "@shared/logger";
 //
-// export class BattleStartedConsumer {
+// export class BattleCreatedConsumer {
 //     constructor(
-//         private readonly battleStartUseCase: BattleStartUseCase,
+//         private readonly battleStartUseCase: BattleCreateUseCase,
 //     ) {
 //     }
 //
 //     async execute(topic: string, partition: number, message: battleProto.BattleObject): Promise<void> {
 //         try {
-//             // logger.log('BattleStartedConsumer');
+//             // logger.log('BattleCreatedConsumer');
 //             // logger.log(message);
 //             const battle = BattleProtoMapper.toDomain(message);
 //             await this.battleStartUseCase.execute(battle);
@@ -25,5 +25,5 @@
 //
 // }
 //
-// export default BattleStartedConsumer;
+// export default BattleCreatedConsumer;
 //

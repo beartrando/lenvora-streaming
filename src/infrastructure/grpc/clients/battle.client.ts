@@ -17,20 +17,20 @@ export class BattleClient {
         );
     }
 
-    async start(request: battleProto.BattleStartRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async create(request: battleProto.BattleCreateRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         // logger.log(request);
 
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.start(request, metadata, cb)
+            (client, cb) => client.create(request, metadata, cb)
         ).catch((err) => {
             logger.error("Start engine failed:", err);
             return null;
         });
     }
 
-    async GetActiveByProfile(request: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async getUnfinishedByProfile(request: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.getActiveByProfile(request, metadata, cb)
+            (client, cb) => client.getUnfinishedByProfile(request, metadata, cb)
         ).catch((err) => {
             logger.error("Get active  battles by profile failed:", err);
             return null;

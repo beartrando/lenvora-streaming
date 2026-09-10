@@ -5,6 +5,7 @@ import SocketContext from "../../../infrastructure/websocket/types/socket-contex
 import * as streamingProto from "../../../contracts/proto/streaming";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import logger from "@shared/logger";
 
 export class BattleConnectBotUseCase {
     constructor(
@@ -22,6 +23,7 @@ export class BattleConnectBotUseCase {
 
         const websockets = this.battleWsStateStore.get(battleId.value);
         if (!websockets) {
+            // logger.log(battleId.value)
             return;
         }
 

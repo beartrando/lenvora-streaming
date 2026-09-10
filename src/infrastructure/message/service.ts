@@ -52,9 +52,13 @@ export class MessageService {
     }
 
     private async createConsumers(): Promise<void> {
+        // logger.log(this.consumers);
         for (const consumer of this.consumers) {
             await createConsumer(
-                this.config,
+                {
+                    ...this.config,
+                    groupId: `${this.config.groupId}-${consumer.topic}`,
+                },
                 consumer,
             );
         }

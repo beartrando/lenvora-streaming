@@ -1,54 +1,26 @@
-import {WebSocket} from 'ws';
-import * as battleProto from "../../../contracts/proto/battle";
-
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
-import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
-import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
-import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
-import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
-import logger from "@shared/logger";
+import * as streamingProto from "../../../contracts/proto/streaming";
+import * as engineProto from "../../../contracts/proto/engine";
+import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 
 export class BattleStartUseCase {
     constructor(
-        private readonly battleWebsocketSender: BattleWebsocketSender,
-        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly battleClient: BattleClient,
+        private readonly grpcStreamService: GrpcStreamService<engineProto.BattleRequest>,
     ) {
     }
 
     async execute(
-        ws: WebSocket,
-        accessToken: SessionAccessToken,
         profileId: ProfileId,
-        battleId?: BattleId,
+        payload: streamingProto.BattleStart,
     ): Promise<void> {
-
-        // logger.log(
-        //     accessToken,
-        //     profileId,
-        //     battleId,
-        // )
-        const grpcRequest = battleProto.BattleStartRequest.create({
-            profileId: profileId.value,
-            battleId: battleId ? battleId.value : undefined
+        const grpcRequest = engineProto.BattleRequest.create({
+            start: engineProto.BattleStart.create({
+                profileId: profileId.value,
+                ...payload,
+            }),
         });
-        const metadata = AuthHelper.getMetadata(accessToken);
-        // logger.log(grpcRequest);
-        const battleResponse = await this.battleClient.start(grpcRequest, metadata);
 
-        // logger.log(battleResponse);
-
-        if (!battleResponse?.battle) {
-            return;
-        }
-        // logger.log(battleResponse.battle);
-
-        this.battleWebsocketsRegistry.subscribeBattle(ws, new BattleId(battleResponse.battle.id));
-
-        this.battleWebsocketSender.send(battleResponse.battle);
-
+        this.grpcStreamService.stream.write(grpcRequest);
     }
 }
 

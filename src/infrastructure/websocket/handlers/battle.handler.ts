@@ -2,7 +2,7 @@ import {WebSocket,} from "ws";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import WebsocketHandlerInterface from "../interfaces/websocket-handler.interface";
 
-import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
+import BattleCreateUseCase from "../../../application/use-cases/battle/battle-create";
 import BattleMoveUseCase from "../../../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../../../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../../../application/use-cases/battle/battle-connect-bot";
@@ -12,10 +12,12 @@ import TimerService from "../../timer/service";
 import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
+import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
 
 export class BattleHandler implements WebsocketHandlerInterface {
     constructor(
         private readonly timerService: TimerService<WebSocket, WebSocket>,
+        private readonly createUseCase: BattleCreateUseCase,
         private readonly startUseCase: BattleStartUseCase,
         private readonly moveUseCase: BattleMoveUseCase,
         private readonly connectBotUseCase: BattleConnectBotUseCase,
@@ -24,18 +26,21 @@ export class BattleHandler implements WebsocketHandlerInterface {
     }
 
     async handle(ws: WebSocket, accessToken: SessionAccessToken, profileId: ProfileId, payload: streamingProto.BattleRequest): Promise<void> {
-        // logger.log('battleHandler got event');
-        // logger.log(payload);
+        logger.log('battleHandler got event');
+        logger.log(payload);
 
         try {
-            if (payload.start) {
-                const battleId = payload.start.battleId ? new BattleId(payload.start.battleId) : undefined;
-                return this.startUseCase.execute(
+            if (payload.create) {
+                const battleId = payload.create.battleId ? new BattleId(payload.create.battleId) : undefined;
+                return this.createUseCase.execute(
                     ws,
                     accessToken,
                     profileId,
                     battleId
                 );
+            } else if (payload.start) {
+                this.timerService.restart(ws, ws);
+                return this.startUseCase.execute(profileId, payload.start);
             } else if (payload.move) {
                 this.timerService.restart(ws, ws);
                 return this.moveUseCase.execute(profileId, payload.move);
@@ -57,6 +62,5 @@ export class BattleHandler implements WebsocketHandlerInterface {
 }
 
 export default BattleHandler;
-
 
 

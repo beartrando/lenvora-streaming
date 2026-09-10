@@ -11,7 +11,7 @@ import ReadyzUseCase from "../application/use-cases/health/readyz";
 
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
 
-import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import BattleCreateUseCase from "../application/use-cases/battle/battle-create";
 import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
@@ -51,6 +51,7 @@ import messageProducersConfig from "../infrastructure/message/configs/producers.
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
 import timerConfig from "../infrastructure/timer/config/config";
+import BattleStartUseCase from "../application/use-cases/battle/battle-start";
 
 
 function buildApplication(): Application {
@@ -131,11 +132,16 @@ function buildApplication(): Application {
             grpcStreamService,
         );
 
-    const battleStartUseCase =
-        new BattleStartUseCase(
+    const battleCreateUseCase =
+        new BattleCreateUseCase(
             battleWebsocketSender,
             battleWebsocketsRegistry,
             battleClient,
+        );
+
+    const battleStartUseCase =
+        new BattleStartUseCase(
+            grpcStreamService,
         );
 
     const battleMoveUseCase =
@@ -174,6 +180,7 @@ function buildApplication(): Application {
     const battleHandler =
         new BattleHandler(
             timerService,
+            battleCreateUseCase,
             battleStartUseCase,
             battleMoveUseCase,
             battleConnectBotUseCase,

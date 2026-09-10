@@ -100,10 +100,11 @@ class BattleWebsocketsRegistry {
 
         if (!sockets) {
             sockets = new Set<WebSocket>();
-            this.battleWsStateStore.set(battleId.value, sockets);
         }
 
         sockets.add(ws);
+        this.battleWsStateStore.set(battleId.value, sockets);
+        logger.log(this.battleWsStateStore.keys());
     }
 
     unsubscribeBattle(

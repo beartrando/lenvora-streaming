@@ -1,11 +1,11 @@
 // import * as battleProto from "../../../contracts/proto/battle";
-// import BattleCreateUseCase from "../../../application/use-cases/battle/battle-start";
+// import BattleInitUseCase from "../../../application/use-cases/battle/battle-start";
 // import BattleProtoMapper from "../../grpc/mappers/engine.proto.mapper";
 // import logger from "@shared/logger";
 //
 // export class BattleCreatedConsumer {
 //     constructor(
-//         private readonly battleStartUseCase: BattleCreateUseCase,
+//         private readonly battleStartUseCase: BattleInitUseCase,
 //     ) {
 //     }
 //

@@ -17,11 +17,11 @@ export class BattleClient {
         );
     }
 
-    async create(request: battleProto.BattleCreateRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async create(request: battleProto.BattleInitRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         // logger.log(request);
 
         return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.create(request, metadata, cb)
+            (client, cb) => client.init(request, metadata, cb)
         ).catch((err) => {
             logger.error("Start engine failed:", err);
             return null;

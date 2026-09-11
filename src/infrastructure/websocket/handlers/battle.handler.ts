@@ -30,8 +30,8 @@ export class BattleHandler implements WebsocketHandlerInterface {
         // logger.log(payload);
 
         try {
-            if (payload.create) {
-                const battleId = payload.create.battleId ? new BattleId(payload.create.battleId) : undefined;
+            if (payload.init) {
+                const battleId = payload.init.battleId ? new BattleId(payload.init.battleId) : undefined;
                 return this.createUseCase.execute(
                     ws,
                     accessToken,

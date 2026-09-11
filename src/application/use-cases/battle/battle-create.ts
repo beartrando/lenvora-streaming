@@ -30,7 +30,7 @@ export class BattleCreateUseCase {
         //     profileId,
         //     battleId,
         // )
-        const grpcRequest = battleProto.BattleCreateRequest.create({
+        const grpcRequest = battleProto.BattleInitRequest.create({
             profileId: profileId.value,
             battleId: battleId ? battleId.value : undefined
         });

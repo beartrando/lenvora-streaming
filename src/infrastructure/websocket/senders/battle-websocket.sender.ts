@@ -14,6 +14,7 @@ export class BattleWebsocketSender extends WebsocketSender {
     }
 
     send(battleObject: battleProto.BattleObject) {
+        logger.error(new Error().stack);
         logger.log(battleObject);
         // logger.log(new BattleId(battleObject.id));
         const sockets = this.battleWebsocketsRegistry.getBattleSockets(new BattleId(battleObject.id));

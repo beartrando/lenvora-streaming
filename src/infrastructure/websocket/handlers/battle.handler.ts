@@ -47,6 +47,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
             } else if (payload.ping) {
                 return;
             } else if (payload.connectBot) {
+                // logger.log(payload.connectBot);
                 return this.connectBotUseCase.execute(profileId, new BattleId(payload.connectBot.battleId));
             } else if (payload.leave) {
                 const battleId = new BattleId(payload.leave.battleId);

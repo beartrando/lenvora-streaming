@@ -36,7 +36,7 @@ export class BattleCreateUseCase {
         });
         const metadata = AuthHelper.getMetadata(accessToken);
         // logger.log(grpcRequest);
-        const battleResponse = await this.battleClient.create(grpcRequest, metadata);
+        const battleResponse = await this.battleClient.init(grpcRequest, metadata);
 
         // logger.log(battleResponse);
 

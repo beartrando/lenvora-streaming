@@ -1,7 +1,6 @@
 import * as grpc from "@grpc/grpc-js";
 
 import * as battleProto from "../../../contracts/proto/battle";
-import * as profileProto from "../../../contracts/proto/profile";
 
 import {GrpcClientManager} from "@shared/grpc-client-manager";
 import logger from "@shared/logger";
@@ -17,22 +16,13 @@ export class BattleClient {
         );
     }
 
-    async create(request: battleProto.BattleInitRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
+    async init(request: battleProto.BattleInitRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
         // logger.log(request);
 
         return this.manager.call<battleProto.BattleResponse>(
             (client, cb) => client.init(request, metadata, cb)
         ).catch((err) => {
             logger.error("Start engine failed:", err);
-            return null;
-        });
-    }
-
-    async getUnfinishedByProfile(request: profileProto.ProfileIdRequest, metadata: grpc.Metadata): Promise<battleProto.BattleResponse | null> {
-        return this.manager.call<battleProto.BattleResponse>(
-            (client, cb) => client.getUnfinishedByProfile(request, metadata, cb)
-        ).catch((err) => {
-            logger.error("Get active  battles by profile failed:", err);
             return null;
         });
     }

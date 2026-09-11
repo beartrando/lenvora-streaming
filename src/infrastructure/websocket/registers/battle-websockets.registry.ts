@@ -111,6 +111,8 @@ class BattleWebsocketsRegistry {
         ws: WebSocket,
         battleId: BattleId,
     ) {
+        logger.log('unsubscribeBattle' + battleId.value);
+
         const context = this.getSocketContext(ws);
 
         if (!context) {

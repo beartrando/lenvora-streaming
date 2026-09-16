@@ -10,11 +10,9 @@ export function callbackError(
         return callback(
             null,
             {
-                output: {
-                    error: errorProto.ErrorObject.create({
-                        code: err.code, message: err.message
-                    })
-                }
+                error: errorProto.ErrorObject.create({
+                    code: err.code, details: err.message
+                })
             }
         );
     }

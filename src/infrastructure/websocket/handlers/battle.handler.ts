@@ -39,6 +39,7 @@ export class BattleHandler implements WebsocketHandlerInterface {
                     battleId
                 );
             } else if (payload.start) {
+                logger.log(payload.start);
                 this.timerService.restart(ws, ws);
                 return this.startUseCase.execute(profileId, payload.start);
             } else if (payload.move) {

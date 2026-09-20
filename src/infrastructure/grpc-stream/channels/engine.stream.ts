@@ -47,6 +47,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
         this.stream.on('data', (message: engineProto.BattleResponse) => {
 
+            logger.log(message);
             try {
 
                 this.reconnectDelay = 1000

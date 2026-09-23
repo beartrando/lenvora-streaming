@@ -2,7 +2,7 @@ import * as engineProto from "../../../contracts/proto/engine";
 import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
 import GrpcStreamService from "../../../infrastructure/grpc-stream/service";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
 export class BattleLeaveUseCase {
     constructor(

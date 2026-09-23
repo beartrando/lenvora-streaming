@@ -1,19 +1,44 @@
-import BattleId from "./value-objects/user-id.vo";
+import BattleBoard from "./value-objects/battle-board.vo";
+import BattlePlayerIds from "./value-objects/battle-player-ids.vo";
+import BattleStatus from "./value-objects/battle-status.vo";
+import BattleStatusEnum from "./enums/battle-status.enum";
+import BattleId from "../battle/value-objects/battle-id.vo";
+import ProfileId from "../profile/value-objects/profile-id.vo";
 
 export type BattleEntityProps = {
-    id?: BattleId;
+    id: BattleId;
+    playerIds: BattlePlayerIds;
+    board?: BattleBoard;
+    status?: BattleStatus;
+    winnerId?: ProfileId | null;
+    lastMoveAt?: Date | null;
 };
 
 export class BattleEntity {
     constructor(
         readonly id: BattleId,
+        readonly playerIds: BattlePlayerIds,
+        public board: BattleBoard,
+        public status: BattleStatus,
+        public winnerId: ProfileId | null,
+        public lastMoveAt: Date | null,
     ) {
     }
 
     static create(props: BattleEntityProps): BattleEntity {
         return new BattleEntity(
-            props.id ?? BattleId.create(),
+            props.id,
+            props.playerIds,
+            props.board ?? BattleBoard.empty(),
+            props.status ?? new BattleStatus(BattleStatusEnum.Created),
+            props.winnerId ?? null,
+            props.lastMoveAt ?? null,
         );
+    }
+
+    isTerminated(): boolean {
+        return this.status.equals(new BattleStatus(BattleStatusEnum.Finished))
+            || this.status.equals(new BattleStatus(BattleStatusEnum.Cancelled));
     }
 }
 

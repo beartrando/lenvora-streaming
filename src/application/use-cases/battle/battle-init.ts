@@ -7,7 +7,7 @@ import BattleClient from "../../../infrastructure/grpc/clients/battle.client";
 import AuthHelper from "../../../infrastructure/grpc/helpers/auth.helper";
 import BattleWebsocketSender from "../../../infrastructure/websocket/senders/battle-websocket.sender";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import logger from "@shared/logger";
 
 export class BattleInitUseCase {

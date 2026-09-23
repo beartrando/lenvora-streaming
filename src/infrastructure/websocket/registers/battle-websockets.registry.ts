@@ -4,7 +4,7 @@ import SocketEncoding from "../enums/socket-encoding";
 import SocketContext from "../types/socket-context";
 import StateStore from "../../state-store/state-stores/state-store";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
 
 class BattleWebsocketsRegistry {
@@ -29,6 +29,8 @@ class BattleWebsocketsRegistry {
             }
             return;
         }
+
+        logger.log('register socket ' + profileId);
 
         this.wsSocketContextStateStore.set(ws, {
             profileId,
@@ -59,7 +61,7 @@ class BattleWebsocketsRegistry {
     getBattleSockets(
         battleId: BattleId
     ): Set<WebSocket> | null {
-        // logger.log(this.battleWsStateStore);
+        logger.log(this.battleWsStateStore);
         // logger.log(battleId);
         // logger.log(this.battleWsStateStore.get(battleId.value)?.size);
         return this.battleWsStateStore.get(battleId.value);
@@ -76,7 +78,7 @@ class BattleWebsocketsRegistry {
         }
 
         for (const battleId of [...context.battleIds]) {
-            this.unsubscribeBattle(ws, battleId);
+            this.unsubscribeWsBattle(ws, battleId);
         }
 
         this.wsSocketContextStateStore.delete(ws);
@@ -107,7 +109,19 @@ class BattleWebsocketsRegistry {
         logger.log(this.battleWsStateStore.keys());
     }
 
-    unsubscribeBattle(
+    unsubscribeBattle(battleId: BattleId) {
+        const wsSet = this.getBattleSockets(battleId);
+
+        if (!wsSet) {
+            return;
+        }
+
+        for (const ws of [...wsSet]) {
+            this.unsubscribeWsBattle(ws, battleId);
+        }
+    }
+
+    unsubscribeWsBattle(
         ws: WebSocket,
         battleId: BattleId,
     ) {

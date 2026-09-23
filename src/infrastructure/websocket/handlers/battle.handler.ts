@@ -10,7 +10,7 @@ import BattleConnectBotUseCase from "../../../application/use-cases/battle/battl
 import logger from "@shared/logger";
 import TimerService from "../../timer/service";
 import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleStartUseCase from "../../../application/use-cases/battle/battle-start";
 

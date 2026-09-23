@@ -4,7 +4,7 @@ import {WebSocket} from "ws";
 import SocketContext from "../../../infrastructure/websocket/types/socket-context";
 import * as streamingProto from "../../../contracts/proto/streaming";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import logger from "@shared/logger";
 
 export class BattleConnectBotUseCase {

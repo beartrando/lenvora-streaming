@@ -213,7 +213,7 @@ function buildApplication(): Application {
      * Engine stream
      */
 
-    const battleUpdatedUseCase = new BattleUpdatedUseCase(battleWebsocketSender);
+    const battleUpdatedUseCase = new BattleUpdatedUseCase(battleWebsocketSender, battleWebsocketsRegistry);
 
     const engineStream =
         new EngineStream(

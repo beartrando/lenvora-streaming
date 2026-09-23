@@ -3,7 +3,7 @@ import * as battleProto from "../../../contracts/proto/battle";
 import BattleWebsocketsRegistry from "../registers/battle-websockets.registry";
 import WebsocketSender from "./websocket.sender";
 import SocketEncoding from "../enums/socket-encoding";
-import BattleId from "../../../domain/battle/value-objects/user-id.vo";
+import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 import logger from "@shared/logger";
 
 export class BattleWebsocketSender extends WebsocketSender {

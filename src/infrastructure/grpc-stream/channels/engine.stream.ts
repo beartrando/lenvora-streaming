@@ -9,12 +9,11 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
     private stream: grpc.ClientDuplexStream<any, any> | null = null;
     private client: engineProto.EngineClient | null = null;
     private reconnectDelay = 1000; // стартовый backoff
-    private maxDelay = 30000;
+    private maxDelay = 10000;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private heartbeatPeriod = 5000;
     private reconnectScheduled = false;
-
-
+    
     constructor(
         private readonly serviceEngineUrl: string,
         private readonly battleUpdatedUseCase: BattleUpdatedUseCase,

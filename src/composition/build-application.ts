@@ -11,7 +11,7 @@ import ReadyzUseCase from "../application/use-cases/health/readyz";
 
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
 
-import BattleCreateUseCase from "../application/use-cases/battle/battle-create";
+import BattleInitUseCase from "../application/use-cases/battle/battle-init";
 import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
 import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
 import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
@@ -133,7 +133,7 @@ function buildApplication(): Application {
         );
 
     const battleCreateUseCase =
-        new BattleCreateUseCase(
+        new BattleInitUseCase(
             battleWebsocketSender,
             battleWebsocketsRegistry,
             battleClient,

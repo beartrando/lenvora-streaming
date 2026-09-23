@@ -10,7 +10,7 @@ import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 import BattleId from "../../../domain/battle/value-objects/user-id.vo";
 import logger from "@shared/logger";
 
-export class BattleCreateUseCase {
+export class BattleInitUseCase {
     constructor(
         private readonly battleWebsocketSender: BattleWebsocketSender,
         private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
@@ -52,4 +52,4 @@ export class BattleCreateUseCase {
     }
 }
 
-export default BattleCreateUseCase;
+export default BattleInitUseCase;

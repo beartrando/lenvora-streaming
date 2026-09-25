@@ -44,6 +44,44 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
         this.stream = this.client.battleChannel();
 
+
+
+
+
+
+
+
+        const channel = this.client.getChannel();
+
+        logger.log(
+            'Engine gRPC state:',
+            channel.getConnectivityState(true)
+        );
+
+        const watchGrpcState = () => {
+            const state = channel.getConnectivityState(false);
+
+            logger.log('Engine gRPC state:', state);
+
+            channel.watchConnectivityState(
+                state,
+                Date.now() + 5000,
+                () => watchGrpcState(),
+            );
+        };
+
+        watchGrpcState();
+
+
+
+
+
+
+
+
+
+
+
         this.stream.on('data', (message: engineProto.BattleResponse) => {
 
             try {

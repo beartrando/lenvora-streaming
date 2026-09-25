@@ -8,7 +8,7 @@ import StreamInterface from "../interfaces/stream.interface";
 export class EngineStream implements StreamInterface<engineProto.BattleRequest> {
     private stream: grpc.ClientDuplexStream<any, any> | null = null;
     private client: engineProto.EngineClient | null = null;
-    private reconnectDelay = 1000; // стартовый backoff
+    private reconnectDelay = 1000;
     private maxDelay = 10000;
     private heartbeatInterval: NodeJS.Timeout | null = null;
     private heartbeatPeriod = 5000;
@@ -64,20 +64,26 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
         });
 
+        const handleDisconnect = () => {
+            this.stopHeartbeat();
+            this.scheduleReconnect();
+        };
+
         this.stream.on('error', (err) => {
             console.error('Stream error:', err);
 
             this.stopHeartbeat();
+            handleDisconnect();
         });
 
         this.stream.on('end', () => {
             console.warn('Stream ended');
-            this.scheduleReconnect();
+            handleDisconnect();
         });
 
         this.stream.on('close', () => {
             console.warn('Stream closed');
-            this.scheduleReconnect();
+            handleDisconnect();
         });
 
 
@@ -85,6 +91,7 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
 
         return this.stream;
     }
+
 
     disconnect(): void {
         this.stopHeartbeat();

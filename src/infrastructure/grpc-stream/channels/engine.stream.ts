@@ -58,10 +58,14 @@ export class EngineStream implements StreamInterface<engineProto.BattleRequest> 
             channel.getConnectivityState(true)
         );
 
+        let previousState = -1;
         const watchGrpcState = () => {
             const state = channel.getConnectivityState(false);
 
-            logger.log('Engine gRPC state:', state);
+            if (previousState != state) {
+                logger.log('Engine gRPC state:', state);
+                previousState = state;
+            }
 
             channel.watchConnectivityState(
                 state,

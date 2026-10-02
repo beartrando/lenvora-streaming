@@ -5,7 +5,7 @@ import * as streamingProto from "../../../contracts/proto/streaming";
 export interface WebsocketSenderInterface {
     writeStream(
         ws: WebSocket,
-        streamResponse: streamingProto.BattleResponse,
+        streamResponse: streamingProto.EventResponse,
         encoding: SocketEncoding,
     ): void;
 }

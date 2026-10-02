@@ -9,7 +9,7 @@ export interface WebsocketHandlerInterface {
         ws: WebSocket,
         jwt: SessionAccessToken,
         profileId: ProfileId,
-        payload: streamingProto.BattleRequest,
+        payload: streamingProto.EventRequest,
         encoding: SocketEncoding,
     ): Promise<void>;
 }

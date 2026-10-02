@@ -10,8 +10,7 @@ import WebsocketConnectionHandlerInterface from "./interfaces/websocket-connecti
 import SocketEncoding from "./enums/socket-encoding";
 import AuthService from "../auth/service";
 import SessionAccessToken from "../../domain/session/value-objects/session-access-token.vo";
-import BattleLeaveUseCase from "../../application/use-cases/battle/battle-leave";
-import BattleWebsocketsRegistry from "./registers/battle-websockets.registry";
+import EventWebsocketsRegistry from "./registers/event-websockets.registry";
 import AuthorizeProfileUseCase from "../../application/use-cases/auth/authorize-profile";
 import WebsocketDisconnectUseCase from "../../application/use-cases/websocket/websocket-disconnect";
 import HeartbeatWebSocket from "./types/heartbeat-websocket";
@@ -27,9 +26,8 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     constructor(
         private readonly authService: AuthService,
         private readonly authorizeProfileUseCase: AuthorizeProfileUseCase,
-        private readonly battleLeaveUseCase: BattleLeaveUseCase,
         private readonly websocketDisconnectUseCase: WebsocketDisconnectUseCase,
-        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
+        private readonly eventWebsocketsRegistry: EventWebsocketsRegistry,
     ) {
     }
 
@@ -97,7 +95,7 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
                 ? SocketEncoding.PLAIN
                 : SocketEncoding.PROTOBUF;
 
-        this.battleWebsocketsRegistry.registerSocket(ws, profileId, encoding);
+        this.eventWebsocketsRegistry.registerSocket(ws, profileId, encoding);
 
         const handler = this.handlers.get(url.pathname);
 
@@ -146,14 +144,14 @@ export class ConnectionHandler implements WebsocketConnectionHandlerInterface {
     private decodeMessage(
         data: RawData,
         encoding: SocketEncoding,
-    ): streamingProto.BattleRequest {
+    ): streamingProto.EventRequest {
 
         // logger.log(data);
         // logger.log(encoding);
 
         const message = encoding === SocketEncoding.PLAIN
             ? JSON.parse(data.toString())
-            : streamingProto.BattleRequest.decode(
+            : streamingProto.EventRequest.decode(
                 data as Uint8Array,
             );
 

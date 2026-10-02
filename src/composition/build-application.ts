@@ -1,5 +1,4 @@
 import {WebSocket} from "ws";
-import * as engineProto from "../contracts/proto/engine";
 
 import Application from "../application/application";
 
@@ -10,12 +9,6 @@ import LivezUseCase from "../application/use-cases/health/livez";
 import ReadyzUseCase from "../application/use-cases/health/readyz";
 
 import AuthorizeProfileUseCase from "../application/use-cases/auth/authorize-profile";
-
-import BattleInitUseCase from "../application/use-cases/battle/battle-init";
-import BattleMoveUseCase from "../application/use-cases/battle/battle-move";
-import BattleLeaveUseCase from "../application/use-cases/battle/battle-leave";
-import BattleConnectBotUseCase from "../application/use-cases/battle/battle-connect-bot";
-import BattleUpdatedUseCase from "../application/use-cases/battle/battle-updated";
 import WebsocketDisconnectUseCase from "../application/use-cases/websocket/websocket-disconnect";
 
 // Infrastructure
@@ -23,23 +16,15 @@ import AuthService from "../infrastructure/auth/service";
 import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
-import TimerService from "../infrastructure/timer/service";
-import GrpcStreamService from "../infrastructure/grpc-stream/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
 
 import ProfileClient from "../infrastructure/grpc/clients/profile.client";
-import BattleClient from "../infrastructure/grpc/clients/battle.client";
-import EngineStream from "../infrastructure/grpc-stream/channels/engine.stream";
 
 import HealthHandler from "../infrastructure/grpc/handlers/health.handler";
 import ConnectionHandler from "../infrastructure/websocket/connection.handler";
-import BattleHandler from "../infrastructure/websocket/handlers/battle.handler";
 
 import StateStore from "../infrastructure/state-store/state-stores/state-store";
-import BattleWebsocketsRegistry from "../infrastructure/websocket/registers/battle-websockets.registry";
-
-import TimerCallbackFactoryHolder from "../infrastructure/timer/callback-factory-holder";
-import BattleTimeoutCallbackFactory from "../infrastructure/timer/callbacks/battle-timeout-callback-factory";
+import EventWebsocketsRegistry from "../infrastructure/websocket/registers/event-websockets.registry";
 import SocketContext from "../infrastructure/websocket/types/socket-context";
 
 // Config
@@ -49,9 +34,8 @@ import jobConfig from "../infrastructure/job/job.config";
 import messageConfig from "../infrastructure/message/configs/message.config";
 import messageProducersConfig from "../infrastructure/message/configs/producers.config";
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
-import BattleWebsocketSender from "../infrastructure/websocket/senders/battle-websocket.sender";
-import timerConfig from "../infrastructure/timer/config/config";
-import BattleStartUseCase from "../application/use-cases/battle/battle-start";
+import EventWebsocketSender from "../infrastructure/websocket/senders/event-websocket.sender";
+import EventHandler from "../infrastructure/websocket/handlers/event.handler";
 
 
 function buildApplication(): Application {
@@ -69,29 +53,12 @@ function buildApplication(): Application {
 
     const messageService = new MessageService(messageConfig);
 
-    const timerCallbackFactoryHolder =
-        new TimerCallbackFactoryHolder<WebSocket>();
-
-    const timerService =
-        new TimerService<WebSocket, WebSocket>(
-            timerCallbackFactoryHolder,
-            timerConfig.iddleWebsocketTimeLimit,
-        );
-
-    const grpcStreamService =
-        new GrpcStreamService<engineProto.BattleRequest>();
-
-
     /*
      * External client
      */
 
     const profileClient =
         new ProfileClient(grpcConfig.serviceProfileUrl);
-
-    const battleClient =
-        new BattleClient(grpcConfig.serviceBattleUrl);
-
 
     /*
      * State
@@ -100,16 +67,15 @@ function buildApplication(): Application {
     const socketContextStore =
         new StateStore<WebSocket, SocketContext>();
 
-    const battleWebsocketsStore =
-        new StateStore<string, Set<WebSocket>>();
-
+    const profileWebsocketStore =
+        new StateStore<string, WebSocket>();
     /*
      * WebSocket infrastructure
      */
 
-    const battleWebsocketsRegistry = new BattleWebsocketsRegistry(socketContextStore, battleWebsocketsStore);
+    const eventWebsocketsRegistry = new EventWebsocketsRegistry(socketContextStore, profileWebsocketStore);
 
-    const battleWebsocketSender = new BattleWebsocketSender(battleWebsocketsRegistry);
+    const eventWebsocketSender = new EventWebsocketSender(eventWebsocketsRegistry);
 
 
     /*
@@ -122,69 +88,16 @@ function buildApplication(): Application {
         );
 
 
-    /*
-     * Application — battle
-     */
-
-    const battleLeaveUseCase =
-        new BattleLeaveUseCase(
-            battleWebsocketsRegistry,
-            grpcStreamService,
-        );
-
-    const battleCreateUseCase =
-        new BattleInitUseCase(
-            battleWebsocketSender,
-            battleWebsocketsRegistry,
-            battleClient,
-        );
-
-    const battleStartUseCase =
-        new BattleStartUseCase(
-            grpcStreamService,
-        );
-
-    const battleMoveUseCase =
-        new BattleMoveUseCase(
-            grpcStreamService,
-        );
-
-    const battleConnectBotUseCase =
-        new BattleConnectBotUseCase(
-            jobService,
-            socketContextStore,
-            battleWebsocketsStore,
-            messageProducersConfig.botConnectingRequest,
-        );
-
     const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(
-        battleWebsocketsRegistry,
-        battleLeaveUseCase,
-        timerService
+        eventWebsocketsRegistry,
     );
-
-    /*
-     * Timer callbacks
-     */
-
-    const battleTimeoutCallbackFactory = new BattleTimeoutCallbackFactory(websocketDisconnectUseCase);
-
-    timerCallbackFactoryHolder.factory =
-        battleTimeoutCallbackFactory;
-
 
     /*
      * WebSocket handlers
      */
 
-    const battleHandler =
-        new BattleHandler(
-            timerService,
-            battleCreateUseCase,
-            battleStartUseCase,
-            battleMoveUseCase,
-            battleConnectBotUseCase,
-            battleLeaveUseCase,
+    const eventHandler =
+        new EventHandler(
         );
 
 
@@ -192,14 +105,13 @@ function buildApplication(): Application {
         new ConnectionHandler(
             authService,
             authorizeProfileUseCase,
-            battleLeaveUseCase,
             websocketDisconnectUseCase,
-            battleWebsocketsRegistry,
+            eventWebsocketsRegistry,
         );
 
     connectionHandler.registerHandler(
-        "/battle",
-        battleHandler,
+        "/event",
+        eventHandler,
     );
 
     const websocketService =
@@ -207,21 +119,6 @@ function buildApplication(): Application {
             websocketServerConfig,
             connectionHandler,
         );
-
-
-    /*
-     * Engine stream
-     */
-
-    const battleUpdatedUseCase = new BattleUpdatedUseCase(battleWebsocketSender, battleWebsocketsRegistry);
-
-    const engineStream =
-        new EngineStream(
-            grpcConfig.serviceEngineUrl,
-            battleUpdatedUseCase,
-        );
-
-    grpcStreamService.stream = engineStream;
 
 
     /*
@@ -233,7 +130,6 @@ function buildApplication(): Application {
             jobService,
             messageService,
             websocketService,
-            grpcStreamService,
         );
 
     const statusUseCase = new StatusUseCase();
@@ -269,7 +165,6 @@ function buildApplication(): Application {
         jobService,
         messageService,
         websocketService,
-        grpcStreamService,
     );
 }
 

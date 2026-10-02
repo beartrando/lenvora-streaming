@@ -3,10 +3,6 @@ import GrpcService from "../infrastructure/grpc/service";
 import JobService from "../infrastructure/job/service";
 import MessageService from "../infrastructure/message/service";
 import WebsocketServerService from "../infrastructure/websocket/server.service";
-import GrpcStreamService from "../infrastructure/grpc-stream/service";
-import TimerService from "../infrastructure/timer/service";
-import * as engineProto from "../contracts/proto/engine";
-import {WebSocket,} from "ws";
 
 export class Application {
     constructor(
@@ -14,7 +10,6 @@ export class Application {
         private readonly jobService: JobService,
         private readonly messageService: MessageService,
         private readonly websocketService: WebsocketServerService,
-        private readonly engineStreamService: GrpcStreamService<engineProto.BattleRequest>,
     ) {
     }
 
@@ -35,7 +30,6 @@ export class Application {
             await this.jobService.start();
             await this.grpcService.start();
             await this.websocketService.start();
-            await this.engineStreamService.start();
             logger.info(
                 '🚀 Streaming service started',
             );
@@ -49,7 +43,6 @@ export class Application {
     }
 
     async stop() {
-        await this.engineStreamService.stop();
         await this.websocketService.stop();
         await this.grpcService.stop();
         await this.jobService.stop();

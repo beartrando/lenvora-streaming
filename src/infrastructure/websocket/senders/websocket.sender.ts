@@ -7,14 +7,14 @@ export class WebsocketSender implements WebsocketSenderInterface {
 
     writeStream(
         ws: WebSocket,
-        streamResponse: streamingProto.BattleResponse,
+        streamResponse: streamingProto.EventResponse,
         encoding: SocketEncoding = SocketEncoding.PROTOBUF
     ): void {
 
         // logger.log(streamResponse);
         const buffer =
             encoding === SocketEncoding.PROTOBUF
-                ? streamingProto.BattleResponse.encode(streamResponse).finish()
+                ? streamingProto.EventResponse.encode(streamResponse).finish()
                 : JSON.stringify(streamResponse);
 
         if (ws.readyState === WebSocket.OPEN) {

@@ -4,7 +4,6 @@ import BattleId from "../../../domain/battle/value-objects/battle-id.vo";
 
 export type SocketContext = {
     profileId: ProfileId;
-    battleIds: Set<BattleId>;
     encoding: SocketEncoding;
 }
 

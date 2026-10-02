@@ -1,34 +1,22 @@
 import {WebSocket} from "ws";
-import BattleWebsocketsRegistry from "../../../infrastructure/websocket/registers/battle-websockets.registry";
-import BattleLeaveUseCase from "../battle/battle-leave";
-import TimerService from "../../../infrastructure/timer/service";
+import EventWebsocketsRegistry from "../../../infrastructure/websocket/registers/event-websockets.registry";
 
 export class WebsocketDisconnectUseCase {
     constructor(
-        private readonly battleWebsocketsRegistry: BattleWebsocketsRegistry,
-        private readonly battleLeaveUseCase: BattleLeaveUseCase,
-        private readonly timerService: TimerService<WebSocket, WebSocket>,
+        private readonly evemtWebsocketsRegistry: EventWebsocketsRegistry,
     ) {
     }
 
     async execute(ws: WebSocket): Promise<void> {
-        const context = this.battleWebsocketsRegistry.getSocketContext(ws);
+
+        const context = this.evemtWebsocketsRegistry.getSocketContext(ws);
 
         if (!context) {
             return;
         }
 
-        try {
-            await Promise.allSettled(
-                [...context.battleIds].map(battleId => this.battleLeaveUseCase.execute(context.profileId, battleId))
-            );
-        } finally {
-            this.timerService.stop(ws);
-            this.battleWebsocketsRegistry.unregisterSocket(ws);
-
-            if (ws.readyState === WebSocket.OPEN) {
-                ws.close();
-            }
+        if (ws.readyState === WebSocket.OPEN) {
+            ws.close();
         }
     }
 }

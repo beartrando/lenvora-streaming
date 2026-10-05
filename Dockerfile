@@ -35,10 +35,13 @@ RUN corepack enable && corepack prepare pnpm@11.28.4 --activate
 FROM base AS deps
 
 RUN --mount=type=secret,id=gh_token \
-    if [ -s /run/secrets/gh_token ]; then \
-        git config --global url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "https://github.com/"; \
-        git config --global --add url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "git@github.com:"; \
+    if [ ! -s /run/secrets/gh_token ]; then \
+        echo "ERROR: пустой секрет gh_token - нужен токен GitHub для доступа к приватным репозиториям @shared/*." >&2; \
+        echo "       Локально: GH_TOKEN=$(gh auth token) docker build ... ; в CI передаётся GH_PAT." >&2; \
+        exit 1; \
     fi; \
+    git config --global url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "https://github.com/"; \
+    git config --global --add url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "git@github.com:"; \
     pnpm fetch; \
     rm -f /root/.gitconfig
 RUN pnpm install --offline --frozen-lockfile

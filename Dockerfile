@@ -5,7 +5,6 @@ FROM node:22-slim AS base
 
 WORKDIR /usr/src/app
 
-COPY shared ./shared
 COPY proto ./proto
 
 COPY pnpm-lock.yaml ./
@@ -21,26 +20,32 @@ COPY services/streaming/src ./services/streaming/src/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
+        git \
+        ca-certificates \
         openssl \
         protobuf-compiler \
         libprotobuf-dev \
         wget \
     && rm -rf /var/lib/apt/lists/*
 
-RUN corepack enable && corepack prepare pnpm@11.9.0 --activate
+RUN corepack enable && corepack prepare pnpm@11.28.4 --activate
 
 
 # ---------- DEPS ----------
 FROM base AS deps
 
-RUN pnpm fetch
+RUN --mount=type=secret,id=gh_token \
+    if [ -s /run/secrets/gh_token ]; then \
+        git config --global url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "https://github.com/"; \
+        git config --global --add url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "git@github.com:"; \
+    fi; \
+    pnpm fetch; \
+    rm -f /root/.gitconfig
 RUN pnpm install --offline --frozen-lockfile
 
 RUN mkdir -p ./services/streaming/src/contracts/proto
 RUN pnpm --filter streaming proto:generate
 
-RUN mkdir -p ./shared/errors/src/contracts/proto
-RUN pnpm --filter @shared/errors proto:generate
 
 RUN pnpm --filter streaming prisma:generate
 
@@ -68,11 +73,6 @@ FROM deps AS build
 
 ENV NODE_ENV=production
 
-RUN pnpm --filter @shared/logger build
-RUN pnpm --filter @shared/grpc-client-manager build
-RUN pnpm --filter @shared/errors build
-RUN pnpm --filter @shared/kafka-manager build
-RUN pnpm --filter @shared/pg-boss-manager build
 
 RUN pnpm --filter streaming build
 

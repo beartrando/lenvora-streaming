@@ -19,7 +19,7 @@ export class EventHandler implements WebsocketHandlerInterface {
         payload: streamingProto.EventRequest,
     ): Promise<void> {
         if (payload.audioStart) {
-            this.voiceStreamUseCase.start(ws, accessToken, profileId, payload.audioStart);
+            this.voiceStreamUseCase.start(ws, profileId, payload.audioStart);
             return;
         }
 

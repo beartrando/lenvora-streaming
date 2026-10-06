@@ -6,7 +6,6 @@ import StateStore from '../../../infrastructure/state-store/state-stores/state-s
 import WebsocketSender from '../../../infrastructure/websocket/senders/websocket.sender';
 import EventWebsocketsRegistry from '../../../infrastructure/websocket/registers/event-websockets.registry';
 import SocketEncoding from '../../../infrastructure/websocket/enums/socket-encoding';
-import SessionAccessToken from '../../../domain/session/value-objects/session-access-token.vo';
 import ProfileId from '../../../domain/profile/value-objects/profile-id.vo';
 import * as errorProto from '../../../contracts/proto/common/error';
 
@@ -23,9 +22,9 @@ describe('VoiceStreamUseCase', () => {
     let registry: { getSocketContext: jest.Mock };
 
     let ws: WebSocket;
-    const accessToken = new SessionAccessToken('jwt-token');
     const profileId = new ProfileId('profile-1');
-    const audioStart = {mimeType: 'audio/webm', languageCode: 'ru'};
+    // Фронт profile_id не заполняет — его инжектит сервис при отправке в STT.
+    const audioStart = {profileId: '', mimeType: 'audio/webm', languageCode: 'ru'};
 
     const mockedClient = () => SpeechToTextClientMock.mock.instances.at(-1) as unknown as {
         open: jest.Mock;
@@ -58,28 +57,28 @@ describe('VoiceStreamUseCase', () => {
         ws = {} as WebSocket;
     });
 
-    it('opens a stream on start and sends auth before audio_start', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+    it('opens a stream on start and sends audio_start with the session profile', () => {
+        useCase.start(ws, profileId, audioStart);
 
         const client = mockedClient();
         expect(client.open).toHaveBeenCalledTimes(1);
-        expect(client.write).toHaveBeenNthCalledWith(1, {
-            auth: {profileId: 'profile-1', accessToken: 'jwt-token'},
+        expect(client.write).toHaveBeenCalledTimes(1);
+        expect(client.write).toHaveBeenCalledWith({
+            start: {mimeType: 'audio/webm', languageCode: 'ru', profileId: 'profile-1'},
         });
-        expect(client.write).toHaveBeenNthCalledWith(2, {start: audioStart});
     });
 
     it('reuses an open stream for repeated start', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
 
         expect(SpeechToTextClientMock).toHaveBeenCalledTimes(1);
         expect(mockedClient().open).toHaveBeenCalledTimes(1);
-        expect(mockedClient().write).toHaveBeenCalledTimes(3);
+        expect(mockedClient().write).toHaveBeenCalledTimes(2);
     });
 
     it('forwards chunks to the open stream', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
         mockedClient().write.mockClear();
 
         const chunk = {data: new Uint8Array([1, 2, 3])};
@@ -111,7 +110,7 @@ describe('VoiceStreamUseCase', () => {
     });
 
     it('forwards stop to the open stream', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
         mockedClient().write.mockClear();
 
         useCase.stop(ws);
@@ -120,7 +119,7 @@ describe('VoiceStreamUseCase', () => {
     });
 
     it('delivers transcription back to the same websocket', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
 
         streamHandlers().onTranscription({
             id: 'transcription-1',
@@ -139,22 +138,22 @@ describe('VoiceStreamUseCase', () => {
     });
 
     it('delivers stream errors back to the same websocket', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
 
         streamHandlers().onError({
-            code: errorProto.ErrorCode.INVALID_AUTHORIZATION,
-            details: 'bad token',
+            code: errorProto.ErrorCode.SERVICE_UNAVAILABLE,
+            details: 'speech-to-text service is shutting down',
         });
 
         expect(websocketSender.writeStream).toHaveBeenCalledWith(
             ws,
-            {error: expect.objectContaining({code: errorProto.ErrorCode.INVALID_AUTHORIZATION})},
+            {error: expect.objectContaining({code: errorProto.ErrorCode.SERVICE_UNAVAILABLE})},
             SocketEncoding.PROTOBUF,
         );
     });
 
     it('drops the session silently when the transport closes', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
 
         streamHandlers().onClosed();
 
@@ -163,7 +162,7 @@ describe('VoiceStreamUseCase', () => {
     });
 
     it('closes the stream on websocket disconnect', () => {
-        useCase.start(ws, accessToken, profileId, audioStart);
+        useCase.start(ws, profileId, audioStart);
         const client = mockedClient();
 
         useCase.close(ws);

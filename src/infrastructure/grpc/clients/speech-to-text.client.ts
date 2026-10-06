@@ -16,8 +16,8 @@ export interface SpeechToTextStreamHandlers {
  * (GrpcClientManager потоки не поддерживает).
  *
  * Один клиент = одна голосовая сессия. Без ретрая: реконнект потока — это
- * потеря сессии, повторную авторизацию (auth-сообщение) выполняет клиент,
- * открывая новый поток.
+ * потеря сессии, клиент открывает новый поток и начинает заново с
+ * audio_start (profile_id + настройки аудио).
  *
  * Основа — engine-канал (grpc-stream/channels/engine.stream.ts):
  * connect/write/disconnect, обработчики data/error/end; heartbeat и

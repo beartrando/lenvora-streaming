@@ -5,7 +5,6 @@ import * as speechToTextProto from "../../../contracts/proto/speech-to-text";
 import * as errorProto from "../../../contracts/proto/common/error";
 import logger from "@shared/logger";
 
-import SessionAccessToken from "../../../domain/session/value-objects/session-access-token.vo";
 import ProfileId from "../../../domain/profile/value-objects/profile-id.vo";
 
 import SpeechToTextClient from "../../../infrastructure/grpc/clients/speech-to-text.client";
@@ -22,9 +21,14 @@ export interface VoiceSession {
 /**
  * Голосовая сессия: связывает WS-подключение со стримом SpeechToText.
  *
- * Поток открывается лениво на audio_start (первое сообщение потока — auth),
- * живёт в рамках WS-сессии и закрывается при её разрыве. Реконнекта нет:
- * потеря потока = потеря голосовой сессии, новый поток авторизуется заново.
+ * Поток открывается лениво на audio_start (первое сообщение потока —
+ * audio_start с profile_id), живёт в рамках WS-сессии и закрывается при её
+ * разрыве. Реконнекта нет: потеря потока = потеря голосовой сессии, новый
+ * поток начинается заново с audio_start.
+ *
+ * Профиль инжектится в audio_start здесь: авторизация и принадлежность
+ * профиля уже проверены на уровне WS-сессии (ConnectionHandler), фронт
+ * profile_id не передаёт.
  *
  * Транскрипция возвращается клиенту по WS тем же EventResponse-контрактом,
  * что и остальные события.
@@ -40,17 +44,18 @@ export class VoiceStreamUseCase {
 
     start(
         ws: WebSocket,
-        accessToken: SessionAccessToken,
         profileId: ProfileId,
         start: speechToTextProto.AudioStart,
     ): void {
         let session = this.voiceSessionStore.get(ws);
 
         if (!session) {
-            session = this.openSession(ws, accessToken, profileId);
+            session = this.openSession(ws, profileId);
         }
 
-        session.client.write({start});
+        session.client.write({
+            start: {...start, profileId: session.profileId.value},
+        });
     }
 
     chunk(ws: WebSocket, chunk: speechToTextProto.AudioChunk): void {
@@ -91,7 +96,6 @@ export class VoiceStreamUseCase {
 
     private openSession(
         ws: WebSocket,
-        accessToken: SessionAccessToken,
         profileId: ProfileId,
     ): VoiceSession {
         const client = new SpeechToTextClient(this.serviceSpeechToTextUrl);
@@ -106,13 +110,6 @@ export class VoiceStreamUseCase {
                 this.send(ws, session, {error}),
             onClosed: () =>
                 this.handleClosed(ws, session),
-        });
-
-        client.write({
-            auth: {
-                profileId: profileId.value,
-                accessToken: accessToken.value,
-            },
         });
 
         return session;

@@ -36,6 +36,7 @@ import messageProducersConfig from "../infrastructure/message/configs/producers.
 import websocketServerConfig from "../infrastructure/websocket/configs/websocket-server.config";
 import EventWebsocketSender from "../infrastructure/websocket/senders/event-websocket.sender";
 import EventHandler from "../infrastructure/websocket/handlers/event.handler";
+import VoiceStreamUseCase, {VoiceSession} from "../application/use-cases/voice/voice-stream";
 
 
 function buildApplication(): Application {
@@ -77,6 +78,19 @@ function buildApplication(): Application {
 
     const eventWebsocketSender = new EventWebsocketSender(eventWebsocketsRegistry);
 
+    const voiceSessionStore =
+        new StateStore<WebSocket, VoiceSession>();
+
+    /*
+     * Application — voice
+     */
+
+    const voiceStreamUseCase = new VoiceStreamUseCase(
+        grpcConfig.serviceSpeechToTextUrl,
+        voiceSessionStore,
+        eventWebsocketSender,
+        eventWebsocketsRegistry,
+    );
 
     /*
      * Application — auth
@@ -90,6 +104,7 @@ function buildApplication(): Application {
 
     const websocketDisconnectUseCase = new WebsocketDisconnectUseCase(
         eventWebsocketsRegistry,
+        voiceStreamUseCase,
     );
 
     /*
@@ -98,6 +113,7 @@ function buildApplication(): Application {
 
     const eventHandler =
         new EventHandler(
+            voiceStreamUseCase,
         );
 
 

@@ -127,7 +127,7 @@ describe('VoiceStreamUseCase', () => {
             text: 'hello world',
             languageCode: 'ru',
             confidence: 0.8,
-            createdAt: '2026-10-05T00:00:00.000Z',
+            createdAt: new Date('2026-10-05T00:00:00.000Z'),
         });
 
         expect(websocketSender.writeStream).toHaveBeenCalledWith(

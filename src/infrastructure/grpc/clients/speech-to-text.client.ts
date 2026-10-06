@@ -17,12 +17,8 @@ export interface SpeechToTextStreamHandlers {
  *
  * Один клиент = одна голосовая сессия. Без ретрая: реконнект потока — это
  * потеря сессии, клиент открывает новый поток и начинает заново с
- * audio_start (profile_id + настройки аудио).
- *
- * Основа — engine-канал (grpc-stream/channels/engine.stream.ts):
- * connect/write/disconnect, обработчики data/error/end; heartbeat и
- * экспоненциальный реконнект не переносятся — поток живёт в рамках
- * голосовой сессии.
+ * audio_start (profile_id + настройки аудио); heartbeat и экспоненциальный
+ * реконнект не используются — поток живёт в рамках голосовой сессии.
  */
 export class SpeechToTextClient {
     private client: speechToTextProto.SpeechToTextClient | null = null;

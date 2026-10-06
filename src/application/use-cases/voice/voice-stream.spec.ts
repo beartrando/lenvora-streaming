@@ -23,7 +23,8 @@ describe('VoiceStreamUseCase', () => {
 
     let ws: WebSocket;
     const profileId = new ProfileId('profile-1');
-    // Фронт profile_id не заполняет — его инжектит сервис при отправке в STT.
+    // Фронт profile_id не заполняет — его инжектит сервис при отправке
+    // в speech-to-text.
     const audioStart = {profileId: '', mimeType: 'audio/webm', languageCode: 'ru'};
 
     const mockedClient = () => SpeechToTextClientMock.mock.instances.at(-1) as unknown as {

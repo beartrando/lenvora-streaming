@@ -5,6 +5,7 @@ FROM node:22-slim AS base
 
 WORKDIR /usr/src/app
 
+COPY shared ./shared
 COPY proto ./proto
 
 COPY pnpm-lock.yaml ./
@@ -20,8 +21,6 @@ COPY services/streaming/src ./services/streaming/src/
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-        git \
-        ca-certificates \
         openssl \
         protobuf-compiler \
         libprotobuf-dev \
@@ -34,16 +33,7 @@ RUN corepack enable && corepack prepare pnpm@11.28.4 --activate
 # ---------- DEPS ----------
 FROM base AS deps
 
-RUN --mount=type=secret,id=gh_token \
-    if [ ! -s /run/secrets/gh_token ]; then \
-        echo "ERROR: пустой секрет gh_token - нужен токен GitHub для доступа к приватным репозиториям @shared/*." >&2; \
-        echo "       Локально: GH_TOKEN=$(gh auth token) docker build ... ; в CI передаётся GH_PAT." >&2; \
-        exit 1; \
-    fi; \
-    git config --global url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "https://github.com/"; \
-    git config --global --add url."https://x-access-token:$(cat /run/secrets/gh_token)@github.com/".insteadOf "git@github.com:"; \
-    pnpm fetch; \
-    rm -f /root/.gitconfig
+RUN pnpm fetch
 RUN pnpm install --offline --frozen-lockfile
 
 RUN mkdir -p ./services/streaming/src/contracts/proto
@@ -77,6 +67,11 @@ FROM deps AS build
 ENV NODE_ENV=production
 
 
+RUN pnpm --filter @shared/logger build
+RUN pnpm --filter @shared/grpc-client-manager build
+RUN pnpm --filter @shared/errors build
+RUN pnpm --filter @shared/kafka-manager build
+RUN pnpm --filter @shared/pg-boss-manager build
 RUN pnpm --filter streaming build
 
 RUN pnpm --filter streaming deploy /deploy --prod

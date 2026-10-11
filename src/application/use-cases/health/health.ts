@@ -49,4 +49,3 @@ export class HealthUseCase {
 }
 
 export default HealthUseCase;
-

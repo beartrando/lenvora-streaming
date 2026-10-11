@@ -38,5 +38,3 @@ export class EventWebsocketSender extends WebsocketSender {
 }
 
 export default EventWebsocketSender;
-
-
